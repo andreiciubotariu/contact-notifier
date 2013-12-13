@@ -26,7 +26,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+		<activity
+            android:name="com.ciubotariu_levy.lednotifier.ColorActivity"/>
         <receiver android:name="com.ciubotariu_levy.lednotifier.SMSReceiver" >
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
