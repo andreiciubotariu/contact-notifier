@@ -3,21 +3,22 @@ package com.ciubotariu_levy.lednotifier.providers;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.CursorJoiner;
+import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.ContactsContract.CommonDataKinds;
+import android.provider.ContactsContract.Contacts;
 import android.util.Log;
 
 public class LedContactProvider extends ContentProvider {
@@ -147,7 +148,7 @@ public class LedContactProvider extends ContentProvider {
 			String [] phoneProjection = Arrays.copyOfRange (projection, index+1, projection.length);
 			System.out.println (Arrays.toString(phoneProjection));
 			
-			Cursor phoneCursor = getContext().getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, phoneProjection, selection, selectionArgs, sortOrder);
+			Cursor phoneCursor = getContext().getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, phoneProjection, selection, selectionArgs, Contacts._ID + " ASC");
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			qb.setTables(LEDCONTACTS_TABLE_NAME);
 			qb.setProjectionMap(ledContactsProjectionMap);
@@ -163,8 +164,41 @@ public class LedContactProvider extends ContentProvider {
 			}
 
 			SQLiteDatabase db = mDbHelper.getReadableDatabase();
-			Cursor ledCursor = qb.query(db, ledProjection, selection, selectionArgs, null, null, sortOrder);
+			Cursor ledCursor = qb.query(db, ledProjection, selection, selectionArgs, null, null, LedContacts.SYSTEM_CONTACT_ID + " ASC");
 			ledCursor.setNotificationUri(getContext().getContentResolver(), uri);
+			
+			MatrixCursor both = new MatrixCursor (new String [] { "_id",LedContacts.SYSTEM_CONTACT_ID,LedContacts.SYSTEM_CONTACT_ID+"A",LedContacts.SYSTEM_CONTACT_ID+"b",LedContacts.SYSTEM_CONTACT_ID+"c"});
+			CursorJoiner joiner = new CursorJoiner(ledCursor, new String[] { LedContacts.SYSTEM_CONTACT_ID },
+                    phoneCursor, new String[] { Contacts._ID});
+			for (CursorJoiner.Result joinerResult : joiner) {
+			     switch (joinerResult) {
+			         case LEFT:
+			             //delete from ledcursor
+			             break;
+			         case RIGHT:
+			        	Object [] row = new Object [projection.length-1];
+			        	 int colIndex = -1;
+			        	 for (int x = index+1; x < phoneProjection.length ;x++){
+			        		 colIndex = phoneCursor.getColumnIndex(phoneProjection[x]);
+			        		 row [x] = phoneCursor.getString(colIndex);
+			        	 }
+			             both.addRow(row);
+			             break;
+			         case BOTH:
+			        	 row = new Object [projection.length-1];
+			        	 colIndex = -1;
+			        	 for (int x = 0; x <= index-1 ;x++){
+			        		 colIndex = ledCursor.getColumnIndex(phoneProjection[x]);
+			        		 row [x] = ledCursor.getString(colIndex);
+			        	 }
+			        	 for (int x = index+1; x < phoneProjection.length ;x++){
+			        		 colIndex = phoneCursor.getColumnIndex(phoneProjection[x]);
+			        		 row [x] = phoneCursor.getString(colIndex);
+			        	 }
+			             both.addRow(row);
+			             break;
+			     }
+			 }
 			
 			MergeCursor m = new MergeCursor(new Cursor [] {phoneCursor});
 			return m;
