@@ -82,7 +82,7 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 		// Gets a CursorAdapter
 		mCursorAdapter = new SimpleCursorAdapter(
 				getActivity(),
-				android.R.layout.simple_list_item_2,
+				R.layout.list_row,
 				null,
 				FROM_COLUMNS, 
 				TO_IDS,
