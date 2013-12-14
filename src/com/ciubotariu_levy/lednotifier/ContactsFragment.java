@@ -1,5 +1,8 @@
 package com.ciubotariu_levy.lednotifier;
 
+import com.ciubotariu_levy.lednotifier.providers.LedContactProvider;
+import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,22 +27,24 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 	 */
 	@SuppressLint("InlinedApi")
 	private final static String COLUMN_NAME = Build.VERSION.SDK_INT
-			>= Build.VERSION_CODES.HONEYCOMB ?
-					Contacts.DISPLAY_NAME_PRIMARY :
-						Contacts.DISPLAY_NAME;
-	
+	>= Build.VERSION_CODES.HONEYCOMB ?
+			Contacts.DISPLAY_NAME_PRIMARY :
+				Contacts.DISPLAY_NAME;
+
 	private final static String[] FROM_COLUMNS = {
 		COLUMN_NAME, CommonDataKinds.Phone.NUMBER
 	};
 
-	private static final String[] PROJECTION =
-{
+	private static final String[] PROJECTION = {
+		
+		LedContacts.COLOR,
+		LedContacts.PROJECTION_BREAK,
 		Contacts._ID,
 		Contacts.LOOKUP_KEY,
 		COLUMN_NAME,
 		CommonDataKinds.Phone.NUMBER
 
-};
+	};
 	// The column index for the _ID column
 	private static final int CONTACT_ID_INDEX = 0;
 	// The column index for the LOOKUP_KEY column
@@ -78,7 +83,7 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
+
 		// Gets a CursorAdapter
 		mCursorAdapter = new SimpleCursorAdapter(
 				getActivity(),
@@ -89,47 +94,47 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 				0);
 		// Sets the adapter for the ListView
 		setListAdapter(mCursorAdapter);
-		
+
 		//Initializes the loader
 		getLoaderManager().initLoader(0, null, this);
 	}
-	
+
 	@Override
-    public void onListItemClick(ListView l, View item, int position, long rowID) {
-    }
-	
+	public void onListItemClick(ListView l, View item, int position, long rowID) {
+	}
+
 	@Override
-    public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-        /*
-         * Makes search string into pattern and
-         * stores it in the selection array
-         */
-        mSelectionArgs[0] = "%" + mSearchString + "%";
-        //String  selection = Contacts.HAS_PHONE_NUMBER + "=?";
-        //String [] selectionArgs = new String [] {"1"};
-        // Starts the query
-        return new CursorLoader(
-                getActivity(),
-                CommonDataKinds.Phone.CONTENT_URI,
-                PROJECTION,
-                null,
-                null,
-                COLUMN_NAME + " ASC"
-        );
-    }
-	
+	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
+		/*
+		 * Makes search string into pattern and
+		 * stores it in the selection array
+		 */
+		mSelectionArgs[0] = "%" + mSearchString + "%";
+		//String  selection = Contacts.HAS_PHONE_NUMBER + "=?";
+		//String [] selectionArgs = new String [] {"1"};
+		// Starts the query
+		return new CursorLoader(
+				getActivity(),
+				LedContacts.CONTENT_URI,
+				PROJECTION,
+				null,
+				null,
+				Contacts._ID + " ASC"
+				);
+	}
+
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        // Put the result Cursor in the adapter for the ListView
+		// Put the result Cursor in the adapter for the ListView
 		Log.i(TAG, "Load finished " + cursor.getCount());
-        mCursorAdapter.swapCursor(cursor);
-        setEmptyText("Empty");
-    }
-	
+		mCursorAdapter.swapCursor(cursor);
+		setEmptyText("Empty");
+	}
+
 	@Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        // Delete the reference to the existing Cursor
+	public void onLoaderReset(Loader<Cursor> loader) {
+		// Delete the reference to the existing Cursor
 		Log.i(TAG, "Loader reset");
-        mCursorAdapter.swapCursor(null);
-    }
+		mCursorAdapter.swapCursor(null);
+	}
 
 }
