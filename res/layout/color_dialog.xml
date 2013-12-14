@@ -4,10 +4,20 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:orientation="vertical"  >
-    <TextView
-        android:id="@+id/text"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/hello">              
-    </TextView>
+    <com.ciubotariu_levy.lednotifier.ColorView
+        android:layout_width="100dp"
+        android:layout_height="0px"
+        android:id="@+id/color_view"/>
+    <com.ciubotariu_levy.lednotifier.ColorView
+        android:layout_width="100dp"
+        android:layout_height="0px"
+        android:id="@+id/color_view2"/>       
+        <com.ciubotariu_levy.lednotifier.ColorView
+        android:layout_width="100dp"
+        android:layout_height="0px"
+        android:id="@+id/color_view3"/>       
+        <com.ciubotariu_levy.lednotifier.ColorView
+        android:layout_width="100dp"
+        android:layout_height="0px"
+        android:id="@+id/color_view4"/>                   
 </LinearLayout>
