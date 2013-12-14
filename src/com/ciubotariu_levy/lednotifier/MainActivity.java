@@ -1,10 +1,10 @@
 package com.ciubotariu_levy.lednotifier;
 
-import android.os.Bundle;
-import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
