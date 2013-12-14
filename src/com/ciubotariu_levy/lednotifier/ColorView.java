@@ -1,5 +1,7 @@
 package com.ciubotariu_levy.lednotifier;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -16,7 +18,9 @@ public class ColorView extends View {
 	public ColorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		paint = new Paint();
-		color = Color.BLACK;
+		Random r = new Random();
+		color = r.nextInt();
+		color = color|0xFF000000;
 		paint.setColor(color);
 	}
 

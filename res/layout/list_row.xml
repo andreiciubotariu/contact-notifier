@@ -4,12 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <ImageView
+    <com.ciubotariu_levy.lednotifier.ColorView
         android:id = "@+id/contact_display_color"
         android:layout_alignParentRight="true"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@android:color/black"
         android:layout_centerVertical="true"/>
         
     <TextView
