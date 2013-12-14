@@ -38,6 +38,7 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 	private static final String[] PROJECTION = {
 		
 		LedContacts.COLOR,
+		LedContacts.SYSTEM_CONTACT_ID,
 		LedContacts.PROJECTION_BREAK,
 		Contacts._ID,
 		Contacts.LOOKUP_KEY,
@@ -101,6 +102,8 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
+		//mCursorAdapter.getCursor().moveToPosition(position);
+		System.out.println (rowID);
 	}
 
 	@Override
@@ -119,7 +122,7 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 				PROJECTION,
 				null,
 				null,
-				Contacts._ID + " ASC"
+				COLUMN_NAME + " ASC"
 				);
 	}
 

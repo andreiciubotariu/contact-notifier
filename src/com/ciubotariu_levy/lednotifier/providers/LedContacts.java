@@ -9,7 +9,7 @@ public class LedContacts implements BaseColumns{
 
 	public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.ciubotariu_levy.ledcontacts";
 
-	public static final String SYSTEM_CONTACT_ID= "_id";
+	public static final String SYSTEM_CONTACT_ID= "system_id";
 
 	public static final String COLOR = "color";
 
