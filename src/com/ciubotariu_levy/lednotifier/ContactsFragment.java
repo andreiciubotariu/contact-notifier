@@ -80,7 +80,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				switch (view.getId()){
 				case R.id.contact_display_color:
-					
+
 					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 					int color = info == null ? Color.GRAY : info.color;
 					view.setBackgroundColor(color);
@@ -98,8 +98,15 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
-		ColorDialog.getInstance(mCursorAdapter.getCursor().getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY)))
-		.show(getChildFragmentManager(), "color_dialog");
+		String lookupValue = mCursorAdapter.getCursor().getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));
+		if (mLedData.get(lookupValue)==null){
+			ColorDialog.getInstance(lookupValue, Color.GRAY)
+			.show(getChildFragmentManager(), "color_dialog");
+		}
+		else{
+			ColorDialog.getInstance(lookupValue, mLedData.get(lookupValue).color)
+			.show(getChildFragmentManager(), "color_dialog");
+		}
 	}
 
 	@Override

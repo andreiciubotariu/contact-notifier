@@ -8,16 +8,16 @@
         android:layout_width="100dp"
         android:layout_height="0px"
         android:id="@+id/color_view"/>
-    <com.ciubotariu_levy.lednotifier.ColorView
-        android:layout_width="100dp"
-        android:layout_height="0px"
-        android:id="@+id/color_view2"/>       
-        <com.ciubotariu_levy.lednotifier.ColorView
-        android:layout_width="100dp"
-        android:layout_height="0px"
-        android:id="@+id/color_view3"/>       
-        <com.ciubotariu_levy.lednotifier.ColorView
-        android:layout_width="100dp"
-        android:layout_height="0px"
-        android:id="@+id/color_view4"/>                   
+    <SeekBar
+        android:id="@+id/red"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <SeekBar
+        android:id="@+id/green"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <SeekBar
+        android:id="@+id/blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>   
 </LinearLayout>
