@@ -12,7 +12,7 @@
 
     <SeekBar
         android:id="@+id/red"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content" />
 
     <SeekBar
@@ -25,10 +25,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/sumbit_color"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Set color" />
-    
+        android:orientation="horizontal">
+               
+        <Button 
+    	    android:id="@+id/cancel"
+    	    android:layout_width="match_parent"
+    	    android:layout_height="wrap_content"
+    	    android:text="Cancel"
+    	    android:layout_weight="1"/>
+        
+    	<Button
+        	android:id="@+id/sumbit_color"
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:text="Set Color"
+        	android:layout_weight="1"/>    	    
+    </LinearLayout>
 </LinearLayout>

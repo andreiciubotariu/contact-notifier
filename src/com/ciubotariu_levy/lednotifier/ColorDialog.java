@@ -25,6 +25,8 @@ public class ColorDialog extends DialogFragment {
 	//0xFF000000 to 0xFFFFFFFF
 	private int color;
 
+	private int originalColor;
+	
 	private ColorView sample;
 
 
@@ -42,6 +44,7 @@ public class ColorDialog extends DialogFragment {
 		args.putInt (USER_COLOR, color);		
 		dialog.setArguments(args);
 		dialog.color = color;
+		dialog.originalColor = color;
 		dialog.red = Color.red(color);
 		dialog.green = Color.green(color);
 		dialog.blue = Color.blue(color);
@@ -79,6 +82,13 @@ public class ColorDialog extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				onColorChosen (color);
+				dismiss();
+			}
+		});
+		view.findViewById(R.id.cancel).setOnClickListener(new OnClickListener() {			
+			@Override
+			public void onClick(View v) {
+				onColorChosen (originalColor);
 				dismiss();
 			}
 		});
