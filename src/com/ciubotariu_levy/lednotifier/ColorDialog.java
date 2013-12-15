@@ -39,7 +39,7 @@ public class ColorDialog extends DialogFragment {
 			
 			@Override
 			public void onClick(View v) {
-				onColorChosen (Color.CYAN);
+				onColorChosen (Color.MAGENTA);
 				dismiss();
 			}
 		});

@@ -143,13 +143,13 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 			info.systemId = lookupKey;
 			mLedData.put(info.systemId, info);
 		}
-		info.color = Color.CYAN;
+		info.color = color;
 		ContentValues values = new ContentValues();
 		if (info.id != -1){
 			values.put(LedContacts._ID, info.id);
 		}
 		values.put(LedContacts.SYSTEM_CONTACT_ID, lookupKey);
-		values.put(LedContacts.COLOR, Color.CYAN);
+		values.put(LedContacts.COLOR, color);
 		Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
 		info.id = Long.parseLong (uri.getLastPathSegment());
 		mCursorAdapter.notifyDataSetChanged();
