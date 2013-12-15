@@ -51,8 +51,8 @@ public class SMSReceiver extends BroadcastReceiver {
 			String selection = null;
 			String [] selectionArgs = null;
 			if (sender [0] != null){
-				selection = LedContacts.SYSTEM_CONTACT_ID + " = " + sender [0];
-				//selectionArgs = new String [] {	sender [0] };
+				selection = LedContacts.SYSTEM_CONTACT_ID + " = ?" ;
+				selectionArgs = new String [] {	sender [0] };
 			}
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
 			if (c != null && c.moveToFirst()){
@@ -71,6 +71,7 @@ public class SMSReceiver extends BroadcastReceiver {
 				.setContentIntent (pendingIntent)
 				.setSmallIcon(R.drawable.ic_launcher) //replace later
 				.setLights(color, 500, 500) //should flash
+				.setAutoCancel(true)
 				.build();
 				
 				((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, notif);

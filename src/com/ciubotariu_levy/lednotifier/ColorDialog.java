@@ -12,20 +12,20 @@ import android.view.Window;
 public class ColorDialog extends DialogFragment {
 	
 	public interface OnColorChosenListener {
-		public void onColorChosen (int color, long rowID);
+		public void onColorChosen (int color, String lookupKey);
 	}
 	
-	private final static String ROW_ID = "row_id";
+	private final static String LOOKUP_KEY_VALUE = "row_id";
 	
 	private ColorView colorView;
 	private ColorView colorView2;
 	private ColorView colorView3;
 	private ColorView colorView4;
 
-	public static ColorDialog getInstance (long rowID){
+	public static ColorDialog getInstance (String lookupKey){
 		ColorDialog dialog = new ColorDialog ();
 		Bundle args = new Bundle();
-		args.putLong (ROW_ID, rowID);
+		args.putString (LOOKUP_KEY_VALUE, lookupKey);
 		dialog.setArguments(args);
 		return dialog;
 	}
@@ -74,7 +74,7 @@ public class ColorDialog extends DialogFragment {
 			e.printStackTrace();
 		}
 		if (listener != null){
-			listener.onColorChosen(color, getArguments().getLong(ROW_ID));
+			listener.onColorChosen(color, getArguments().getString(LOOKUP_KEY_VALUE));
 		}
 	}
 }

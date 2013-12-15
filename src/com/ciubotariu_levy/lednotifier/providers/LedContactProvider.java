@@ -1,6 +1,5 @@
 package com.ciubotariu_levy.lednotifier.providers;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import android.content.ContentProvider;
@@ -9,16 +8,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.CursorJoiner;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.provider.ContactsContract.CommonDataKinds;
-import android.provider.ContactsContract.Contacts;
 import android.util.Log;
 
 public class LedContactProvider extends ContentProvider {
