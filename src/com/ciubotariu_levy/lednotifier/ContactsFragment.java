@@ -23,43 +23,31 @@ import android.widget.ListView;
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
-public class ContactsFragment extends ListFragment implements DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
+public class ContactsFragment extends ListFragment implements ColorDialog.OnColorChosenListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
 	/*
 	 * Defines an array that contains column names to move from
 	 * the Cursor to the ListView.
 	 */
 	@SuppressLint("InlinedApi")
-	private final static String COLUMN_NAME = Build.VERSION.SDK_INT
+	private final static String CONTACT_NAME = Build.VERSION.SDK_INT
 	>= Build.VERSION_CODES.HONEYCOMB ?
 			Contacts.DISPLAY_NAME_PRIMARY :
 				Contacts.DISPLAY_NAME;
 
 	private final static String[] FROM_COLUMNS = {
-		COLUMN_NAME, CommonDataKinds.Phone.NUMBER, Contacts._ID
+		CONTACT_NAME, CommonDataKinds.Phone.NUMBER, Contacts._ID
 	};
 
 	private static final String[] PROJECTION = {
 		Contacts._ID,
 		Contacts.LOOKUP_KEY,
-		COLUMN_NAME,
+		CONTACT_NAME,
 		CommonDataKinds.Phone.NUMBER
 	};
-	// The column index for the _ID column
-	private static final int CONTACT_ID_INDEX = 0;
-	// The column index for the LOOKUP_KEY column
-	private static final int LOOKUP_KEY_INDEX = 1;
 
 	// Defines the text expression
-	@SuppressLint("InlinedApi")
-	private static final String SELECTION =
-	Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-			Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?" :
-				Contacts.DISPLAY_NAME + " LIKE ?";
-	// Defines a variable for the search string
-	private String mSearchString;
-	// Defines the array to hold values that replace the ?
-	private String[] mSelectionArgs = { mSearchString };
+	private static final String SELECTION = CONTACT_NAME + " LIKE ?" ;
 
 	/*
 	 * Defines an array that contains resource ids for the layout views
@@ -72,12 +60,6 @@ public class ContactsFragment extends ListFragment implements DataFetcher.OnData
 
 	private static final String TAG = "ContactsFragment";
 
-	// The contact's _ID value
-	long mContactId;
-	// The contact's LOOKUP_KEY
-	String mContactKey;
-	// A content URI for the selected contact
-	Uri mContactUri;
 	// An adapter that binds the result Cursor to the ListView
 	private SimpleCursorAdapter mCursorAdapter;
 
@@ -96,12 +78,11 @@ public class ContactsFragment extends ListFragment implements DataFetcher.OnData
 				TO_IDS,
 				0);
 		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-
+			//TODO delete orphaned LedContacts (eg as a result from a contact delete)
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				switch (view.getId()){
 				case R.id.contact_display_color:
-					System.out.println (cursor.getString(cursor.getColumnIndex(Contacts._ID)));
 					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts._ID)));
 					int color = info == null ? Color.GRAY : info.color;
 					view.setBackgroundColor(color);
@@ -119,19 +100,7 @@ public class ContactsFragment extends ListFragment implements DataFetcher.OnData
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
-		LedContactInfo info = mLedData.get(String.valueOf(rowID));
-		if (info == null){
-			info = new LedContactInfo();
-			info.systemId = String.valueOf(rowID);
-			mLedData.put(info.systemId, info);
-		}
-		info.color = Color.CYAN;
-		ContentValues values = new ContentValues();
-		values.put(LedContacts.SYSTEM_CONTACT_ID, rowID);
-		values.put(LedContacts.COLOR, Color.CYAN);
-		System.out.println (getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values));
-		item.findViewById(R.id.contact_display_color).setBackgroundColor(Color.CYAN);
-		System.out.println (rowID);
+		ColorDialog.getInstance(rowID).show(getChildFragmentManager(), "color_dialog");
 	}
 
 	@Override
@@ -142,7 +111,7 @@ public class ContactsFragment extends ListFragment implements DataFetcher.OnData
 				PROJECTION,
 				null,
 				null,
-				COLUMN_NAME + " ASC");
+				CONTACT_NAME + " ASC");
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -164,6 +133,26 @@ public class ContactsFragment extends ListFragment implements DataFetcher.OnData
 		System.out.println (mLedData);
 		//Initializes the loader
 		getLoaderManager().initLoader(0, null, this);
+	}
+
+	@Override
+	public void onColorChosen(int color, long rowID) {
+		LedContactInfo info = mLedData.get(String.valueOf(rowID));
+		if (info == null){
+			info = new LedContactInfo();
+			info.systemId = String.valueOf(rowID);
+			mLedData.put(info.systemId, info);
+		}
+		info.color = Color.CYAN;
+		ContentValues values = new ContentValues();
+		if (info.id != -1){
+			values.put(LedContacts._ID, info.id);
+		}
+		values.put(LedContacts.SYSTEM_CONTACT_ID, rowID);
+		values.put(LedContacts.COLOR, Color.CYAN);
+		Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
+		info.id = Long.parseLong (uri.getLastPathSegment());
+		mCursorAdapter.notifyDataSetChanged();
 	}
 
 }

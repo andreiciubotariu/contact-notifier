@@ -15,5 +15,5 @@ public class LedContacts implements BaseColumns{
 
 	public static final String VIBRATE_PATTERN  = "VIBRATE_PATTERN";
 	
-	public static final String PROJECTION_BREAK = "PROJ_BREAK";
+	public static final String REPLACE_CONTENT = "PROJ_BREAK";
 }

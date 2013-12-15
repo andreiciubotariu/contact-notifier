@@ -1,20 +1,48 @@
 package com.ciubotariu_levy.lednotifier;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 
-public class ColorDialog extends DialogFragment  {
-	ColorView colorView;
-	ColorView colorView2;
-	ColorView colorView3;
-	ColorView colorView4;
+public class ColorDialog extends DialogFragment {
+	
+	public interface OnColorChosenListener {
+		public void onColorChosen (int color, long rowID);
+	}
+	
+	private final static String ROW_ID = "row_id";
+	
+	private ColorView colorView;
+	private ColorView colorView2;
+	private ColorView colorView3;
+	private ColorView colorView4;
 
+	public static ColorDialog getInstance (long rowID){
+		ColorDialog dialog = new ColorDialog ();
+		Bundle args = new Bundle();
+		args.putLong (ROW_ID, rowID);
+		dialog.setArguments(args);
+		return dialog;
+	}
 	public ColorDialog(){
 		//Required Empty Constructor
+	}
+	
+	@Override
+	public void onViewCreated (View view, Bundle savedInstanceState){
+		view.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onColorChosen (Color.CYAN);
+				dismiss();
+			}
+		});
 	}
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
@@ -33,6 +61,20 @@ public class ColorDialog extends DialogFragment  {
 		colorView4.setColor(0xFFFFFF00);
 		colorView4.lockWidth=true;
 		return view;
-		
+	}
+	
+	//called when user chooses a color
+	private void onColorChosen (int color){
+		OnColorChosenListener listener = null;
+		try{
+			listener =(OnColorChosenListener) getParentFragment();
+				
+		}
+		catch (ClassCastException e){
+			e.printStackTrace();
+		}
+		if (listener != null){
+			listener.onColorChosen(color, getArguments().getLong(ROW_ID));
+		}
 	}
 }

@@ -23,17 +23,10 @@ import android.util.Log;
 
 public class LedContactProvider extends ContentProvider {
 
-	//public static final String AUTHORITY = "content://ca.timedprofiles.profiles.contentprovider";
-	//public static final Uri CONTENT_URI = Uri.parse(AUTHORITY);
-	//public static final String SINGLE_RECORD_MIME_TYPE = "vnd.android.cursor.item/ca.timedprofiles.profiles";
-	//public final String MULTIPLE_RECORDS_MIME_TYPE = "vnd.android.cursor.dir/ca.timedprofiles.profiles";
-
 	private static final String TAG = "LedContactProvider";
 	private final static String DATABASE_NAME  = "ledcontacts.db";
 	private static final int DATABASE_VERSION  = 1;
 	private static final String LEDCONTACTS_TABLE_NAME = "led_contacts";
-
-
 
 	public static final String AUTHORITY = "com.ciubotariu_levy.lednotifier.providers.LedContactProvider";
 	private static final UriMatcher sUriMatcher;
@@ -114,7 +107,7 @@ public class LedContactProvider extends ContentProvider {
 		}
 
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
-		long rowId = db.insert(LEDCONTACTS_TABLE_NAME, null, values);
+		long rowId = db.insertWithOnConflict(LEDCONTACTS_TABLE_NAME, null, values,SQLiteDatabase.CONFLICT_REPLACE);
 		if (rowId > 0) {
 			Uri noteUri = ContentUris.withAppendedId(LedContacts.CONTENT_URI, rowId);
 			getContext().getContentResolver().notifyChange(noteUri, null);
@@ -178,6 +171,7 @@ public class LedContactProvider extends ContentProvider {
 		sUriMatcher.addURI(AUTHORITY, LEDCONTACTS_TABLE_NAME + "/#", LEDCONTACTS_ID);
 
 		ledContactsProjectionMap = new HashMap<String, String>();
+		ledContactsProjectionMap.put(LedContacts._ID, LedContacts._ID);
 		ledContactsProjectionMap.put(LedContacts.SYSTEM_CONTACT_ID, LedContacts.SYSTEM_CONTACT_ID);
 		ledContactsProjectionMap.put(LedContacts.COLOR, LedContacts.COLOR);
 		ledContactsProjectionMap.put(LedContacts.VIBRATE_PATTERN, LedContacts.VIBRATE_PATTERN);
