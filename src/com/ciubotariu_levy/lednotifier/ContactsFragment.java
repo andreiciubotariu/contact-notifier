@@ -46,9 +46,6 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 		CommonDataKinds.Phone.NUMBER
 	};
 
-	// Defines the text expression
-	private static final String SELECTION = CONTACT_NAME + " LIKE ?" ;
-
 	/*
 	 * Defines an array that contains resource ids for the layout views
 	 * that get the Cursor column contents. The id is pre-defined in
@@ -83,6 +80,8 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				switch (view.getId()){
 				case R.id.contact_display_color:
+						System.out.println ("Andrei " + cursor.getString(cursor.getColumnIndex(Contacts._ID)));
+					
 					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts._ID)));
 					int color = info == null ? Color.GRAY : info.color;
 					view.setBackgroundColor(color);
@@ -137,6 +136,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 
 	@Override
 	public void onColorChosen(int color, long rowID) {
+		Log.i(TAG,"rowID = "+rowID);
 		LedContactInfo info = mLedData.get(String.valueOf(rowID));
 		if (info == null){
 			info = new LedContactInfo();
