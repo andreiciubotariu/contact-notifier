@@ -65,7 +65,6 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		// Gets a CursorAdapter
 		mCursorAdapter = new SimpleCursorAdapter(
 				getActivity(),
@@ -123,7 +122,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		Log.i(TAG, "Load finished " + cursor.getCount());
 		mCursorAdapter.swapCursor(cursor);
-		setEmptyText("Empty");
+		setEmptyText("No contacts found");
 	}
 
 	@Override

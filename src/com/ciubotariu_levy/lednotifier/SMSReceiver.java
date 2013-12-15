@@ -15,6 +15,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
@@ -38,7 +39,7 @@ public class SMSReceiver extends BroadcastReceiver {
 	public void  onNewMessage (Context context, String number, String message){
 		if (!TextUtils.isEmpty(number)){
 			String [] sender = getNameForNumber(number, context.getContentResolver());
-			System.out.println (Arrays.toString(sender));
+			//System.out.println (Arrays.toString(sender));
 			
 			
 			Intent i=new Intent(context, MainActivity.class);
@@ -56,13 +57,15 @@ public class SMSReceiver extends BroadcastReceiver {
 			}
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
 			if (c != null && c.moveToFirst()){
-				System.out.println ("Entered if");
 				int color = 0x00000000;
 				try {
 					color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 				}
 				catch (Exception e){
 					e.printStackTrace();
+				}
+				if (color == Color.GRAY){
+					return;
 				}
 				PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
 				Notification notif = new NotificationCompat.Builder(context)
@@ -76,10 +79,6 @@ public class SMSReceiver extends BroadcastReceiver {
 				
 				((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, notif);
 			}
-			else {
-				System.out.println ("nope");
-				System.out.println (c == null);
-			}
 		}
 	}
 
@@ -87,7 +86,7 @@ public class SMSReceiver extends BroadcastReceiver {
 	 * 
 	 * @param number
 	 * @param resolver
-	 * @return [Contact_id/null, Display name/number]
+	 * @return [Contact's lookup key or null, Display name or number]
 	 */
 	private String [] getNameForNumber (String number, ContentResolver resolver){
 		Cursor contactCursor = null;

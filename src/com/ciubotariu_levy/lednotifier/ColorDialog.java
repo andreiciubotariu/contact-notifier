@@ -13,19 +13,19 @@ import android.widget.SeekBar;
 public class ColorDialog extends DialogFragment {
 
 	//0-255
-	int red;
-	int green;
-	int blue;
+	private int red;
+	private int green;
+	private int blue;
 
 	//Bars for selecting RGB
-	SeekBar redBar;
-	SeekBar greenBar;
-	SeekBar blueBar;
+	private SeekBar redBar;
+	private SeekBar greenBar;
+	private SeekBar blueBar;
 
 	//0xFF000000 to 0xFFFFFFFF
-	int color;
+	private int color;
 
-	ColorView sample;
+	private ColorView sample;
 
 
 	public interface OnColorChosenListener {
@@ -70,15 +70,15 @@ public class ColorDialog extends DialogFragment {
 	public void updateColor(){
 		color = Color.argb(255, red, green, blue);
 		sample.setColor(color);
-		onColorChosen(color);
+		//onColorChosen(color);
 	}
 
 	@Override
 	public void onViewCreated (View view, Bundle savedInstanceState){
-		view.setOnClickListener(new OnClickListener() {			
+		view.findViewById(R.id.sumbit_color).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				onColorChosen (Color.MAGENTA);
+				onColorChosen (color);
 				dismiss();
 			}
 		});
@@ -86,7 +86,7 @@ public class ColorDialog extends DialogFragment {
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-		View view = inflater.inflate(R.layout.color_dialog, container);
+		View view = inflater.inflate(R.layout.color_dialog, container,false);
 		sample = (ColorView) view.findViewById(R.id.color_view);
 		sample.lockWidth=true;
 		sample.setColor(color);

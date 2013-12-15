@@ -3,21 +3,32 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:orientation="vertical"  >
+    android:orientation="vertical" >
+
     <com.ciubotariu_levy.lednotifier.ColorView
+        android:id="@+id/color_view"
         android:layout_width="100dp"
-        android:layout_height="0px"
-        android:id="@+id/color_view"/>
+        android:layout_height="0px" />
+
     <SeekBar
         android:id="@+id/red"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
+
     <SeekBar
         android:id="@+id/green"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
+
     <SeekBar
         android:id="@+id/blue"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>   
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/sumbit_color"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set color" />
+    
 </LinearLayout>
