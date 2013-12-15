@@ -36,7 +36,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 				Contacts.DISPLAY_NAME;
 
 	private final static String[] FROM_COLUMNS = {
-		CONTACT_NAME, CommonDataKinds.Phone.NUMBER, Contacts._ID
+		CONTACT_NAME, CommonDataKinds.Phone.NUMBER, Contacts.LOOKUP_KEY
 	};
 
 	private static final String[] PROJECTION = {
@@ -45,9 +45,6 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 		CONTACT_NAME,
 		CommonDataKinds.Phone.NUMBER
 	};
-
-	// Defines the text expression
-	private static final String SELECTION = CONTACT_NAME + " LIKE ?" ;
 
 	/*
 	 * Defines an array that contains resource ids for the layout views
@@ -83,7 +80,8 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				switch (view.getId()){
 				case R.id.contact_display_color:
-					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts._ID)));
+					
+					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 					int color = info == null ? Color.GRAY : info.color;
 					view.setBackgroundColor(color);
 					return true;
@@ -100,7 +98,8 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
-		ColorDialog.getInstance(rowID).show(getChildFragmentManager(), "color_dialog");
+		ColorDialog.getInstance(mCursorAdapter.getCursor().getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY)))
+		.show(getChildFragmentManager(), "color_dialog");
 	}
 
 	@Override
@@ -136,11 +135,12 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	}
 
 	@Override
-	public void onColorChosen(int color, long rowID) {
-		LedContactInfo info = mLedData.get(String.valueOf(rowID));
+	public void onColorChosen(int color, String lookupKey) {
+		Log.i(TAG,"lookupKey = "+lookupKey);
+		LedContactInfo info = mLedData.get(lookupKey);
 		if (info == null){
 			info = new LedContactInfo();
-			info.systemId = String.valueOf(rowID);
+			info.systemId = lookupKey;
 			mLedData.put(info.systemId, info);
 		}
 		info.color = Color.CYAN;
@@ -148,7 +148,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 		if (info.id != -1){
 			values.put(LedContacts._ID, info.id);
 		}
-		values.put(LedContacts.SYSTEM_CONTACT_ID, rowID);
+		values.put(LedContacts.SYSTEM_CONTACT_ID, lookupKey);
 		values.put(LedContacts.COLOR, Color.CYAN);
 		Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
 		info.id = Long.parseLong (uri.getLastPathSegment());

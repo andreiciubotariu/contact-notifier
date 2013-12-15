@@ -3,6 +3,10 @@
  */
 package com.ciubotariu_levy.lednotifier;
 
+import java.util.Arrays;
+
+import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,6 +17,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.PhoneLookup;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsMessage;
@@ -32,7 +37,8 @@ public class SMSReceiver extends BroadcastReceiver {
 
 	public void  onNewMessage (Context context, String number, String message){
 		if (!TextUtils.isEmpty(number)){
-			String displayName = getNameForNumber(number, context.getContentResolver());
+			String [] sender = getNameForNumber(number, context.getContentResolver());
+			System.out.println (Arrays.toString(sender));
 			
 			
 			Intent i=new Intent(context, MainActivity.class);
@@ -41,29 +47,59 @@ public class SMSReceiver extends BroadcastReceiver {
 			i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
-			Notification notif = new NotificationCompat.Builder(context)
-			.setContentTitle (displayName)
-			.setContentText ("Sent an SMS")
-			.setContentIntent (pendingIntent)
-			.setSmallIcon(R.drawable.ic_launcher) //replace later
-			.setLights(0xFFFF0000, 500, 500) //should flash
-			.build();
-			
-			((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, notif);
+			String [] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_ID, LedContacts.VIBRATE_PATTERN};
+			String selection = null;
+			String [] selectionArgs = null;
+			if (sender [0] != null){
+				selection = LedContacts.SYSTEM_CONTACT_ID + " = ?" ;
+				selectionArgs = new String [] {	sender [0] };
+			}
+			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
+			if (c != null && c.moveToFirst()){
+				System.out.println ("Entered if");
+				int color = 0x00000000;
+				try {
+					color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+				}
+				catch (Exception e){
+					e.printStackTrace();
+				}
+				PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
+				Notification notif = new NotificationCompat.Builder(context)
+				.setContentTitle (sender [1])
+				.setContentText ("Notification LED color should be " + color)
+				.setContentIntent (pendingIntent)
+				.setSmallIcon(R.drawable.ic_launcher) //replace later
+				.setLights(color, 500, 500) //should flash
+				.setAutoCancel(true)
+				.build();
+				
+				((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, notif);
+			}
+			else {
+				System.out.println ("nope");
+				System.out.println (c == null);
+			}
 		}
 	}
 
-	private String getNameForNumber (String number, ContentResolver resolver){
+	/**
+	 * 
+	 * @param number
+	 * @param resolver
+	 * @return [Contact_id/null, Display name/number]
+	 */
+	private String [] getNameForNumber (String number, ContentResolver resolver){
 		Cursor contactCursor = null;
 		try{
 			Uri phoneNumberUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
-			contactCursor = resolver.query(phoneNumberUri, new String [] {PhoneLookup.DISPLAY_NAME}, null, null, null);
+			contactCursor = resolver.query(phoneNumberUri, new String [] {Contacts.LOOKUP_KEY,PhoneLookup._ID,PhoneLookup.DISPLAY_NAME}, null, null, null);
 			if (contactCursor != null && contactCursor.moveToFirst()){
-				return contactCursor.getString (0);
+				return new String [] {contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)),
+						contactCursor.getString (contactCursor.getColumnIndex(PhoneLookup.DISPLAY_NAME))};
 			}
 			else {
-				return number;
+				return new String [] {null,number};
 			}
 
 		}
