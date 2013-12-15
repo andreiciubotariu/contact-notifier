@@ -53,7 +53,8 @@ public class LedContactProvider extends ContentProvider {
 		@Override
 		public void onCreate (SQLiteDatabase db){
 			String CREATE_PROFILES_TABLE = "CREATE TABLE " + LEDCONTACTS_TABLE_NAME + "(" +
-					LedContacts.SYSTEM_CONTACT_ID +" INTEGER PRIMARY KEY,"+ LedContacts.COLOR + " TEXT, "
+					LedContacts._ID + " INTEGER PRIMARY KEY," +
+					LedContacts.SYSTEM_CONTACT_ID +" INTEGER KEY,"+ LedContacts.COLOR + " TEXT, "
 					+ LedContacts.VIBRATE_PATTERN + " TEXT" +
 					")";
 			db.execSQL(CREATE_PROFILES_TABLE);
@@ -77,7 +78,7 @@ public class LedContactProvider extends ContentProvider {
 		case LEDCONTACTS:
 			break;
 		case LEDCONTACTS_ID:
-			selection = selection + "_id = " + uri.getLastPathSegment();
+			selection = selection + LedContacts._ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -131,24 +132,6 @@ public class LedContactProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		int index = -1;
-		for (int x = 0; x < projection.length;x++){
-			if (projection [x].equals (LedContacts.PROJECTION_BREAK)){
-				index = x;
-				break;
-			}
-		}
-		if (index == -1){
-			return null;
-		}
-		System.out.println (index);
-		String [] ledProjection = Arrays.copyOfRange (projection, 0, index);
-		System.out.println (Arrays.toString(ledProjection));
-		System.out.println ((index+1) + " | " + (projection.length-1));
-		String [] phoneProjection = Arrays.copyOfRange (projection, index+1, projection.length);
-		System.out.println (Arrays.toString(phoneProjection));
-
-		Cursor phoneCursor = getContext().getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, phoneProjection, selection, selectionArgs, Contacts._ID + " ASC");
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		qb.setTables(LEDCONTACTS_TABLE_NAME);
 		qb.setProjectionMap(ledContactsProjectionMap);
@@ -157,64 +140,16 @@ public class LedContactProvider extends ContentProvider {
 		case LEDCONTACTS:
 			break;
 		case LEDCONTACTS_ID:
-			selection = selection + LedContacts.SYSTEM_CONTACT_ID +" = " + uri.getLastPathSegment();
+			selection = selection + LedContacts._ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 
 		SQLiteDatabase db = mDbHelper.getReadableDatabase();
-		Cursor ledCursor = qb.query(db, ledProjection, selection, selectionArgs, null, null, LedContacts.SYSTEM_CONTACT_ID + " ASC");
+		Cursor ledCursor = qb.query(db, projection, selection, selectionArgs, null, null, LedContacts.SYSTEM_CONTACT_ID + " ASC");
 		ledCursor.setNotificationUri(getContext().getContentResolver(), uri);
-
-		String[] result = Arrays.copyOf(ledProjection, ledProjection.length + phoneProjection.length);
-		System.arraycopy(phoneProjection, 0, result, ledProjection.length, phoneProjection.length);
-		
-		MatrixCursor both = new MatrixCursor (result);
-		CursorJoiner joiner = new CursorJoiner(ledCursor, new String[] { LedContacts.SYSTEM_CONTACT_ID },
-				phoneCursor, new String[] { Contacts._ID});
-		for (CursorJoiner.Result joinerResult : joiner) {
-			switch (joinerResult) {
-			case LEFT:
-				//delete from ledcursor
-				break;
-			case RIGHT:
-				
-				Object [] row = new Object [projection.length-1];
-				
-				System.out.println ("Row: " + row.length);
-				
-				System.out.println ("Result: " + result.length);
-				int colIndex = index-1;
-				int cursorIndex = -1;
-				for (int x = 0; x < phoneProjection.length ;x++){
-					cursorIndex = phoneCursor.getColumnIndex(phoneProjection[x]);
-					System.out.println (phoneProjection[x]);
-					row [++colIndex] = phoneCursor.getString(cursorIndex);
-					System.out.println (row[x]);
-				}
-				both.addRow(row);
-				break;
-			case BOTH:
-				row = new Object [projection.length-1];
-				colIndex = -1;
-				cursorIndex = -1;
-				for (int x = 0; x <= index-1 ;x++){
-					cursorIndex = ledCursor.getColumnIndex(phoneProjection[x]);
-					row [++colIndex] = ledCursor.getString(cursorIndex);
-				}
-				for (int x = 0; x < phoneProjection.length ;x++){
-					cursorIndex = phoneCursor.getColumnIndex(phoneProjection[x]);
-					row [++colIndex] = phoneCursor.getString(cursorIndex);
-					System.out.println (row[x]);
-				}
-				both.addRow(row);
-				break;
-			}
-		}
-
-		//MergeCursor m = new MergeCursor(new Cursor [] {phoneCursor});
-		return both;
+		return ledCursor;
 	}
 
 	@Override
@@ -226,7 +161,7 @@ public class LedContactProvider extends ContentProvider {
 			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, whereArgs);
 			break;
 		case LEDCONTACTS_ID:
-			where = where + "_id = " + uri.getLastPathSegment();
+			where = where + LedContacts._ID + " = " + uri.getLastPathSegment();
 			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, whereArgs);
 			break;
 		default:

@@ -1,10 +1,11 @@
 package com.ciubotariu_levy.lednotifier;
 
-import com.ciubotariu_levy.lednotifier.providers.LedContactProvider;
-import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+import java.util.HashMap;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,7 +20,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-public class ContactsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>
+import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
+import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+
+public class ContactsFragment extends ListFragment implements DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
 	/*
 	 * Defines an array that contains column names to move from
@@ -32,19 +36,14 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 				Contacts.DISPLAY_NAME;
 
 	private final static String[] FROM_COLUMNS = {
-		COLUMN_NAME, CommonDataKinds.Phone.NUMBER
+		COLUMN_NAME, CommonDataKinds.Phone.NUMBER, Contacts._ID
 	};
 
 	private static final String[] PROJECTION = {
-		
-		LedContacts.COLOR,
-		LedContacts.SYSTEM_CONTACT_ID,
-		LedContacts.PROJECTION_BREAK,
 		Contacts._ID,
 		Contacts.LOOKUP_KEY,
 		COLUMN_NAME,
 		CommonDataKinds.Phone.NUMBER
-
 	};
 	// The column index for the _ID column
 	private static final int CONTACT_ID_INDEX = 0;
@@ -68,7 +67,7 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 	 * the Android framework, so it is prefaced with "android.R.id"
 	 */
 	private final static int[] TO_IDS = {
-		android.R.id.text1, android.R.id.text2
+		android.R.id.text1, android.R.id.text2, R.id.contact_display_color
 	};
 
 	private static final String TAG = "ContactsFragment";
@@ -82,6 +81,9 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 	// An adapter that binds the result Cursor to the ListView
 	private SimpleCursorAdapter mCursorAdapter;
 
+	private HashMap <String, LedContactInfo> mLedData;
+	private DataFetcher mFetcher;
+
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
@@ -93,41 +95,57 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 				FROM_COLUMNS, 
 				TO_IDS,
 				0);
+		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				switch (view.getId()){
+				case R.id.contact_display_color:
+					System.out.println (cursor.getString(cursor.getColumnIndex(Contacts._ID)));
+					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts._ID)));
+					int color = info == null ? Color.GRAY : info.color;
+					view.setBackgroundColor(color);
+					return true;
+				}
+				return false;
+			}
+		});
 		// Sets the adapter for the ListView
 		setListAdapter(mCursorAdapter);
 
-		//Initializes the loader
-		getLoaderManager().initLoader(0, null, this);
+		mFetcher = new DataFetcher(this, LedContacts.CONTENT_URI);
+		mFetcher.execute(getActivity());
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
-		//mCursorAdapter.getCursor().moveToPosition(position);
+		LedContactInfo info = mLedData.get(String.valueOf(rowID));
+		if (info == null){
+			info = new LedContactInfo();
+			info.systemId = String.valueOf(rowID);
+			mLedData.put(info.systemId, info);
+		}
+		info.color = Color.CYAN;
+		ContentValues values = new ContentValues();
+		values.put(LedContacts.SYSTEM_CONTACT_ID, rowID);
+		values.put(LedContacts.COLOR, Color.CYAN);
+		System.out.println (getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values));
+		item.findViewById(R.id.contact_display_color).setBackgroundColor(Color.CYAN);
 		System.out.println (rowID);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-		/*
-		 * Makes search string into pattern and
-		 * stores it in the selection array
-		 */
-		mSelectionArgs[0] = "%" + mSearchString + "%";
-		//String  selection = Contacts.HAS_PHONE_NUMBER + "=?";
-		//String [] selectionArgs = new String [] {"1"};
-		// Starts the query
 		return new CursorLoader(
 				getActivity(),
-				LedContacts.CONTENT_URI,
+				CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION,
 				null,
 				null,
-				COLUMN_NAME + " ASC"
-				);
+				COLUMN_NAME + " ASC");
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		// Put the result Cursor in the adapter for the ListView
 		Log.i(TAG, "Load finished " + cursor.getCount());
 		mCursorAdapter.swapCursor(cursor);
 		setEmptyText("Empty");
@@ -135,9 +153,17 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		// Delete the reference to the existing Cursor
 		Log.i(TAG, "Loader reset");
 		mCursorAdapter.swapCursor(null);
+	}
+
+	@Override
+	public void onDataFetched(HashMap<String, LedContactInfo> fetchedData) {
+		mFetcher = null;
+		mLedData = fetchedData;
+		System.out.println (mLedData);
+		//Initializes the loader
+		getLoaderManager().initLoader(0, null, this);
 	}
 
 }
