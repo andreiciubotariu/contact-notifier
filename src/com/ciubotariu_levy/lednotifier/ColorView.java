@@ -18,9 +18,9 @@ public class ColorView extends View {
 	public ColorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		paint = new Paint();
-		Random r = new Random();
-		color = r.nextInt();
-		color = color|0xFF000000;
+//		Random r = new Random();
+//		color = r.nextInt();
+//		color = color|0xFF000000;
 		paint.setColor(color);
 	}
 
