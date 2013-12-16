@@ -36,6 +36,7 @@ public class ColorDialog extends DialogFragment {
 
 	private final static String LOOKUP_KEY_VALUE = "row_id";
 	private final static String USER_COLOR = "user_color";
+	private final static String USER__CURRENT_COLOR = "user_color";
 
 	public static ColorDialog getInstance (String lookupKey, int color){
 		ColorDialog dialog = new ColorDialog ();
@@ -43,11 +44,6 @@ public class ColorDialog extends DialogFragment {
 		args.putString (LOOKUP_KEY_VALUE, lookupKey);
 		args.putInt (USER_COLOR, color);		
 		dialog.setArguments(args);
-		dialog.color = color;
-		dialog.originalColor = color;
-		dialog.red = Color.red(color);
-		dialog.green = Color.green(color);
-		dialog.blue = Color.blue(color);
 		return dialog;
 	}
 
@@ -73,7 +69,6 @@ public class ColorDialog extends DialogFragment {
 	public void updateColor(){
 		color = Color.argb(255, red, green, blue);
 		sample.setColor(color);
-		//onColorChosen(color);
 	}
 
 	@Override
@@ -94,9 +89,18 @@ public class ColorDialog extends DialogFragment {
 		});
 	}
 
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		View view = inflater.inflate(R.layout.color_dialog, container,false);
+		Bundle args = getArguments();
+		originalColor = args.getInt(USER_COLOR,Color.GRAY);
+		color = originalColor;
+		if (savedInstanceState != null){
+			color = savedInstanceState.getInt(USER__CURRENT_COLOR, Color.GRAY);
+		}
+		red = Color.red(color);
+		green = Color.green(color);
+		blue = Color.blue(color);
 		sample = (ColorView) view.findViewById(R.id.color_view);
 		sample.lockWidth=true;
 		sample.setColor(color);
@@ -131,6 +135,11 @@ public class ColorDialog extends DialogFragment {
 			}
 		});
 		return view;
+	}
+	
+	public void onSaveInstaceState (Bundle outState){
+		super.onSaveInstanceState(outState);
+		outState.putInt(USER__CURRENT_COLOR, color);
 	}
 
 	//called when user chooses a color
