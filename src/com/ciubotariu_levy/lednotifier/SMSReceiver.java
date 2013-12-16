@@ -39,9 +39,9 @@ public class SMSReceiver extends BroadcastReceiver {
 	public void  onNewMessage (Context context, String number, String message){
 		if (!TextUtils.isEmpty(number)){
 			String [] sender = getNameForNumber(number, context.getContentResolver());
-			//System.out.println (Arrays.toString(sender));
-			
-			
+			System.out.println (Arrays.toString(sender));
+
+
 			Intent i=new Intent(context, MainActivity.class);
 
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -56,30 +56,38 @@ public class SMSReceiver extends BroadcastReceiver {
 				selectionArgs = new String [] {	sender [0] };
 			}
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
+			int color = Color.GRAY;
 			if (c != null && c.moveToFirst()){
-				int color = 0x00000000;
 				try {
 					color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 				}
 				catch (Exception e){
 					e.printStackTrace();
 				}
-				if (color == Color.GRAY){
-					return;
-				}
-				PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
-				Notification notif = new NotificationCompat.Builder(context)
-				.setContentTitle (sender [1])
-				.setContentText ("Notification LED color should be " + color)
-				.setContentIntent (pendingIntent)
-				.setSmallIcon(R.drawable.ic_launcher) //replace later
-				.setLights(color, 500, 500) //should flash
-				.setAutoCancel(true)
-				.build();
-				
-				((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, notif);
 			}
+			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
+			Notification notif = new NotificationCompat.Builder(context)
+			.setContentTitle (sender [1])
+			.setContentText ("Notification LED color should be " + color)
+			.setContentIntent (pendingIntent)
+			.setSmallIcon(R.drawable.ic_launcher) //replace later
+			.setLights(color, 500, 500) //should flash
+			.setAutoCancel(true)
+			.build();
+
+			onNotificationGenerated(context, notif);
+
 		}
+	}
+
+	public void onNotificationGenerated (Context context, Notification notif){
+		if (notif.ledARGB != Color.GRAY){
+			notify (context, notif);
+		}
+	}
+	
+	public static void notify (Context context, Notification notif){
+		((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, notif);
 	}
 
 	/**

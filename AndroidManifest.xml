@@ -26,20 +26,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-		<activity
-            android:name="com.ciubotariu_levy.lednotifier.ColorActivity"/>
-        <receiver android:name="com.ciubotariu_levy.lednotifier.SMSReceiver" >
+        <activity android:name="com.ciubotariu_levy.lednotifier.ColorActivity" />
+
+        <receiver android:name="com.ciubotariu_levy.lednotifier.SMSReceiver" 
+            android:enabled="@bool/enable_receiver">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
-            
         </receiver>
-            <provider
+
+        <service
+            android:name="com.ciubotariu_levy.lednotifier.NotificationService"
+            android:label="@string/service_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <provider
             android:name="com.ciubotariu_levy.lednotifier.providers.LedContactProvider"
-            android:authorities="com.ciubotariu_levy.lednotifier.providers.LedContactProvider" 
-            android:exported="false">
+            android:authorities="com.ciubotariu_levy.lednotifier.providers.LedContactProvider"
+            android:exported="false" >
         </provider>
-        
     </application>
-        
+
 </manifest>
