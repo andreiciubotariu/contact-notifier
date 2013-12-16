@@ -51,10 +51,15 @@ public class SMSReceiver extends BroadcastReceiver {
 			String [] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_ID, LedContacts.VIBRATE_PATTERN};
 			String selection = null;
 			String [] selectionArgs = null;
-			if (sender [0] != null){
+			//if (sender [0] != null){
 				selection = LedContacts.SYSTEM_CONTACT_ID + " = ?" ;
-				selectionArgs = new String [] {	sender [0] };
-			}
+				if (sender [0] != null){
+					selectionArgs = new String [] {	sender [0] };
+				}
+				/*else {
+					selectionArgs = new String [] {	 };
+				}*/
+			//}
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
 			int color = Color.GRAY;
 			if (c != null && c.moveToFirst()){
@@ -62,9 +67,14 @@ public class SMSReceiver extends BroadcastReceiver {
 					color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 				}
 				catch (Exception e){
+					
 					e.printStackTrace();
 				}
 			}
+			if (c != null){
+				c.close();
+			}
+			System.out.println ("is color gray? " +  (Color.GRAY == color));
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
 			Notification notif = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])

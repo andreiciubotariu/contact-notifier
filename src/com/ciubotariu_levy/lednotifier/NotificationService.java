@@ -25,12 +25,15 @@ public class NotificationService extends NotificationListenerService {
 		public void onNotificationGenerated (Context context, Notification notif){
 			context = NotificationService.this;
 			if (notif.ledARGB == Color.GRAY){
+				mCurrentNotification = null;
+				Log.d(TAG, "returning");
 				return;
 			}
 			StatusBarNotification [] notifications = getActiveNotifications();
 			for (StatusBarNotification sb: notifications){
 				if (isMessagingApp(sb.getPackageName()) && sb.isClearable()){
-					notif = copyNotification(context, sb.getNotification());
+					int color = notif.ledARGB;
+					notif = copyNotification(context, sb.getNotification(),color);
 					cancelNotification(sb.getPackageName(), sb.getTag(), sb.getId());;
 					break;
 				}
@@ -67,7 +70,8 @@ public class NotificationService extends NotificationListenerService {
 			mCurrentNotification = sbn.getNotification();
 		}
 		else if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
-			mCurrentNotification = copyNotification(this, sbn.getNotification());
+			int color = mCurrentNotification.ledARGB;
+			mCurrentNotification = copyNotification(this, sbn.getNotification(),color);
 			SMSReceiver.notify (this, mCurrentNotification);
 			cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
 		}
@@ -86,19 +90,20 @@ public class NotificationService extends NotificationListenerService {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
 			return packageName.equals(Telephony.Sms.getDefaultSmsPackage(this));
 		}
-		return packageName.contains("mms")||packageName.contains("sms") || packageName.contains("messaging")
-				||packageName.contains("message");
+		return (!packageName.equals(getPackageName())) && (packageName.contains("mms")||packageName.contains("sms") || packageName.contains("messaging")
+				||packageName.contains("message"));
 	}
 
 
-	private static Notification copyNotification (Context context, Notification toCopy){
+	private static Notification copyNotification (Context context, Notification toCopy, int color){
 		return new NotificationCompat.Builder(context)
 		.setSmallIcon(R.drawable.ic_launcher)
 		.setTicker(toCopy.tickerText, toCopy.tickerView)
-		.setContent(toCopy.contentView)
+		//.setContent(toCopy.contentView)
+		.setContentText(String.valueOf(Color.red(color)) + " " + String.valueOf(Color.green(color)) + " " + String.valueOf(Color.blue(color)))
 		.setAutoCancel(true)
 		.setContentIntent(toCopy.contentIntent)
-		.setLights(0xffff0000, 1000, 1000)
+		.setLights(color, 1000, 1000)
 		.build();
 	}
 }
