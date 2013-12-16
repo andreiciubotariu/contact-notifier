@@ -36,7 +36,7 @@ public class ColorDialog extends DialogFragment {
 
 	private final static String LOOKUP_KEY_VALUE = "row_id";
 	private final static String USER_COLOR = "user_color";
-	private final static String USER__CURRENT_COLOR = "user_color";
+	private final static String USER_CURRENT_COLOR = "user_color";
 
 	public static ColorDialog getInstance (String lookupKey, int color){
 		ColorDialog dialog = new ColorDialog ();
@@ -96,7 +96,7 @@ public class ColorDialog extends DialogFragment {
 		originalColor = args.getInt(USER_COLOR,Color.GRAY);
 		color = originalColor;
 		if (savedInstanceState != null){
-			color = savedInstanceState.getInt(USER__CURRENT_COLOR, Color.GRAY);
+			color = savedInstanceState.getInt(USER_CURRENT_COLOR, originalColor);
 		}
 		red = Color.red(color);
 		green = Color.green(color);
@@ -139,7 +139,7 @@ public class ColorDialog extends DialogFragment {
 	
 	public void onSaveInstaceState (Bundle outState){
 		super.onSaveInstanceState(outState);
-		outState.putInt(USER__CURRENT_COLOR, color);
+		outState.putInt(USER_CURRENT_COLOR, color);
 	}
 
 	//called when user chooses a color
