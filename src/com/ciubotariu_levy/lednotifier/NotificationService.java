@@ -31,17 +31,8 @@ public class NotificationService extends NotificationListenerService {
 				Log.d(TAG, "returning");
 				return;
 			}
-			StatusBarNotification [] notifications = getActiveNotifications();
-			for (StatusBarNotification sb: notifications){
-				if (isMessagingApp(sb.getPackageName()) && sb.isClearable()){
-					int color = notif.ledARGB;
-					notif = copyNotification(context, sb.getNotification(),color);
-					cancelNotification(sb.getPackageName(), sb.getTag(), sb.getId());;
-					break;
-				}
-			}
-
 			notify (context, notif);
+			mCurrentNotification = null;
 		}
 	};
 
@@ -75,21 +66,16 @@ public class NotificationService extends NotificationListenerService {
 		Log.i (TAG, "Notification Posted: " +
 				"\n"+sbn.getNotification().tickerText +
 				"\n"+sbn.getPackageName());
-		if (sbn.getPackageName().equals(getPackageName())){
-			mCurrentNotification = sbn.getNotification();
-		}
-		else if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
-			int color = mCurrentNotification.ledARGB;
-			mCurrentNotification = copyNotification(this, sbn.getNotification(),color);
+		if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
 			SMSReceiver.notify (this, mCurrentNotification);
-			cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
 		}
 	}
 
 
 	@Override
 	public void onNotificationRemoved(StatusBarNotification sbn) {
-		if (sbn.getPackageName().equals(getPackageName())){
+		if (isMessagingApp(sbn.getPackageName())){
+			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(SMSReceiver.NOTIFICATION_ID);
 			mCurrentNotification = null;
 		}
 	}
@@ -101,18 +87,5 @@ public class NotificationService extends NotificationListenerService {
 		}
 		return (!packageName.equals(getPackageName())) && (packageName.contains("mms")||packageName.contains("sms") || packageName.contains("messaging")
 				||packageName.contains("message"));
-	}
-
-
-	private static Notification copyNotification (Context context, Notification toCopy, int color){
-		return new NotificationCompat.Builder(context)
-		.setSmallIcon(R.drawable.ic_launcher)
-		.setTicker(toCopy.tickerText, toCopy.tickerView)
-		.setContent(toCopy.contentView)
-		.setAutoCancel(true)
-		.setContentIntent(toCopy.contentIntent)
-		//.setSound(toCopy.sound)
-		.setLights(color, 1000, 1000)
-		.build();
 	}
 }

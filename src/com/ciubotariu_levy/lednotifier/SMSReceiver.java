@@ -26,7 +26,8 @@ import android.telephony.SmsMessage;
 import android.text.TextUtils;
 
 public class SMSReceiver extends BroadcastReceiver {
-
+	public static final int NOTIFICATION_ID = 1;
+	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Bundle bundle = intent.getExtras();
@@ -100,7 +101,7 @@ public class SMSReceiver extends BroadcastReceiver {
 	}
 	
 	public static void notify (Context context, Notification notif){
-		((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, notif);
+		((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notif);
 	}
 
 	/**
