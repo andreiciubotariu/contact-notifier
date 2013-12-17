@@ -4,9 +4,11 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.IBinder;
 import android.provider.Telephony;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -16,13 +18,13 @@ import android.util.Log;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
 	private final static String TAG = "NotificationService";
-
+	protected static boolean isNotificationListenerServiceOn = false;
 	private NotificationManager mNotifyManager; 
 	private Notification mCurrentNotification = null;
 	private SMSReceiver mSmsReceiver = new SMSReceiver(){
 
 		@Override
-		public void onNotificationGenerated (Context context, Notification notif){
+		public void onNotificationGenerated(Context context, Notification notif){
 			context = NotificationService.this;
 			if (notif.ledARGB == Color.GRAY){
 				mCurrentNotification = null;
@@ -54,10 +56,17 @@ public class NotificationService extends NotificationListenerService {
 		IntentFilter filter = new IntentFilter (filterAction);
 		registerReceiver(mSmsReceiver, filter);
 	}
+	
+	@Override
+	public IBinder onBind(Intent intent){
+		isNotificationListenerServiceOn = true;
+		return super.onBind(intent);
+	}
 
 	@Override
 	public void onDestroy (){
 		unregisterReceiver(mSmsReceiver);
+		isNotificationListenerServiceOn = false;
 		super.onDestroy();
 	}
 
@@ -99,10 +108,10 @@ public class NotificationService extends NotificationListenerService {
 		return new NotificationCompat.Builder(context)
 		.setSmallIcon(R.drawable.ic_launcher)
 		.setTicker(toCopy.tickerText, toCopy.tickerView)
-		//.setContent(toCopy.contentView)
-		.setContentText(String.valueOf(Color.red(color)) + " " + String.valueOf(Color.green(color)) + " " + String.valueOf(Color.blue(color)))
+		.setContent(toCopy.contentView)
 		.setAutoCancel(true)
 		.setContentIntent(toCopy.contentIntent)
+		//.setSound(toCopy.sound)
 		.setLights(color, 1000, 1000)
 		.build();
 	}

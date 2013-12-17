@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <bool name="enable_receiver">false</bool> 
-    <!-- Check if NotificationService is running. If not, the static receiver never executed on API 18+-->
-    
-</resources>

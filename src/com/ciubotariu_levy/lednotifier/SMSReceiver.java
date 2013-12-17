@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.PhoneLookup;
@@ -78,10 +79,10 @@ public class SMSReceiver extends BroadcastReceiver {
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
 			Notification notif = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
-			.setContentText ("Notification LED color should be " + color)
+			.setContentText (message + " (Notification LED color should be " + color + ")")
 			.setContentIntent (pendingIntent)
 			.setSmallIcon(R.drawable.ic_launcher) //replace later
-			.setLights(color, 500, 500) //should flash
+			.setLights(color, 1000, 1000) //should flash
 			.setAutoCancel(true)
 			.build();
 
@@ -91,7 +92,9 @@ public class SMSReceiver extends BroadcastReceiver {
 	}
 
 	public void onNotificationGenerated (Context context, Notification notif){
-		if (notif.ledARGB != Color.GRAY){
+		boolean isServiceOn = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ?
+				NotificationService.isNotificationListenerServiceOn : false;
+		if (!isServiceOn && notif.ledARGB != Color.GRAY){
 			notify (context, notif);
 		}
 	}
