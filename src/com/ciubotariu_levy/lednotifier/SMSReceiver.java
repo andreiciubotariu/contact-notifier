@@ -41,7 +41,7 @@ public class SMSReceiver extends BroadcastReceiver {
 	public void  onNewMessage (Context context, String number, String message){
 		if (!TextUtils.isEmpty(number)){
 			String [] sender = getNameForNumber(number, context.getContentResolver());
-			System.out.println (Arrays.toString(sender));
+			//System.out.println (Arrays.toString(sender));
 
 
 			Intent i=new Intent(context, MainActivity.class);
@@ -76,7 +76,7 @@ public class SMSReceiver extends BroadcastReceiver {
 			if (c != null){
 				c.close();
 			}
-			System.out.println ("is color gray? " +  (Color.GRAY == color));
+			//System.out.println ("is color gray? " +  (Color.GRAY == color));
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
 			Notification notif = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])

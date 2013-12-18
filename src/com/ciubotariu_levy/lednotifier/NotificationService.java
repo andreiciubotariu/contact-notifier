@@ -12,7 +12,6 @@ import android.os.IBinder;
 import android.provider.Telephony;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -31,8 +30,8 @@ public class NotificationService extends NotificationListenerService {
 				Log.d(TAG, "returning");
 				return;
 			}
+			mCurrentNotification = notif;
 			notify (context, notif);
-			mCurrentNotification = null;
 		}
 	};
 
@@ -46,6 +45,7 @@ public class NotificationService extends NotificationListenerService {
 		mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		IntentFilter filter = new IntentFilter (filterAction);
 		registerReceiver(mSmsReceiver, filter);
+		
 	}
 	
 	@Override
