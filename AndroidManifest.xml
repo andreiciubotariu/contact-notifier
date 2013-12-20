@@ -48,6 +48,11 @@
             android:authorities="com.ciubotariu_levy.lednotifier.providers.LedContactProvider"
             android:exported="false" >
         </provider>
+
+        <activity
+            android:name="com.ciubotariu_levy.lednotifier.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>

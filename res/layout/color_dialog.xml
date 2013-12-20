@@ -38,7 +38,7 @@
     	    android:layout_weight="1"/>
         
     	<Button
-        	android:id="@+id/sumbit_color"
+        	android:id="@+id/submit_color"
         	android:layout_width="match_parent"
         	android:layout_height="wrap_content"
         	android:text="Set Color"

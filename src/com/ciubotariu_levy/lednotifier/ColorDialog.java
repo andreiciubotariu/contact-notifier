@@ -73,7 +73,7 @@ public class ColorDialog extends DialogFragment {
 
 	@Override
 	public void onViewCreated (View view, Bundle savedInstanceState){
-		view.findViewById(R.id.sumbit_color).setOnClickListener(new OnClickListener() {			
+		view.findViewById(R.id.submit_color).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				onColorChosen (color);
