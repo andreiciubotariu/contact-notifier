@@ -1,35 +1,31 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
+    <Preference
+        android:key="watched_sms_app"
+        android:title="SMS app" />
+
+    <RingtonePreference
+        android:defaultValue="content://settings/system/notification_sound"
+        android:key="notifications_new_message_ringtone"
+        android:ringtoneType="notification"
+        android:title="@string/pref_title_ringtone" />
+
+    <Preference
+        android:summary="Below preferences depend on the notification access setting"
+        android:title="System security settings" >
+        <intent android:action="android.settings.SECURITY_SETTINGS" />
+    </Preference>
+
     <CheckBoxPreference
         android:defaultValue="true"
-        android:key="example_checkbox"
-        android:summary="@string/pref_description_social_recommendations"
-        android:title="@string/pref_title_social_recommendations" />
-
-    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
-    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
-    <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_display_name"
-        android:inputType="textCapWords"
-        android:key="example_text"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_display_name" />
-
-    <!--
-         NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
-         dismiss it.
-    -->
-    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-    <ListPreference
-        android:defaultValue="-1"
-        android:entries="@array/pref_example_list_titles"
-        android:entryValues="@array/pref_example_list_values"
-        android:key="example_list"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_title_add_friends_to_messages" />
+        android:key="tie_to_sms_app"
+        android:summaryOn = "Dismissing notification when SMS app notification dismissed"
+        android:summaryOff = "No automatic dismissal"
+        android:title="Tie to SMS app" />
+    
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="replace_notification"
+        android:title="Replace Notification" />
 
 </PreferenceScreen>
