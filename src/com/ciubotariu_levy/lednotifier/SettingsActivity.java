@@ -1,23 +1,30 @@
 package com.ciubotariu_levy.lednotifier;
 
+import java.util.List;
+
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.provider.Telephony.Sms;
+import android.telephony.SmsManager;
 import android.text.TextUtils;
-
-import java.util.List;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -45,6 +52,11 @@ public class SettingsActivity extends PreferenceActivity {
 
 		setupSimplePreferencesScreen();
 	}
+	
+	protected void onResume (){
+		super.onResume();
+		setupSMSAppPreference(findPreference(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE));
+	}
 
 	/**
 	 * Shows the simplified settings UI if the device configuration if the
@@ -61,7 +73,60 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// Add 'general' preferences.
 		addPreferencesFromResource(R.xml.pref_general);
+		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 
+		CheckBoxPreference tieNotifications = (CheckBoxPreference) findPreference("tie_to_sms_app");
+		CheckBoxPreference replaceNotifications = (CheckBoxPreference) findPreference("replace_notification");
+		setupNotificationPreferences(tieNotifications, replaceNotifications);
+		setupNotificationPreferences(replaceNotifications, tieNotifications);
+	}
+	
+
+	private static void setupNotificationPreferences (CheckBoxPreference master, final CheckBoxPreference toModify){
+		master.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				boolean isEnabled = preference.getSharedPreferences().getBoolean(preference.getKey(), false);
+				if (isEnabled && ((CheckBoxPreference)toModify).isChecked()){
+					((CheckBoxPreference)toModify).setChecked(false);
+				}
+				return false;
+			}
+		});
+		
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2){
+			master.setEnabled(false);
+		}
+	}
+
+	@TargetApi(19)
+	private static void setupSMSAppPreference (Preference smsPreference){
+		String summary = "Tap to set the SMS app you're using";
+		PackageManager packageManager = smsPreference.getContext().getPackageManager();
+		String smsAppPackageName =  Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ? smsPreference.getSharedPreferences().getString(smsPreference.getKey(), null)
+				: Sms.getDefaultSmsPackage(smsPreference.getContext());
+		if (smsAppPackageName != null){
+			try {
+				CharSequence smsAppLabel = packageManager.getApplicationLabel(packageManager.getApplicationInfo(smsAppPackageName, 0));
+				summary = "Launching " + smsAppLabel + " if our notification is tapped";
+			} catch (NameNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		smsPreference.setSummary(summary);
+		smsPreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				preference.getContext().startActivity(new Intent (preference.getContext(),SMSAppChooserContainer.class));
+				return false;
+			}
+		});
+		
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+			smsPreference.setEnabled(false);
+		}
 	}
 
 	/** {@inheritDoc} */
@@ -117,8 +182,8 @@ public class SettingsActivity extends PreferenceActivity {
 
 				// Set the summary to reflect the new value.
 				preference
-						.setSummary(index >= 0 ? listPreference.getEntries()[index]
-								: null);
+				.setSummary(index >= 0 ? listPreference.getEntries()[index]
+						: null);
 
 			} else if (preference instanceof RingtonePreference) {
 				// For ringtone preferences, look up the correct display value
@@ -164,7 +229,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private static void bindPreferenceSummaryToValue(Preference preference) {
 		// Set the listener to watch for value changes.
 		preference
-				.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+		.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
 		// Trigger the listener immediately with the preference's
 		// current value.
@@ -172,7 +237,7 @@ public class SettingsActivity extends PreferenceActivity {
 				preference,
 				PreferenceManager.getDefaultSharedPreferences(
 						preference.getContext()).getString(preference.getKey(),
-						""));
+								""));
 	}
 
 	/**
@@ -185,6 +250,19 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_general);
+			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+
+			CheckBoxPreference tieNotifications = (CheckBoxPreference) findPreference("tie_to_sms_app");
+			CheckBoxPreference replaceNotifications = (CheckBoxPreference) findPreference("replace_notification");
+			setupNotificationPreferences(tieNotifications, replaceNotifications);
+			setupNotificationPreferences(replaceNotifications, tieNotifications);
+			
+		}
+		
+		@Override
+		public void onResume (){
+			super.onResume();
+			setupSMSAppPreference(findPreference(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE));
 		}
 	}
 }

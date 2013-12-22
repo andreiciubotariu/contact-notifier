@@ -16,7 +16,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light.NoTitleBar" >
+        android:theme="@style/AppTheme" >
         <activity
             android:name="com.ciubotariu_levy.lednotifier.MainActivity"
             android:label="@string/app_name" >
@@ -52,6 +52,11 @@
         <activity
             android:name="com.ciubotariu_levy.lednotifier.SettingsActivity"
             android:label="@string/title_activity_settings" >
+        </activity>
+        
+         <activity
+            android:name="com.ciubotariu_levy.lednotifier.SMSAppChooserContainer"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
     </application>
 

@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 
-public class SmsAppChooser extends DialogFragment {
+public class SmsAppChooserDialog extends DialogFragment {
 	public static final String KEY_SMS_APP_PACKAGE = "sms_app_package";
 	@Override
 	public Dialog onCreateDialog (Bundle savedInstanceState){
@@ -26,7 +26,7 @@ public class SmsAppChooser extends DialogFragment {
 		for (int x = 0; x < userList.length;x++){
 			userList [x] = smsApps.get(x).loadLabel(pm);
 		}
-		
+
 		return new AlertDialog.Builder(getActivity())
 		.setTitle("Choose SMS app to check against")
 		.setItems(userList, new OnClickListener(){
@@ -36,11 +36,27 @@ public class SmsAppChooser extends DialogFragment {
 				PreferenceManager.getDefaultSharedPreferences(getActivity())
 				.edit()
 				.putString(KEY_SMS_APP_PACKAGE, smsApps.get(which).activityInfo.packageName)
-				.commit();
-				
-				getActivity().startActivity(pm.getLaunchIntentForPackage(smsApps.get(which).activityInfo.packageName));
+				.apply();
 			}
 		})
 		.create();
+	}
+
+	@Override
+	public void onCancel(DialogInterface dialog){
+		super.onCancel(dialog);
+		finishHostActivity();
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog){
+		super.onDismiss(dialog);
+		finishHostActivity();
+	}
+
+	private void finishHostActivity(){
+		if (getActivity() != null){
+			getActivity().finish();
+		}
 	}
 }

@@ -22,11 +22,12 @@ import android.util.Log;
 public class NotificationService extends NotificationListenerService {
 	private final static String TAG = "NotificationService";
 	private final static String KEY_REPLACE_NOTIFICATION = "replace_notification";
+	private final static String KEY_TIE_NOTIFICATION = "tie_to_sms_app";
 
 	protected static boolean isNotificationListenerServiceOn = false;
-	private NotificationManager mNotifyManager; 
 	private Notification mCurrentNotification = null;
 	private boolean mReplaceNotification = false;
+	private boolean mTieNotification = false;
 
 	private SharedPreferences.OnSharedPreferenceChangeListener prefListener = new OnSharedPreferenceChangeListener (){
 
@@ -36,10 +37,11 @@ public class NotificationService extends NotificationListenerService {
 			if (KEY_REPLACE_NOTIFICATION.equals(key)){
 				mReplaceNotification = sharedPreferences.getBoolean(key, false);
 			}
+			else if (KEY_TIE_NOTIFICATION.equals(key)){
+				mTieNotification = sharedPreferences.getBoolean(key, false);
+			}
 		}
 	};
-
-
 
 	private SMSReceiver mSmsReceiver = new SMSReceiver(){
 
@@ -57,7 +59,8 @@ public class NotificationService extends NotificationListenerService {
 					if (isMessagingApp(sb.getPackageName()) && sb.isClearable()){
 						int color = notif.ledARGB;
 						notif = copyNotification(context, sb.getNotification(),color);
-						cancelNotification(sb.getPackageName(), sb.getTag(), sb.getId());;
+						cancelNotification(sb.getPackageName(), sb.getTag(), sb.getId());
+						System.out.println ("Notification replaced");
 						break;
 					}
 				}
@@ -76,10 +79,10 @@ public class NotificationService extends NotificationListenerService {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		sharedPrefs.registerOnSharedPreferenceChangeListener(prefListener);
 		mReplaceNotification = sharedPrefs.getBoolean(KEY_REPLACE_NOTIFICATION, false);
+		mTieNotification = sharedPrefs.getBoolean(KEY_TIE_NOTIFICATION, false);
 		String filterAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
 				Telephony.Sms.Intents.SMS_RECEIVED_ACTION :
 					"android.provider.Telephony.SMS_RECEIVED";
-		mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		IntentFilter filter = new IntentFilter (filterAction);
 		registerReceiver(mSmsReceiver, filter);
 	}
@@ -100,11 +103,9 @@ public class NotificationService extends NotificationListenerService {
 
 	@Override
 	public void onNotificationPosted(StatusBarNotification sbn) {
-		Log.i (TAG, "Notification Posted: " +
-				"\n"+sbn.getNotification().tickerText +
-				"\n"+sbn.getPackageName());
 		if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
 			if (mReplaceNotification){
+				System.out.println ("Replacing notification");
 				int color = mCurrentNotification.ledARGB;
 				mCurrentNotification = copyNotification(this, sbn.getNotification(),color);
 				cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
@@ -120,7 +121,7 @@ public class NotificationService extends NotificationListenerService {
 		if (mReplaceNotification && sbn.getPackageName().equals(getPackageName())){
 			mCurrentNotification = null;
 		}
-		else if (!mReplaceNotification && isMessagingApp(sbn.getPackageName())){
+		else if (mTieNotification && !mReplaceNotification && isMessagingApp(sbn.getPackageName())){
 			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(SMSReceiver.NOTIFICATION_ID);
 			mCurrentNotification = null;
 		}
@@ -131,7 +132,11 @@ public class NotificationService extends NotificationListenerService {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
 			return packageName.equals(Telephony.Sms.getDefaultSmsPackage(this));
 		}
-		return (!packageName.equals(getPackageName())) && (packageName.contains("mms")||packageName.contains("sms") || packageName.contains("messaging")
+		return !packageName.equals(getPackageName())
+				&&(packageName.equals(PreferenceManager.getDefaultSharedPreferences(this).getString(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE, null))
+				||packageName.contains("mms")
+				||packageName.contains("sms") 
+				||packageName.contains("messaging")
 				||packageName.contains("message"));
 	}
 

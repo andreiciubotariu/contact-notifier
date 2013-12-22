@@ -3,10 +3,7 @@
  */
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.Arrays;
-
-import com.ciubotariu_levy.lednotifier.providers.LedContacts;
-
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,16 +11,22 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.PhoneLookup;
+import android.provider.Settings;
+import android.provider.Telephony.Sms;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
+
+import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
 public class SMSReceiver extends BroadcastReceiver {
 	public static final int NOTIFICATION_ID = 1;
@@ -38,6 +41,7 @@ public class SMSReceiver extends BroadcastReceiver {
 		}
 	}
 
+	@TargetApi(19)
 	public void  onNewMessage (Context context, String number, String message){
 		if (!TextUtils.isEmpty(number)){
 			String [] sender = getNameForNumber(number, context.getContentResolver());
@@ -76,8 +80,12 @@ public class SMSReceiver extends BroadcastReceiver {
 			if (c != null){
 				c.close();
 			}
-			//System.out.println ("is color gray? " +  (Color.GRAY == color));
-			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,i, PendingIntent.FLAG_UPDATE_CURRENT);
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+			String smsAppPackageName = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ? 
+					preferences.getString(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE, this.getClass().getPackage().getName())
+					: Sms.getDefaultSmsPackage(context);
+			Intent smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(smsAppPackageName);
+			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			Notification notif = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
 			.setContentText (message + " (Notification LED color should be " + color + ")")
@@ -85,6 +93,7 @@ public class SMSReceiver extends BroadcastReceiver {
 			.setSmallIcon(R.drawable.ic_launcher) //replace later
 			.setLights(color, 1000, 1000) //should flash
 			.setAutoCancel(true)
+			.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())))
 			.build();
 
 			onNotificationGenerated(context, notif);

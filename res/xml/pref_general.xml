@@ -1,7 +1,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <Preference
-        android:key="watched_sms_app"
+        android:key="sms_app_package"
+        android:summary = "Summary"
         android:title="SMS app" />
 
     <RingtonePreference

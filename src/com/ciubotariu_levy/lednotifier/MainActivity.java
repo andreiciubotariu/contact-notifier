@@ -1,10 +1,6 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.List;
-
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -17,7 +13,6 @@ public class MainActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		new SmsAppChooser().show(getSupportFragmentManager(), "APP_CHOOSER");
 	}
 
 	@Override
