@@ -103,6 +103,9 @@ public class NotificationService extends NotificationListenerService {
 
 	@Override
 	public void onNotificationPosted(StatusBarNotification sbn) {
+		if (sbn.getPackageName().equals(getPackageName())){
+			mCurrentNotification = sbn.getNotification();
+		}
 		if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
 			if (mReplaceNotification){
 				System.out.println ("Replacing notification");
