@@ -92,10 +92,12 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 		// Sets the adapter for the ListView
 		setListAdapter(mCursorAdapter);
 		
-		/*getListView().setDivider(null);
+		//change space between list items
+		ListView listView = getListView();
+		listView.setDivider(null);
 		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-		getListView().setDividerHeight(dividerSize);*/
-		getListView().setCacheColorHint(Color.TRANSPARENT);
+		listView.setDividerHeight(dividerSize);
+		listView.setCacheColorHint(Color.TRANSPARENT);
 		
 		mFetcher = new DataFetcher(this, LedContacts.CONTENT_URI);
 		mFetcher.execute(getActivity());
