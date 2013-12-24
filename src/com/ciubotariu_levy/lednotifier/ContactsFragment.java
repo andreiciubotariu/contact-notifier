@@ -17,6 +17,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ListView;
 
@@ -90,7 +91,12 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 		});
 		// Sets the adapter for the ListView
 		setListAdapter(mCursorAdapter);
-
+		
+		/*getListView().setDivider(null);
+		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+		getListView().setDividerHeight(dividerSize);*/
+		getListView().setCacheColorHint(Color.TRANSPARENT);
+		
 		mFetcher = new DataFetcher(this, LedContacts.CONTENT_URI);
 		mFetcher.execute(getActivity());
 	}
@@ -135,14 +141,12 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	public void onDataFetched(HashMap<String, LedContactInfo> fetchedData) {
 		mFetcher = null;
 		mLedData = fetchedData;
-		System.out.println (mLedData);
 		//Initializes the loader
 		getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
 	public void onColorChosen(int color, String lookupKey) {
-		Log.i(TAG,"lookupKey = "+lookupKey);
 		LedContactInfo info = mLedData.get(lookupKey);
 		if (info == null){
 			info = new LedContactInfo();
@@ -160,5 +164,4 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 		info.id = Long.parseLong (uri.getLastPathSegment());
 		mCursorAdapter.notifyDataSetChanged();
 	}
-
 }
