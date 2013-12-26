@@ -43,7 +43,8 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 		Contacts._ID,
 		Contacts.LOOKUP_KEY,
 		CONTACT_NAME,
-		CommonDataKinds.Phone.NUMBER
+		CommonDataKinds.Phone.NUMBER,
+		CommonDataKinds.Phone.TYPE
 	};
 
 	/*
@@ -114,8 +115,8 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 				getActivity(),
 				CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION,
-				null,
-				null,
+				CommonDataKinds.Phone.TYPE + "=?",
+				new String [] {String.valueOf(CommonDataKinds.Phone.TYPE_MOBILE)},
 				CONTACT_NAME + " ASC");
 	}
 

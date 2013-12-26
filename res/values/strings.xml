@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">LedNotifier</string>
+    <string name="app_name">Contact Led Notifier</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="hello">Hello</string>
-    <string name ="service_name">LED-Notifier Notification Service</string>
+    <string name="service_name">LED-Notifier Notification Service</string>
+    <string name="contact_observer_service_name">Contact Observer Service</string>
 
 </resources>

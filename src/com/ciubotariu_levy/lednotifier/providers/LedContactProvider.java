@@ -59,7 +59,7 @@ public class LedContactProvider extends ContentProvider {
 	private DatabaseHelper mDbHelper;
 
 	@Override
-	public int delete (Uri uri, String selection, String []selectionArgs){
+	public int delete (Uri uri, String selection, String [] selectionArgs){
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		switch (sUriMatcher.match(uri)){
 		case LEDCONTACTS:
@@ -127,7 +127,7 @@ public class LedContactProvider extends ContentProvider {
 		case LEDCONTACTS:
 			break;
 		case LEDCONTACTS_ID:
-			selection = selection + LedContacts._ID + " = " + uri.getLastPathSegment();
+			selection = (selection != null ? selection + " " : "") + LedContacts._ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
