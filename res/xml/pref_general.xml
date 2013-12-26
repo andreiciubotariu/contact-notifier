@@ -28,5 +28,11 @@
         android:defaultValue="false"
         android:key="replace_notification"
         android:title="Replace Notification" />
+    
+    <Preference android:title="About" >
+        <intent
+            android:targetClass="com.ciubotariu_levy.lednotifier.AboutActivity"
+            android:targetPackage="com.ciubotariu_levy.lednotifier" />
+    </Preference>
 
 </PreferenceScreen>

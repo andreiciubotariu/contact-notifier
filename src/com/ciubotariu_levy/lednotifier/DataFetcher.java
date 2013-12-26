@@ -24,6 +24,7 @@ public class DataFetcher extends
 		mListener = listener;
 		mUri = uri;
 	}
+	
 	@Override
 	protected HashMap<String, LedContactInfo> doInBackground(Context... params) {
 		HashMap <String, LedContactInfo> map = new HashMap <String,LedContactInfo> ();

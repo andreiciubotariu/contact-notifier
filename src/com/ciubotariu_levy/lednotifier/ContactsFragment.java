@@ -76,12 +76,10 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 				TO_IDS,
 				0);
 		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-			//TODO delete orphaned LedContacts (eg as a result from a contact delete)
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				switch (view.getId()){
 				case R.id.contact_display_color:
-
 					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 					int color = info == null ? Color.GRAY : info.color;
 					view.setBackgroundColor(color);

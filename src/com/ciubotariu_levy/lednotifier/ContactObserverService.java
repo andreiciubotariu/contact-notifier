@@ -17,7 +17,6 @@ import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
-import android.widget.Toast;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
@@ -73,7 +72,7 @@ public class ContactObserverService extends Service {
 		Cursor c = getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, 
 				PROJECTION, 
 				null,
-				null, //watch for all contact changes, not just ones with a mobile number 
+				null, //watch for all contact changes, not just ones with a Phone.TYPE_MOBILE number 
 				CONTACT_NAME + " ASC");
 		if (c != null){
 			numContacts = c.getCount();

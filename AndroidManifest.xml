@@ -44,6 +44,16 @@
         <activity
             android:name="com.ciubotariu_levy.lednotifier.SettingsActivity"
             android:label="@string/title_activity_settings" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ciubotariu_levy.lednotifier.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.ciubotariu_levy.lednotifier.AboutActivity"
+            android:label="@string/title_activity_about" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ciubotariu_levy.lednotifier.MainActivity" />
         </activity>
         <activity
             android:name="com.ciubotariu_levy.lednotifier.SMSAppChooserContainer"

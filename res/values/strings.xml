@@ -5,5 +5,10 @@
     <string name="action_settings">Settings</string>
     <string name="service_name">LED-Notifier Notification Service</string>
     <string name="contact_observer_service_name">Contact Observer Service</string>
+    <string name="title_activity_about">About</string>
+    <string name="contributors">Contributors</string>
+    <string name="andrei_ciubotariu">Andrei Ciubotariu</string>
+    <string name="matthew_levy">Matthew Levy</string>
+    <string name="hosted_on_github">Hosted on GitHub</string>
 
 </resources>
