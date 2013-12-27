@@ -7,8 +7,9 @@
 
     <com.ciubotariu_levy.lednotifier.ColorView
         android:id="@+id/color_view"
-        android:layout_width="100dp"
-        android:layout_height="0px" />
+        android:layout_width="110dp"
+        android:layout_height="0px" 
+        android:layout_gravity="center_horizontal"/>
 
     <SeekBar
         android:id="@+id/red"
@@ -36,6 +37,12 @@
     	    android:layout_height="wrap_content"
     	    android:text="Cancel"
     	    android:layout_weight="1"/>
+        <Button
+        	android:id="@+id/reset_color"
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:text="Default"
+        	android:layout_weight="1"/> 
         
     	<Button
         	android:id="@+id/submit_color"

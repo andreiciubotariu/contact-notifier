@@ -87,6 +87,13 @@ public class ColorDialog extends DialogFragment {
 				dismiss();
 			}
 		});
+		view.findViewById(R.id.reset_color).setOnClickListener(new OnClickListener() {			
+			@Override
+			public void onClick(View v) {
+				onColorChosen (Color.GRAY);
+				dismiss();
+			}
+		});
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
