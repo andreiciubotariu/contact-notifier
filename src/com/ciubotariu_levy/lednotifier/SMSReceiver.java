@@ -30,6 +30,7 @@ import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
 public class SMSReceiver extends BroadcastReceiver {
 	public static final int NOTIFICATION_ID = 1;
+	protected static final String SHOW_ALL_NOTIFS = "show_all_notifications";
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -97,14 +98,14 @@ public class SMSReceiver extends BroadcastReceiver {
 			.build();
 
 			onNotificationGenerated(context, notif);
-
 		}
 	}
 
 	public void onNotificationGenerated (Context context, Notification notif){
 		boolean isServiceOn = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ?
 				NotificationService.isNotificationListenerServiceOn : false;
-		if (!isServiceOn && notif.ledARGB != Color.GRAY){
+		boolean showAllNotifications = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SHOW_ALL_NOTIFS, true);
+		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY)){
 			notify (context, notif);
 		}
 	}

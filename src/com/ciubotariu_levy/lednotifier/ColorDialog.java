@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.SeekBar;
 
 public class ColorDialog extends DialogFragment {
 	//0xFF000000 to 0xFFFFFFFF

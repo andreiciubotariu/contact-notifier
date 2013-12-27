@@ -5,6 +5,13 @@
         android:summary = "Summary"
         android:title="SMS app" />
 
+     <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="show_all_notifications"
+        android:summaryOn = "Showing notification for all received messages"
+        android:summaryOff = "Notification shown only for contacts with a set color"
+        android:title="Notification frequency" />
+     
     <RingtonePreference
         android:defaultValue="content://settings/system/notification_sound"
         android:key="notifications_new_message_ringtone"

@@ -5,19 +5,18 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.SweepGradient;
-import android.provider.CalendarContract.Colors;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 //Graphical circle of color
 public class ColorWheel extends View {
-	int color;
-	float cx, cy;
-	Paint paint;
+	private int color;
+	private float cx, cy;
+	private Paint paint;
 	boolean lockWidth; //True if height depends on width, false if width depends on height
-	int[]wheelColors;
-	ColorDialog cd;
+	private int[]wheelColors;
+	private ColorDialog cd;
 	
 	public ColorWheel(Context context, AttributeSet attrs) {
 		super(context, attrs);

@@ -3,36 +3,58 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:background="@android:color/white"
     android:orientation="vertical" >
 
     <com.ciubotariu_levy.lednotifier.ColorWheel
         android:id="@+id/wheel"
         android:layout_width="275dp"
-        android:layout_height="0px"/>
+        android:layout_height="0px" />
+
+    <View
+        style="@style/Divider"
+        android:layout_width="match_parent" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-               
-        <Button 
-    	    android:id="@+id/cancel"
-    	    android:layout_width="match_parent"
-    	    android:layout_height="wrap_content"
-    	    android:text="Cancel"
-    	    android:layout_weight="1"/>
+        android:orientation="horizontal" >
+
         <Button
-        	android:id="@+id/reset_color"
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:text="Default"
-        	android:layout_weight="1"/> 
-        
-    	<Button
-        	android:id="@+id/submit_color"
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:text="Confirm"
-        	android:layout_weight="1"/>    	    
+            android:id="@+id/cancel"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel" />
+
+        <View
+            style="@style/Divider_Vertical"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/reset_color"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Default" />
+
+        <View
+            style="@style/Divider_Vertical"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/submit_color"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Confirm" />
     </LinearLayout>
+
+    <View
+        style="@style/Divider"
+        android:layout_width="match_parent" />
+
 </LinearLayout>

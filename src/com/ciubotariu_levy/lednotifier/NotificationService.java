@@ -16,7 +16,6 @@ import android.provider.Telephony;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
@@ -48,9 +47,8 @@ public class NotificationService extends NotificationListenerService {
 		@Override
 		public void onNotificationGenerated(Context context, Notification notif){
 			context = NotificationService.this;
-			if (notif.ledARGB == Color.GRAY){
+			if (notif.ledARGB == Color.GRAY && !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SHOW_ALL_NOTIFS, true)){
 				mCurrentNotification = null;
-				Log.d(TAG, "returning");
 				return;
 			}
 			if (mReplaceNotification){
