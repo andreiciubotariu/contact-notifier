@@ -53,7 +53,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 		setupSimplePreferencesScreen();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-			//getActionBar().setDisplayHomeAsUpEnabled(true);
+			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
 
@@ -248,7 +248,9 @@ public class SettingsActivity extends PreferenceActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);        
+			Intent i = NavUtils.getParentActivityIntent(this);    
+			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity (i);
 			return true;
 		default: return super.onOptionsItemSelected(item);        
 		}
