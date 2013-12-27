@@ -13,7 +13,8 @@
 
     <Preference
         android:summary="Below preferences depend on the notification access setting"
-        android:title="System security settings" >
+        android:title="System security settings" 
+        android:enabled="@bool/notification_service_enabled">
         <intent android:action="android.settings.SECURITY_SETTINGS" />
     </Preference>
 

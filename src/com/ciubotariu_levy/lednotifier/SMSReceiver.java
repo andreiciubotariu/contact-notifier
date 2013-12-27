@@ -88,9 +88,9 @@ public class SMSReceiver extends BroadcastReceiver {
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			Notification notif = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
-			.setContentText (message + " (Notification LED color should be " + color + ")")
+			.setContentText (message)
 			.setContentIntent (pendingIntent)
-			.setSmallIcon(R.drawable.ic_launcher) //replace later
+			.setSmallIcon(R.drawable.ic_stat_new_msg) //replace later
 			.setLights(color, 1000, 1000) //should flash
 			.setAutoCancel(true)
 			.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())))
