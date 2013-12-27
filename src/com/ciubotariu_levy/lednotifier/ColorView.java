@@ -1,10 +1,7 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.Random;
-
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -18,9 +15,6 @@ public class ColorView extends View {
 	public ColorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		paint = new Paint();
-//		Random r = new Random();
-//		color = r.nextInt();
-//		color = color|0xFF000000;
 		paint.setColor(color);
 	}
 
@@ -45,5 +39,4 @@ public class ColorView extends View {
 	public void onDraw(Canvas c){
 		c.drawCircle(getWidth()/2, getHeight()/2, getWidth()/2, paint);
 	}
-
 }

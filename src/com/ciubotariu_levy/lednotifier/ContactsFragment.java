@@ -121,7 +121,6 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		Log.i(TAG, "Load finished " + cursor.getCount());
 		mCursorAdapter.swapCursor(cursor);
 		setEmptyText("No contacts found");
 	}
@@ -136,29 +135,36 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	public void onDataFetched(HashMap<String, LedContactInfo> fetchedData) {
 		mFetcher = null;
 		mLedData = fetchedData;
-		System.out.println (mLedData);
 		//Initializes the loader
 		getLoaderManager().initLoader(0, null, this);
 	}
 
 	@Override
 	public void onColorChosen(int color, String lookupKey) {
-		Log.i(TAG,"lookupKey = "+lookupKey);
 		LedContactInfo info = mLedData.get(lookupKey);
-		if (info == null){
-			info = new LedContactInfo();
-			info.systemId = lookupKey;
-			mLedData.put(info.systemId, info);
+		if (color == Color.GRAY){
+			int deleted = getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_ID + "=?", new String [] {lookupKey});
+			System.out.println ("deleted " +  deleted);
+			if (info != null){
+				mLedData.put(lookupKey, null);
+			}
 		}
-		info.color = color;
-		ContentValues values = new ContentValues();
-		if (info.id != -1){
-			values.put(LedContacts._ID, info.id);
+		else {
+			if (info == null){
+				info = new LedContactInfo();
+				info.systemId = lookupKey;
+				mLedData.put(info.systemId, info);
+			}
+			info.color = color;
+			ContentValues values = new ContentValues();
+			if (info.id != -1){
+				values.put(LedContacts._ID, info.id);
+			}
+			values.put(LedContacts.SYSTEM_CONTACT_ID, lookupKey);
+			values.put(LedContacts.COLOR, color);
+			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
+			info.id = Long.parseLong (uri.getLastPathSegment());
 		}
-		values.put(LedContacts.SYSTEM_CONTACT_ID, lookupKey);
-		values.put(LedContacts.COLOR, color);
-		Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
-		info.id = Long.parseLong (uri.getLastPathSegment());
 		mCursorAdapter.notifyDataSetChanged();
 	}
 

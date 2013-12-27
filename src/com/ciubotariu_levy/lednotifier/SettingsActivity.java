@@ -16,15 +16,15 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.provider.Telephony.Sms;
-import android.telephony.SmsManager;
+import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
+import android.view.MenuItem;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -46,13 +46,17 @@ public class SettingsActivity extends PreferenceActivity {
 	 */
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
 		setupSimplePreferencesScreen();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			//getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 	}
-	
+
 	protected void onResume (){
 		super.onResume();
 		setupSMSAppPreference(findPreference(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE));
@@ -80,7 +84,7 @@ public class SettingsActivity extends PreferenceActivity {
 		setupNotificationPreferences(tieNotifications, replaceNotifications);
 		setupNotificationPreferences(replaceNotifications, tieNotifications);
 	}
-	
+
 
 	private static void setupNotificationPreferences (CheckBoxPreference master, final CheckBoxPreference toModify){
 		master.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -94,7 +98,7 @@ public class SettingsActivity extends PreferenceActivity {
 				return false;
 			}
 		});
-		
+
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2){
 			master.setEnabled(false);
 		}
@@ -123,7 +127,7 @@ public class SettingsActivity extends PreferenceActivity {
 				return false;
 			}
 		});
-		
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
 			smsPreference.setEnabled(false);
 		}
@@ -240,6 +244,16 @@ public class SettingsActivity extends PreferenceActivity {
 								""));
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);        
+			return true;
+		default: return super.onOptionsItemSelected(item);        
+		}
+	}
+
 	/**
 	 * This fragment shows general preferences only. It is used when the
 	 * activity is showing a two-pane settings UI.
@@ -256,9 +270,8 @@ public class SettingsActivity extends PreferenceActivity {
 			CheckBoxPreference replaceNotifications = (CheckBoxPreference) findPreference("replace_notification");
 			setupNotificationPreferences(tieNotifications, replaceNotifications);
 			setupNotificationPreferences(replaceNotifications, tieNotifications);
-			
 		}
-		
+
 		@Override
 		public void onResume (){
 			super.onResume();

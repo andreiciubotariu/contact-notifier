@@ -17,7 +17,6 @@ import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
-import android.widget.Toast;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
