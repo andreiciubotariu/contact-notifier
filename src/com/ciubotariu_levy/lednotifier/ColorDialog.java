@@ -11,23 +11,12 @@ import android.view.Window;
 import android.widget.SeekBar;
 
 public class ColorDialog extends DialogFragment {
-
-	//0-255
-	private int red;
-	private int green;
-	private int blue;
-
-	//Bars for selecting RGB
-	private SeekBar redBar;
-	private SeekBar greenBar;
-	private SeekBar blueBar;
-
 	//0xFF000000 to 0xFFFFFFFF
 	private int color;
 
 	private int originalColor;
 	
-	private ColorView sample;
+	private ColorWheel sample;
 
 
 	public interface OnColorChosenListener {
@@ -51,24 +40,8 @@ public class ColorDialog extends DialogFragment {
 		//Required Empty Constructor
 	}
 
-	public void setRed(int red){
-		this.red = red;
-		updateColor();
-	}
-
-	public void setBlue(int blue){
-		this.blue = blue;
-		updateColor();
-	}
-
-	public void setGreen(int green){
-		this.green = green;
-		updateColor();
-	}
-
-	public void updateColor(){
-		color = Color.argb(255, red, green, blue);
-		sample.setColor(color);
+	public void setColor(int color){
+		this.color = color;
 	}
 
 	@Override
@@ -104,43 +77,11 @@ public class ColorDialog extends DialogFragment {
 		color = originalColor;
 		if (savedInstanceState != null){
 			color = savedInstanceState.getInt(USER_CURRENT_COLOR, originalColor);
-		}
-		red = Color.red(color);
-		green = Color.green(color);
-		blue = Color.blue(color);
-		sample = (ColorView) view.findViewById(R.id.color_view);
+		}		
+		sample = (ColorWheel) view.findViewById(R.id.wheel);
+		sample.setDialog(this);
 		sample.lockWidth=true;
-		sample.setColor(color);
-		redBar = (SeekBar)view.findViewById(R.id.red);
-		redBar.setMax(255);
-		redBar.setProgress(red);
-		redBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-			public void onStopTrackingTouch(SeekBar seekBar) {}
-			public void onStartTrackingTouch(SeekBar seekBar) {}
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				setRed(progress);
-			}
-		});				
-		greenBar = (SeekBar)view.findViewById(R.id.green);
-		greenBar.setMax(255);
-		greenBar.setProgress(green);
-		greenBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-			public void onStopTrackingTouch(SeekBar seekBar) {}
-			public void onStartTrackingTouch(SeekBar seekBar) {}
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {				
-				setGreen(progress);
-			}
-		});
-		blueBar = (SeekBar)view.findViewById(R.id.blue);
-		blueBar.setMax(255);
-		blueBar.setProgress(blue);
-		blueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-			public void onStopTrackingTouch(SeekBar seekBar) {}
-			public void onStartTrackingTouch(SeekBar seekBar) {}
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				setBlue(progress);
-			}
-		});
+		sample.setColor(color);		
 		return view;
 	}
 	

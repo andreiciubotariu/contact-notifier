@@ -5,26 +5,10 @@
     android:layout_gravity="center"
     android:orientation="vertical" >
 
-    <com.ciubotariu_levy.lednotifier.ColorView
-        android:id="@+id/color_view"
-        android:layout_width="110dp"
-        android:layout_height="0px" 
-        android:layout_gravity="center_horizontal"/>
-
-    <SeekBar
-        android:id="@+id/red"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content" />
-
-    <SeekBar
-        android:id="@+id/green"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <SeekBar
-        android:id="@+id/blue"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <com.ciubotariu_levy.lednotifier.ColorWheel
+        android:id="@+id/wheel"
+        android:layout_width="275dp"
+        android:layout_height="0px"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,7 +32,7 @@
         	android:id="@+id/submit_color"
         	android:layout_width="match_parent"
         	android:layout_height="wrap_content"
-        	android:text="Set Color"
+        	android:text="Confirm"
         	android:layout_weight="1"/>    	    
     </LinearLayout>
 </LinearLayout>
