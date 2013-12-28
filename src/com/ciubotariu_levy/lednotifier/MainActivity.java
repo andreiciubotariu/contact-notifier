@@ -1,6 +1,7 @@
 package com.ciubotariu_levy.lednotifier;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -26,6 +27,9 @@ public class MainActivity extends ActionBarActivity {
 		switch (item.getItemId()){
 		case R.id.action_settings:
 			startActivity (new Intent (this, SettingsActivity.class));
+			return true;
+		case R.id.action_help:
+			startActivity (new Intent (Intent.ACTION_VIEW, Uri.parse("http://github.com/andreiciubotariu/led-notifier/wiki")));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
