@@ -149,8 +149,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	public void onColorChosen(int color, String lookupKey) {
 		LedContactInfo info = mLedData.get(lookupKey);
 		if (color == Color.GRAY){
-			int deleted = getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_ID + "=?", new String [] {lookupKey});
-			System.out.println ("deleted " +  deleted);
+			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_ID + "=?", new String [] {lookupKey});
 			if (info != null){
 				mLedData.put(lookupKey, null);
 			}

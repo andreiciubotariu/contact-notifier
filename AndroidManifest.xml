@@ -59,6 +59,11 @@
             android:name="com.ciubotariu_levy.lednotifier.SMSAppChooserContainer"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
+        
+        <activity
+            android:name="com.ciubotariu_levy.lednotifier.DefaultColorChooserContainer"
+            android:theme="@style/TranslucentAppTheme" >
+        </activity>
 
         <service
             android:name="com.ciubotariu_levy.lednotifier.NotificationService"

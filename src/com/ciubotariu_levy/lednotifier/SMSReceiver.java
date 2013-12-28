@@ -104,7 +104,11 @@ public class SMSReceiver extends BroadcastReceiver {
 	public void onNotificationGenerated (Context context, Notification notif){
 		boolean isServiceOn = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ?
 				NotificationService.isNotificationListenerServiceOn : false;
-		boolean showAllNotifications = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SHOW_ALL_NOTIFS, true);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		boolean showAllNotifications = prefs.getBoolean(SHOW_ALL_NOTIFS, true);
+		if (showAllNotifications && notif.ledARGB == Color.GRAY){
+			notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
+		}
 		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY)){
 			notify (context, notif);
 		}

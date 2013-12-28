@@ -102,7 +102,7 @@ public class ContactObserverService extends Service {
 				while (c.moveToNext());
 				c.close();
 			}
-			System.out.println (resolver.delete(LedContacts.CONTENT_URI, LedContacts._ID + " IN " + generateSelectionMarks(toDelete.size()), toDelete.toArray(new String[toDelete.size()])));
+			resolver.delete(LedContacts.CONTENT_URI, LedContacts._ID + " IN " + generateSelectionMarks(toDelete.size()), toDelete.toArray(new String[toDelete.size()]));
 			
 			return null;
 		}

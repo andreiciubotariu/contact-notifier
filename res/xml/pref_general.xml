@@ -2,16 +2,26 @@
 
     <Preference
         android:key="sms_app_package"
-        android:summary = "Summary"
+        android:summary="SMS app used"
         android:title="SMS app" />
 
-     <CheckBoxPreference
-        android:defaultValue="true"
+    <CheckBoxPreference
+        android:defaultValue="false"
         android:key="show_all_notifications"
-        android:summaryOn = "Showing notification for all received messages"
-        android:summaryOff = "Notification shown only for contacts with a set color"
+        android:summaryOff="Notification shown only for contacts with a set color"
+        android:summaryOn="Showing notification for all received messages"
         android:title="Notification frequency" />
-     
+
+    <Preference
+        android:dependency="show_all_notifications"
+        android:key="default_notification_color"
+        android:summary="Notification color for non-custom contacts"
+        android:title="Default notification color" >
+        <intent
+            android:targetClass="com.ciubotariu_levy.lednotifier.DefaultColorChooserContainer"
+            android:targetPackage="com.ciubotariu_levy.lednotifier" />
+        </Preference>
+
     <RingtonePreference
         android:defaultValue="content://settings/system/notification_sound"
         android:key="notifications_new_message_ringtone"
@@ -19,24 +29,23 @@
         android:title="@string/pref_title_ringtone" />
 
     <Preference
+        android:enabled="@bool/notification_service_enabled"
         android:summary="Below preferences depend on the notification access setting"
-        android:title="System security settings" 
-        android:enabled="@bool/notification_service_enabled">
+        android:title="System security settings" >
         <intent android:action="android.settings.SECURITY_SETTINGS" />
     </Preference>
 
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="tie_to_sms_app"
-        android:summaryOn = "Dismissing notification when SMS app notification dismissed"
-        android:summaryOff = "No automatic dismissal"
+        android:summaryOff="No automatic dismissal"
+        android:summaryOn="Dismissing notification when SMS app notification dismissed"
         android:title="Tie to SMS app" />
-    
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="replace_notification"
         android:title="Replace Notification" />
-    
+
     <Preference android:title="About" >
         <intent
             android:targetClass="com.ciubotariu_levy.lednotifier.AboutActivity"

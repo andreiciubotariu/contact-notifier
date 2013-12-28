@@ -1,5 +1,6 @@
 package com.ciubotariu_levy.lednotifier;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -94,13 +95,38 @@ public class ColorDialog extends DialogFragment {
 		OnColorChosenListener listener = null;
 		try{
 			listener =(OnColorChosenListener) getParentFragment();
-
 		}
 		catch (ClassCastException e){
 			e.printStackTrace();
 		}
+		if (listener == null){
+			try{
+				listener = (OnColorChosenListener) getActivity();
+			}
+			catch (ClassCastException e){
+				e.printStackTrace();
+			}
+		}
 		if (listener != null){
 			listener.onColorChosen(color, getArguments().getString(LOOKUP_KEY_VALUE));
+		}
+	}
+	
+	@Override
+	public void onCancel(DialogInterface dialog){
+		super.onCancel(dialog);
+		finishHostActivity();
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog){
+		super.onDismiss(dialog);
+		finishHostActivity();
+	}
+
+	private void finishHostActivity(){
+		if (getArguments().getString(LOOKUP_KEY_VALUE) == null && getActivity() != null){
+			getActivity().finish();
 		}
 	}
 }

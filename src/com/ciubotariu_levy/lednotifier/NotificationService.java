@@ -47,7 +47,12 @@ public class NotificationService extends NotificationListenerService {
 		@Override
 		public void onNotificationGenerated(Context context, Notification notif){
 			context = NotificationService.this;
-			if (notif.ledARGB == Color.GRAY && !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SHOW_ALL_NOTIFS, true)){
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+			boolean showAllNotifications = prefs.getBoolean(SHOW_ALL_NOTIFS, true);
+			if (showAllNotifications && notif.ledARGB == Color.GRAY){
+				notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
+			}
+			else if (!showAllNotifications && notif.ledARGB == Color.GRAY){
 				mCurrentNotification = null;
 				return;
 			}
