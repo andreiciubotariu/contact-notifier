@@ -27,6 +27,11 @@
         android:key="notifications_new_message_ringtone"
         android:ringtoneType="notification"
         android:title="@string/pref_title_ringtone" />
+    
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="notifications_new_message_vibrate"
+        android:title="@string/pref_title_vibrate" />
 
     <Preference
         android:enabled="@bool/notification_service_enabled"
@@ -41,6 +46,7 @@
         android:summaryOff="No automatic dismissal"
         android:summaryOn="Dismissing notification when SMS app notification dismissed"
         android:title="Tie to SMS app" />
+    
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="replace_notification"

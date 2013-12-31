@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -17,10 +19,13 @@ import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
+import android.provider.Telephony.Sms;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
-public class ContactObserverService extends Service {
+@TargetApi(19)
+public class ObserverService extends Service {
+	private Handler mHandler = new Handler();
 
 	@SuppressLint("InlinedApi")
 	private final static String CONTACT_NAME = Build.VERSION.SDK_INT
@@ -37,12 +42,17 @@ public class ContactObserverService extends Service {
 
 
 	int mNumContacts;
-	ContentObserver mContentObserver = new ContentObserver (new Handler()){
+	ContentObserver mContactContentObserver = new ContentObserver (mHandler){
 		@Override
 		public void onChange (boolean selfChange){
-			super.onChange(selfChange);
+			onChange(selfChange, null);
+		}
+
+		@Override
+		public void onChange (boolean selfChange, Uri uri){
+			System.out.println ("changed");
 			int newNumContacts = getNumContacts(mNumContacts);
-			
+
 			if (mNumContacts != newNumContacts){
 				mNumContacts = newNumContacts;
 				new ContactsChangeChecker().execute();
@@ -50,23 +60,84 @@ public class ContactObserverService extends Service {
 		}
 	};
 
+	int mUnread;
+	int mUnseen;
+	boolean registeredObserver = false;
+	final static Uri SMS_CONTENT_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.CONTENT_URI : Uri.parse("content://sms/");
+	final static Uri INBOX_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.CONTENT_URI : Uri.parse("content://sms/inbox/");
+	final static String READ =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Sms.Inbox.READ : "read";	
+	final static String SEEN =  Build.VERSION.SDK_INT 	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.SEEN : "seen";	
+	
+	ContentObserver mSMSContentObserver = new ContentObserver (mHandler){
+		@Override
+		public void onChange (boolean selfChange){
+			onChange(selfChange, null);
+		}
+
+		@Override
+		public void onChange (boolean selfChange, Uri uri){
+			int unseen = getUnseenSms();
+			int unread = getUnreadSms();
+
+			System.out.println ("Stats " + unseen+ "|" + unread);
+			if (unseen <mUnseen || unread<mUnread){
+				NotificationManager notifManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+				notifManager.cancel(SMSReceiver.NOTIFICATION_ID);
+			}
+			mUnseen = unseen;
+			mUnread = unread;
+		}
+	};
+
 	@Override
 	public void onCreate(){
 		super.onCreate();
 		mNumContacts = getNumContacts(-1);
-		getContentResolver().registerContentObserver(CommonDataKinds.Phone.CONTENT_URI, true, mContentObserver);
+		getContentResolver().registerContentObserver(CommonDataKinds.Phone.CONTENT_URI, true, mContactContentObserver);
+		try{
+			mUnread = getUnreadSms();
+			mUnseen = getUnseenSms();
+			getContentResolver().registerContentObserver(SMS_CONTENT_URI, true, mSMSContentObserver);
+			registeredObserver = true;
+			System.out.println ("Registered observer " + mUnseen +"|" + mUnread);
+		}catch (Exception e){ //sms inbox not standardized on jellybean and older
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
 	}
-	
+
 	@Override
 	public void onDestroy(){
-		getContentResolver().unregisterContentObserver(mContentObserver);
+		getContentResolver().unregisterContentObserver(mContactContentObserver);
+		if (registeredObserver){
+			getContentResolver().unregisterContentObserver(mSMSContentObserver);
+			registeredObserver = false;
+		}
 	}
-	
+
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return null;
 	}
-	
+
+	private int getUnreadSms(){
+		return getSmsBasedOnProperty(READ, mUnread);
+	}
+
+	private int getUnseenSms(){
+		return getSmsBasedOnProperty(SEEN, mUnseen);
+	}
+
+	private int getSmsBasedOnProperty (String prop, int currentCount){
+		int count = currentCount;
+		Cursor c = getContentResolver().query(INBOX_URI, null, prop +"=?", new String[]{"0"},null);
+		if (c != null){
+			count = c.getCount();
+			c.close();
+		}
+		return count;
+	}
+
 	private int getNumContacts (int currentNum){
 		int numContacts = currentNum;
 		Cursor c = getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, 
@@ -93,7 +164,7 @@ public class ContactObserverService extends Service {
 				do {
 					int id = c.getInt(c.getColumnIndex(LedContacts._ID));
 					String systemLookupKey = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_ID));
-					
+
 					Uri lookupUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI,systemLookupKey);
 					if (ContactsContract.Contacts.lookupContact(resolver, lookupUri) == null){
 						toDelete.add(String.valueOf(id));
@@ -103,7 +174,7 @@ public class ContactObserverService extends Service {
 				c.close();
 			}
 			resolver.delete(LedContacts.CONTENT_URI, LedContacts._ID + " IN " + generateSelectionMarks(toDelete.size()), toDelete.toArray(new String[toDelete.size()]));
-			
+
 			return null;
 		}
 

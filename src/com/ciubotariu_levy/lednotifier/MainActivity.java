@@ -1,5 +1,6 @@
 package com.ciubotariu_levy.lednotifier;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,11 +10,12 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
+	@TargetApi(19)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		startService (new Intent (this, ContactObserverService.class));
+		startService (new Intent (this, ObserverService.class));
 	}
 
 	@Override

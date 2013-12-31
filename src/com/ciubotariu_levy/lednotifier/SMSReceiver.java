@@ -48,7 +48,6 @@ public class SMSReceiver extends BroadcastReceiver {
 			String [] sender = getNameForNumber(number, context.getContentResolver());
 			//System.out.println (Arrays.toString(sender));
 
-
 			Intent i=new Intent(context, MainActivity.class);
 
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -58,15 +57,10 @@ public class SMSReceiver extends BroadcastReceiver {
 			String [] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_ID, LedContacts.VIBRATE_PATTERN};
 			String selection = null;
 			String [] selectionArgs = null;
-			//if (sender [0] != null){
 				selection = LedContacts.SYSTEM_CONTACT_ID + " = ?" ;
 				if (sender [0] != null){
 					selectionArgs = new String [] {	sender [0] };
 				}
-				/*else {
-					selectionArgs = new String [] {	 };
-				}*/
-			//}
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
 			int color = Color.GRAY;
 			if (c != null && c.moveToFirst()){
@@ -90,13 +84,17 @@ public class SMSReceiver extends BroadcastReceiver {
 			Notification notif = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
 			.setContentText (message)
+			.setTicker(sender[1]+": " + message)
 			.setContentIntent (pendingIntent)
-			.setSmallIcon(R.drawable.ic_stat_new_msg) //replace later
+			.setSmallIcon(R.drawable.ic_stat_new_msg)
 			.setLights(color, 1000, 1000) //should flash
 			.setAutoCancel(true)
 			.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())))
 			.build();
-
+			
+			if (preferences.getBoolean("notifications_new_message_vibrate", false)){
+				notif.defaults|=Notification.DEFAULT_VIBRATE;
+			}
 			onNotificationGenerated(context, notif);
 		}
 	}
