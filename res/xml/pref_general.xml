@@ -20,14 +20,14 @@
         <intent
             android:targetClass="com.ciubotariu_levy.lednotifier.DefaultColorChooserContainer"
             android:targetPackage="com.ciubotariu_levy.lednotifier" />
-        </Preference>
+    </Preference>
 
     <RingtonePreference
         android:defaultValue="content://settings/system/notification_sound"
         android:key="notifications_new_message_ringtone"
         android:ringtoneType="notification"
         android:title="@string/pref_title_ringtone" />
-    
+
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="notifications_new_message_vibrate"
@@ -42,11 +42,12 @@
 
     <CheckBoxPreference
         android:defaultValue="true"
+        android:enabled="@bool/notification_service_enabled"
         android:key="tie_to_sms_app"
         android:summaryOff="If SMS app dismissed, our notification may need manual dismissal"
         android:summaryOn="Dismissing notification when SMS app notification dismissed"
         android:title="Tie to SMS app" />
-    
+
     <Preference android:title="About" >
         <intent
             android:targetClass="com.ciubotariu_levy.lednotifier.AboutActivity"
