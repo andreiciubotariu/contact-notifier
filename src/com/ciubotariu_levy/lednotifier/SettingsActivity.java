@@ -79,10 +79,10 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.pref_general);
 		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 
-		CheckBoxPreference tieNotifications = (CheckBoxPreference) findPreference("tie_to_sms_app");
-		CheckBoxPreference replaceNotifications = (CheckBoxPreference) findPreference("replace_notification");
-		setupNotificationPreferences(tieNotifications, replaceNotifications);
-		setupNotificationPreferences(replaceNotifications, tieNotifications);
+		//CheckBoxPreference tieNotifications = (CheckBoxPreference) findPreference("tie_to_sms_app");
+		//CheckBoxPreference replaceNotifications = (CheckBoxPreference) findPreference("replace_notification");
+		//setupNotificationPreferences(tieNotifications, replaceNotifications);
+		//setupNotificationPreferences(replaceNotifications, tieNotifications);
 	}
 
 

@@ -43,15 +43,10 @@
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="tie_to_sms_app"
-        android:summaryOff="No automatic dismissal"
+        android:summaryOff="If SMS app dismissed, our notification may need manual dismissal"
         android:summaryOn="Dismissing notification when SMS app notification dismissed"
         android:title="Tie to SMS app" />
     
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="replace_notification"
-        android:title="Replace Notification" />
-
     <Preference android:title="About" >
         <intent
             android:targetClass="com.ciubotariu_levy.lednotifier.AboutActivity"

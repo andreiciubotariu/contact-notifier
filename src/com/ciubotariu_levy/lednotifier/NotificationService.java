@@ -34,7 +34,7 @@ public class NotificationService extends NotificationListenerService {
 		public void onSharedPreferenceChanged(
 				SharedPreferences sharedPreferences, String key) {
 			if (KEY_REPLACE_NOTIFICATION.equals(key)){
-				mReplaceNotification = sharedPreferences.getBoolean(key, false);
+				mReplaceNotification = /*sharedPreferences.getBoolean(key, false);*/false;
 			}
 			else if (KEY_TIE_NOTIFICATION.equals(key)){
 				mTieNotification = sharedPreferences.getBoolean(key, false);
@@ -81,7 +81,7 @@ public class NotificationService extends NotificationListenerService {
 		super.onCreate();
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		sharedPrefs.registerOnSharedPreferenceChangeListener(prefListener);
-		mReplaceNotification = sharedPrefs.getBoolean(KEY_REPLACE_NOTIFICATION, false);
+		mReplaceNotification = /*sharedPrefs.getBoolean(KEY_REPLACE_NOTIFICATION, false);*/false;
 		mTieNotification = sharedPrefs.getBoolean(KEY_TIE_NOTIFICATION, false);
 		String filterAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
 				Telephony.Sms.Intents.SMS_RECEIVED_ACTION :
@@ -147,14 +147,20 @@ public class NotificationService extends NotificationListenerService {
 	}
 
 	private static Notification copyNotification (Context context, Notification toCopy, int color){
-		return new NotificationCompat.Builder(context)
+		Notification n = new NotificationCompat.Builder(context)
 		.setSmallIcon(R.drawable.ic_launcher)
 		.setTicker(toCopy.tickerText, toCopy.tickerView)
 		.setContent(toCopy.contentView)
 		.setAutoCancel(true)
 		.setContentIntent(toCopy.contentIntent)
-		//.setSound(toCopy.sound)
+		.setSound(toCopy.sound)
+		.setVibrate(toCopy.vibrate)
 		.setLights(color, 1000, 1000)
 		.build();
+		
+		if ((toCopy.defaults & Notification.DEFAULT_VIBRATE) == Notification.DEFAULT_VIBRATE){
+			n.defaults|=Notification.DEFAULT_VIBRATE;
+		}
+		return n;
 	}
 }
