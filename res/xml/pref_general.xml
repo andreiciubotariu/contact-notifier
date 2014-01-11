@@ -47,6 +47,15 @@
         android:summaryOff="If SMS app dismissed, our notification may need manual dismissal"
         android:summaryOn="Dismissing notification when SMS app notification dismissed"
         android:title="Tie to SMS app" />
+    
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:dependency="tie_to_sms_app"
+        android:enabled="@bool/notification_service_enabled"
+        android:key="delay_dismissal"
+        android:summaryOff="Dismissing our notification as soon as SMS app notification is dismissed"
+        android:summaryOn="Dismissing our notification 5 seconds after SMS app notification dismissal"
+        android:title="Delay dismissal" />
 
     <Preference android:title="About" >
         <intent
