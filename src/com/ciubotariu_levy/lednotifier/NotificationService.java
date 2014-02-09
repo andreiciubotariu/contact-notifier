@@ -87,6 +87,7 @@ public class NotificationService extends NotificationListenerService {
 				Telephony.Sms.Intents.SMS_RECEIVED_ACTION :
 					"android.provider.Telephony.SMS_RECEIVED";
 		IntentFilter filter = new IntentFilter (filterAction);
+		filter.setPriority(999);
 		registerReceiver(mSmsReceiver, filter);
 	}
 

@@ -80,6 +80,9 @@ public class SMSReceiver extends BroadcastReceiver {
 					preferences.getString(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE, this.getClass().getPackage().getName())
 					: Sms.getDefaultSmsPackage(context);
 			Intent smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(smsAppPackageName);
+			if (smsAppIntent == null){
+				smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(this.getClass().getPackage().getName());
+			}
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			Notification notif = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
