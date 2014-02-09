@@ -1,0 +1,103 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/color_chooser"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@android:color/white"
+    android:orientation="horizontal" >
+
+    <com.ciubotariu_levy.lednotifier.ColorWheel
+        android:id="@+id/wheel"
+        android:layout_width="250dp"
+        android:layout_height="220dp"
+        android:layout_alignParentTop="true" />
+
+    <View
+        style="@style/Divider_Vertical"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:layout_width="250dp"
+        android:layout_height="250dp" >
+
+        <Button
+            android:id="@+id/reset_color"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Default Color" />
+
+        <View
+            android:id="@+id/div2"
+            style="@style/Divider"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/reset_color" />
+
+        <CheckBox
+            android:id="@+id/vibrate_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/div2"
+            android:checked="false"
+            android:text="Custom Vibrate"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/vib_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/vibrate_checkbox"
+            android:text="Format off/on in milliseconds: off, on, off, on, etc"
+            android:textColor="@android:color/black"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/vib_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/vib_hint"
+            android:digits="0123456789,"
+            android:inputType="numberDecimal"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/button_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/cancel"
+                style="@style/Widget.AppCompat.ActionButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel" />
+
+            <View
+                style="@style/Divider_Vertical"
+                android:layout_height="match_parent" />
+
+            <Button
+                android:id="@+id/submit_color"
+                style="@style/Widget.AppCompat.ActionButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Confirm" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/div3"
+            style="@style/Divider"
+            android:layout_width="match_parent"
+            android:layout_above="@+id/button_holder" />
+
+        <View
+            style="@style/Divider"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/button_holder" />
+    </RelativeLayout>
+
+</LinearLayout>

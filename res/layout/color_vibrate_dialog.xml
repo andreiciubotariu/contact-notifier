@@ -9,7 +9,7 @@
     <com.ciubotariu_levy.lednotifier.ColorWheel
         android:id="@+id/wheel"
         android:layout_width="250dp"
-        android:layout_height="0px" />
+        android:layout_height="0px"/>
 
     <View
         style="@style/Divider"
@@ -20,7 +20,7 @@
         style="@style/Widget.AppCompat.ActionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Default" />
+        android:text="Default Color" />
 
     <View
         style="@style/Divider"

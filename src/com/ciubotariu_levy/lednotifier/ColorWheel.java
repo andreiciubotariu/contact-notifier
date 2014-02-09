@@ -53,6 +53,7 @@ public class ColorWheel extends View {
 		this.cd = cd;
 	}
 	
+	@Override
 	public void onMeasure(int w, int h){
 		if (lockWidth)
 			super.onMeasure(w, w);
@@ -75,6 +76,7 @@ public class ColorWheel extends View {
 		}
 	}
 	
+	@Override
 	public void onDraw(Canvas c){
 		SweepGradient sg = new SweepGradient(cx, cy, wheelColors, null);
 		paint.setColor(Color.WHITE);
