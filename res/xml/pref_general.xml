@@ -31,6 +31,8 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="notifications_new_message_vibrate"
+        android:summaryOff="Vibrating only for custom contacts"
+        android:summaryOn="Vibrating every time a notification is made"
         android:title="@string/pref_title_vibrate" />
 
     <Preference

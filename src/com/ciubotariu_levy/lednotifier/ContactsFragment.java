@@ -16,6 +16,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -24,7 +25,7 @@ import android.widget.ListView;
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
-public class ContactsFragment extends ListFragment implements ColorDialog.OnColorChosenListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
+public class ContactsFragment extends ListFragment implements ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
 	/*
 	 * Defines an array that contains column names to move from
@@ -37,7 +38,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 				Contacts.DISPLAY_NAME;
 
 	private final static String[] FROM_COLUMNS = {
-		CONTACT_NAME, CommonDataKinds.Phone.NUMBER, Contacts.LOOKUP_KEY
+		CONTACT_NAME, CommonDataKinds.Phone.NUMBER,Contacts._ID, Contacts.LOOKUP_KEY
 	};
 
 	private static final String[] PROJECTION = {
@@ -54,7 +55,7 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	 * the Android framework, so it is prefaced with "android.R.id"
 	 */
 	private final static int[] TO_IDS = {
-		android.R.id.text1, android.R.id.text2, R.id.contact_display_color
+		android.R.id.text1, android.R.id.text2,R.id.contact_vibrate, R.id.contact_display_color
 	};
 
 	private static final String TAG = "ContactsFragment";
@@ -84,6 +85,17 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 					int color = info == null ? Color.GRAY : info.color;
 					view.setBackgroundColor(color);
 					return true;
+				
+				case R.id.contact_vibrate:
+					info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+					if (info != null && !TextUtils.isEmpty(info.vibratePattern)){
+						view.setVisibility(View.VISIBLE);
+						view.setBackgroundResource(R.drawable.ic_contact_vibrate);
+					}
+					else {
+						view.setVisibility(View.GONE);
+					}
+				return true;
 				}
 				return false;
 			}
@@ -105,14 +117,14 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
 		String lookupValue = mCursorAdapter.getCursor().getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));
-		if (mLedData.get(lookupValue)==null){
-			ColorDialog.getInstance(lookupValue, Color.GRAY)
-			.show(getChildFragmentManager(), "color_dialog");
+		int color = Color.GRAY;
+		String vibratePattern = null;
+		if (mLedData.get(lookupValue)!=null){
+			color = mLedData.get(lookupValue).color;
+			vibratePattern = mLedData.get(lookupValue).vibratePattern;
 		}
-		else{
-			ColorDialog.getInstance(lookupValue, mLedData.get(lookupValue).color)
-			.show(getChildFragmentManager(), "color_dialog");
-		}
+			ColorVibrateDialog.getInstance(lookupValue, color,vibratePattern)
+			.show(getChildFragmentManager(), "color_vibrate_dialog");
 	}
 
 	@Override
@@ -146,10 +158,11 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 	}
 
 	@Override
-	public void onColorChosen(int color, String lookupKey) {
+	public void onContactDetailsUpdated(String lookupKey,int color,String vibratePattern) {
 		LedContactInfo info = mLedData.get(lookupKey);
-		if (color == Color.GRAY){
+		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
 			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_ID + "=?", new String [] {lookupKey});
+			System.out.println ("deleting");
 			if (info != null){
 				mLedData.put(lookupKey, null);
 			}
@@ -161,12 +174,14 @@ public class ContactsFragment extends ListFragment implements ColorDialog.OnColo
 				mLedData.put(info.systemId, info);
 			}
 			info.color = color;
+			info.vibratePattern = vibratePattern;
 			ContentValues values = new ContentValues();
 			if (info.id != -1){
 				values.put(LedContacts._ID, info.id);
 			}
 			values.put(LedContacts.SYSTEM_CONTACT_ID, lookupKey);
 			values.put(LedContacts.COLOR, color);
+			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
 			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
 			info.id = Long.parseLong (uri.getLastPathSegment());
 		}

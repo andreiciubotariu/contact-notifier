@@ -3,6 +3,8 @@
  */
 package com.ciubotariu_levy.lednotifier;
 
+import java.util.Arrays;
+
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -26,6 +28,7 @@ import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
 
+import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
 public class SMSReceiver extends BroadcastReceiver {
@@ -63,9 +66,11 @@ public class SMSReceiver extends BroadcastReceiver {
 				}
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
 			int color = Color.GRAY;
+			String vibratePattern = null;
 			if (c != null && c.moveToFirst()){
 				try {
 					color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+					vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
 				}
 				catch (Exception e){
 					
@@ -84,7 +89,7 @@ public class SMSReceiver extends BroadcastReceiver {
 				smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(this.getClass().getPackage().getName());
 			}
 			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			Notification notif = new NotificationCompat.Builder(context)
+			NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
 			.setContentText (message)
 			.setTicker(sender[1]+": " + message)
@@ -92,12 +97,16 @@ public class SMSReceiver extends BroadcastReceiver {
 			.setSmallIcon(R.drawable.ic_stat_new_msg)
 			.setLights(color, 1000, 1000) //should flash
 			.setAutoCancel(true)
-			.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())))
-			.build();
+			.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())));
 			
-			if (preferences.getBoolean("notifications_new_message_vibrate", false)){
+			if (!TextUtils.isEmpty(vibratePattern)){
+				notifBuilder.setVibrate(LedContactInfo.getVibratePattern(vibratePattern));
+			}
+			Notification notif = notifBuilder.build();
+			if (TextUtils.isEmpty(vibratePattern) && preferences.getBoolean("notifications_new_message_vibrate", false)){
 				notif.defaults|=Notification.DEFAULT_VIBRATE;
 			}
+			System.out.println ("Vibrate: " + Arrays.toString(notif.vibrate));
 			onNotificationGenerated(context, notif);
 		}
 	}
@@ -110,7 +119,7 @@ public class SMSReceiver extends BroadcastReceiver {
 		if (showAllNotifications && notif.ledARGB == Color.GRAY){
 			notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
 		}
-		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY)){
+		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY || notif.vibrate != null)){
 			notify (context, notif);
 		}
 	}

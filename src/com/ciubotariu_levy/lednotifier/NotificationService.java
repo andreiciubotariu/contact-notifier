@@ -52,7 +52,7 @@ public class NotificationService extends NotificationListenerService {
 			if (showAllNotifications && notif.ledARGB == Color.GRAY){
 				notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
 			}
-			else if (!showAllNotifications && notif.ledARGB == Color.GRAY){
+			else if (!showAllNotifications && notif.ledARGB == Color.GRAY && notif.vibrate == null){
 				mCurrentNotification = null;
 				return;
 			}
@@ -144,7 +144,8 @@ public class NotificationService extends NotificationListenerService {
 				||packageName.contains("mms")
 				||packageName.contains("sms") 
 				||packageName.contains("messaging")
-				||packageName.contains("message"));
+				||packageName.contains("message")
+				||packageName.contains("talk"));
 	}
 
 	private static Notification copyNotification (Context context, Notification toCopy, int color){

@@ -16,7 +16,11 @@ public class ColorWheel extends View {
 	private Paint paint;
 	boolean lockWidth; //True if height depends on width, false if width depends on height
 	private int[]wheelColors;
-	private ColorDialog cd;
+	private ColorListener cd;
+	
+	public interface ColorListener{
+		public void setColor (int color);
+	}
 	
 	public ColorWheel(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -45,7 +49,7 @@ public class ColorWheel extends View {
 		return color;
 	}
 
-	public void setDialog(ColorDialog cd){
+	public void setDialog(ColorListener cd){
 		this.cd = cd;
 	}
 	

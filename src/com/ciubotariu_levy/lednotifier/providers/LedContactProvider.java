@@ -86,7 +86,6 @@ public class LedContactProvider extends ContentProvider {
 		}
 	}
 
-
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
 		if (sUriMatcher.match(uri) != LEDCONTACTS) {
@@ -103,9 +102,9 @@ public class LedContactProvider extends ContentProvider {
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		long rowId = db.insertWithOnConflict(LEDCONTACTS_TABLE_NAME, null, values,SQLiteDatabase.CONFLICT_REPLACE);
 		if (rowId > 0) {
-			Uri noteUri = ContentUris.withAppendedId(LedContacts.CONTENT_URI, rowId);
-			getContext().getContentResolver().notifyChange(noteUri, null);
-			return noteUri;
+			Uri contactUri = ContentUris.withAppendedId(LedContacts.CONTENT_URI, rowId);
+			getContext().getContentResolver().notifyChange(contactUri, null);
+			return contactUri;
 		}
 
 		throw new SQLException("Failed to insert row into " + uri);

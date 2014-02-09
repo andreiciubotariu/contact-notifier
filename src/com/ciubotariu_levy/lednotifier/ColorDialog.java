@@ -10,7 +10,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 
-public class ColorDialog extends DialogFragment {
+import com.ciubotariu_levy.lednotifier.ColorWheel.ColorListener;
+
+public class ColorDialog extends DialogFragment implements ColorListener{
 	//0xFF000000 to 0xFFFFFFFF
 	private int color;
 
@@ -40,6 +42,7 @@ public class ColorDialog extends DialogFragment {
 		//Required Empty Constructor
 	}
 
+	@Override
 	public void setColor(int color){
 		this.color = color;
 	}

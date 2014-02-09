@@ -39,6 +39,7 @@ public class DataFetcher extends
 				info.id = c.getInt(c.getColumnIndex(LedContacts._ID));
 				info.systemId = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_ID));
 				info.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+				info.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
 				map.put (String.valueOf(info.systemId),info);
 			}
 			while (c.moveToNext());
