@@ -22,11 +22,19 @@
             android:targetPackage="com.ciubotariu_levy.lednotifier" />
     </Preference>
 
+      <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="notif_and_sound"
+        android:summaryOff="No ringtone will be played"
+        android:summaryOn="Ringtone will accompany notification"
+        android:title="Accompanying ringtone" />
+      
     <RingtonePreference
         android:defaultValue="content://settings/system/notification_sound"
         android:key="notifications_new_message_ringtone"
         android:ringtoneType="notification"
-        android:title="@string/pref_title_ringtone" />
+        android:title="@string/pref_title_ringtone"
+        android:dependency="notif_and_sound" />
 
     <CheckBoxPreference
         android:defaultValue="false"
@@ -37,7 +45,7 @@
 
     <Preference
         android:enabled="@bool/notification_service_enabled"
-        android:summary="Below preferences depend on the notification access setting"
+        android:summary="Some of the  preferences below depend on the system's notification access setting"
         android:title="System security settings" >
         <intent android:action="android.settings.SECURITY_SETTINGS" />
     </Preference>

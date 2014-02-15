@@ -70,7 +70,7 @@ public class NotificationService extends NotificationListenerService {
 			if (showAllNotifications && notif.ledARGB == Color.GRAY){
 				notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
 			}
-			else if (!showAllNotifications && notif.ledARGB == Color.GRAY && notif.vibrate == null){
+			else if (!showAllNotifications && notif.ledARGB == Color.GRAY){
 				mCurrentNotification = null;
 				return;
 			}

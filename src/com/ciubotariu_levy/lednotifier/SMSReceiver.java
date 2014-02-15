@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.PhoneLookup;
@@ -96,9 +97,30 @@ public class SMSReceiver extends BroadcastReceiver {
 			.setContentIntent (pendingIntent)
 			.setSmallIcon(R.drawable.ic_stat_new_msg)
 			.setLights(color, 1000, 1000) //should flash
-			.setAutoCancel(true)
-			.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())));
+			.setAutoCancel(true);
+
+			if (preferences.getBoolean("notif_and_sound", false)){
+				notifBuilder.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())));
+			}
 			
+//			boolean showAllNotifs = preferences.getBoolean("notifications_new_message_vibrate", false);
+//			if (showAllNotifs){
+//				//use vibrator only if no color needed
+//			}
+//			if (!TextUtils.isEmpty(vibratePattern)){
+//				long [] pattern = LedContactInfo.getVibratePattern(vibratePattern);
+//				if (showAllNotifs || color != Color.GRAY){
+//				  notifBuilder.setVibrate(pattern);
+//				}
+//				else {
+//					Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+//					v.vibrate(pattern, -1 /*no repeat*/);
+//				}
+//			}
+//			Notification notif = notifBuilder.build();
+//			if (TextUtils.isEmpty(vibratePattern) && showAllNotifs){
+//				notif.defaults|=Notification.DEFAULT_VIBRATE;
+//			}
 			if (!TextUtils.isEmpty(vibratePattern)){
 				notifBuilder.setVibrate(LedContactInfo.getVibratePattern(vibratePattern));
 			}
@@ -115,11 +137,16 @@ public class SMSReceiver extends BroadcastReceiver {
 		boolean isServiceOn = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ?
 				NotificationService.isNotificationListenerServiceOn : false;
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		boolean showAllNotifications = prefs.getBoolean(SHOW_ALL_NOTIFS, true);
+		boolean showAllNotifications = prefs.getBoolean(SHOW_ALL_NOTIFS, false);
 		if (showAllNotifications && notif.ledARGB == Color.GRAY){
 			notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
 		}
-		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY || notif.vibrate != null)){
+		if (notif.ledARGB == Color.GRAY && notif.vibrate != null){
+			Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+			v.vibrate(notif.vibrate, -1 /*no repeat*/);
+			notif.vibrate = null;
+		}
+		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY)){
 			notify (context, notif);
 		}
 	}
