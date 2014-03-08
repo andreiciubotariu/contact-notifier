@@ -93,12 +93,17 @@ public class SMSReceiver extends BroadcastReceiver {
 			NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
 			.setContentText (message)
-			.setTicker(sender[1]+": " + message)
 			.setContentIntent (pendingIntent)
 			.setSmallIcon(R.drawable.ic_stat_new_msg)
 			.setLights(color, 1000, 1000) //should flash
 			.setAutoCancel(true);
 
+			if (preferences.getBoolean("status_bar_preview", false)){
+				notifBuilder.setTicker(sender[1]+": " + message);
+			}
+			else {
+				notifBuilder.setTicker("New Message");
+			}
 			if (preferences.getBoolean("notif_and_sound", false)){
 				notifBuilder.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())));
 			}
