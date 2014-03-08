@@ -92,6 +92,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:onClick="viewSite"
         android:text="@string/hosted_on_github" />
 
