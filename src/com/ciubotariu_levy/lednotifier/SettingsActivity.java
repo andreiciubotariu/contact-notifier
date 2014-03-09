@@ -18,6 +18,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
@@ -52,14 +53,25 @@ public class SettingsActivity extends PreferenceActivity {
 		super.onPostCreate(savedInstanceState);
 
 		setupSimplePreferencesScreen();
+		setupNewApiPhoneSizePreferences();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void setupNewApiPhoneSizePreferences() {
+		if (!isXLargeTablet(this) && Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB){
+			getFragmentManager().beginTransaction().replace(android.R.id.content, new AllPreferencesFragment()).commit();
+		}
+	}
+
 	protected void onResume (){
 		super.onResume();
-		setupSMSAppPreference(findPreference(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE));
+		Preference smsAppPreference = findPreference(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE);
+		if (smsAppPreference != null){
+			setupSMSAppPreference(smsAppPreference);
+		}
 	}
 
 	/**
@@ -74,34 +86,18 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// In the simplified UI, fragments are not used at all and we instead
 		// use the older PreferenceActivity APIs.
-
-		// Add 'general' preferences.
 		addPreferencesFromResource(R.xml.pref_general);
+
+		PreferenceCategory notifHeader = new PreferenceCategory(this);
+		notifHeader.setTitle(R.string.pref_header_notifications);
+		getPreferenceScreen().addPreference(notifHeader);
+		addPreferencesFromResource(R.xml.pref_notifs);
 		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 
-		//CheckBoxPreference tieNotifications = (CheckBoxPreference) findPreference("tie_to_sms_app");
-		//CheckBoxPreference replaceNotifications = (CheckBoxPreference) findPreference("replace_notification");
-		//setupNotificationPreferences(tieNotifications, replaceNotifications);
-		//setupNotificationPreferences(replaceNotifications, tieNotifications);
-	}
-
-
-	private static void setupNotificationPreferences (CheckBoxPreference master, final CheckBoxPreference toModify){
-		master.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				boolean isEnabled = preference.getSharedPreferences().getBoolean(preference.getKey(), false);
-				if (isEnabled && ((CheckBoxPreference)toModify).isChecked()){
-					((CheckBoxPreference)toModify).setChecked(false);
-				}
-				return false;
-			}
-		});
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2){
-			master.setEnabled(false);
-		}
+		PreferenceCategory otherHeader = new PreferenceCategory(this);
+		otherHeader.setTitle(R.string.pref_header_other);
+		getPreferenceScreen().addPreference(otherHeader);
+		addPreferencesFromResource(R.xml.pref_other);
 	}
 
 	@TargetApi(19)
@@ -156,15 +152,14 @@ public class SettingsActivity extends PreferenceActivity {
 	 */
 	private static boolean isSimplePreferences(Context context) {
 		return ALWAYS_SIMPLE_PREFS
-				|| Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-				|| !isXLargeTablet(context);
+				|| Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void onBuildHeaders(List<Header> target) {
-		if (!isSimplePreferences(this)) {
+		if (!isSimplePreferences(this) && isXLargeTablet(this)) {
 			loadHeadersFromResource(R.xml.pref_headers, target);
 		}
 	}
@@ -266,12 +261,51 @@ public class SettingsActivity extends PreferenceActivity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_general);
+		}
+
+		@Override
+		public void onResume (){
+			super.onResume();
+			setupSMSAppPreference(findPreference(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE));
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class NotifPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_notifs);
+			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class OtherPreferenceFragment extends	PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_other);
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class AllPreferencesFragment extends PreferenceFragment{
+		@Override
+		public void onCreate (Bundle savedInstanceState){
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_general);
+
+			PreferenceCategory notifHeader = new PreferenceCategory(getActivity());
+			notifHeader.setTitle(R.string.pref_header_notifications);
+			getPreferenceScreen().addPreference(notifHeader);
+			addPreferencesFromResource(R.xml.pref_notifs);
 			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 
-			CheckBoxPreference tieNotifications = (CheckBoxPreference) findPreference("tie_to_sms_app");
-			CheckBoxPreference replaceNotifications = (CheckBoxPreference) findPreference("replace_notification");
-			setupNotificationPreferences(tieNotifications, replaceNotifications);
-			setupNotificationPreferences(replaceNotifications, tieNotifications);
+			PreferenceCategory otherHeader = new PreferenceCategory(getActivity());
+			otherHeader.setTitle(R.string.pref_header_other);
+			getPreferenceScreen().addPreference(otherHeader);
+			addPreferencesFromResource(R.xml.pref_other);
 		}
 
 		@Override

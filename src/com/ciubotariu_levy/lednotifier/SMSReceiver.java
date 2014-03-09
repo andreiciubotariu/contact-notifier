@@ -141,7 +141,7 @@ public class SMSReceiver extends BroadcastReceiver {
 			if (TextUtils.isEmpty(vibratePattern) && preferences.getBoolean("notifications_new_message_vibrate", false)){
 				notif.defaults|=Notification.DEFAULT_VIBRATE;
 			}
-			System.out.println ("Vibrate: " + Arrays.toString(notif.vibrate));
+			//System.out.println ("Vibrate: " + Arrays.toString(notif.vibrate));
 			onNotificationGenerated(context, notif);
 		}
 	}
@@ -160,8 +160,8 @@ public class SMSReceiver extends BroadcastReceiver {
 			notif.vibrate = null;
 		}
 		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY)){
-			boolean ledTimeout = prefs.getBoolean("led_timeout", false);
-			NotificationUtils.notify (context, notif,ledTimeout);
+			boolean timeoutLED = prefs.getBoolean("led_timeout", false);
+			NotificationUtils.notify (context, notif,timeoutLED);
 		}
 	}
 

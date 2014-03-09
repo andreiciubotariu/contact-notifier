@@ -20,7 +20,7 @@ import android.support.v4.app.NotificationCompat;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
-	private final static String TAG = "NotificationService";
+	//private final static String TAG = "NotificationService";
 	private final static String KEY_REPLACE_NOTIFICATION = "replace_notification";
 	private final static String KEY_TIE_NOTIFICATION = "tie_to_sms_app";
 	private final static String KEY_DELAY_DISMISS = "delay_dismissal";
@@ -50,11 +50,12 @@ public class NotificationService extends NotificationListenerService {
 			if (KEY_REPLACE_NOTIFICATION.equals(key)){
 				mReplaceNotification = /*sharedPreferences.getBoolean(key, false);*/false;
 			}
-			else if (KEY_TIE_NOTIFICATION.equals(key) || KEY_DELAY_DISMISS.equals(key)){
-				mTieNotification = sharedPreferences.getBoolean(key, false);
-				if (KEY_DELAY_DISMISS.equals(key)){
-					mHandler.removeCallbacks(mDismissNotification);
-				}
+			else if (KEY_TIE_NOTIFICATION.equals(key)){
+				mTieNotification = sharedPreferences.getBoolean(KEY_TIE_NOTIFICATION, false);
+			}
+			else if (KEY_DELAY_DISMISS.equals(key)){
+				mDelayDismissal = sharedPreferences.getBoolean(KEY_DELAY_DISMISS, false);
+				mHandler.removeCallbacks(mDismissNotification);
 			}
 		}
 	};
@@ -88,7 +89,8 @@ public class NotificationService extends NotificationListenerService {
 			else {
 				mCurrentNotification = notif;
 			}
-			NotificationUtils.notify (context, notif,true);
+			boolean ledTimeout = prefs.getBoolean("led_timeout", false);
+			NotificationUtils.notify (context, notif,ledTimeout);
 		}
 	};
 

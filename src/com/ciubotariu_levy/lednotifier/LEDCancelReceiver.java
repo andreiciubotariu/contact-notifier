@@ -15,7 +15,7 @@ public class LEDCancelReceiver extends BroadcastReceiver{
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String title = NotificationUtils.title;
-		String message = NotificationUtils.message + " CHANGED";
+		String message = NotificationUtils.message;
 		PendingIntent p = NotificationUtils.contentIntent;
 		
 		if (title == null || message == null || p == null){

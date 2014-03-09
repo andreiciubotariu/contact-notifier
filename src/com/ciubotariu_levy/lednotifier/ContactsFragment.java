@@ -105,6 +105,7 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 		
 		//change space between list items
 		ListView listView = getListView();
+		listView.setFastScrollEnabled(true);
 		listView.setDivider(null);
 		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
 		listView.setDividerHeight(dividerSize);

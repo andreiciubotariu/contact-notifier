@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <Preference android:title="About" >
+        <intent
+            android:targetClass="com.ciubotariu_levy.lednotifier.AboutActivity"
+            android:targetPackage="com.ciubotariu_levy.lednotifier" />
+    </Preference>
+
+</PreferenceScreen>

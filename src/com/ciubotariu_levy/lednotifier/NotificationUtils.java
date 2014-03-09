@@ -17,19 +17,19 @@ public class NotificationUtils {
 
 	public static final int RECEIVER_REQUEST_CODE = 1;
 	public static final int NOTIFICATION_ID = 1;
-	public static final int DELAY_TIME = 15*1000;
+	public static final int DELAY_TIME = 10*60*1000;
 	
 	@TargetApi(19)
-	public static void notify (Context context,Notification notif,boolean rescheduleAlarm){
+	public static void notify (Context context,Notification notif,boolean timeoutLED){
 		dismissAlarm (context);
 		if (notif.ledARGB == Color.GRAY){ //ensure LED is turned off
 			notif.ledARGB = 0;
 			notif.ledOnMS = 0;
 			notif.ledOffMS = 0;
 			notif.flags = notif.flags & ~Notification.FLAG_SHOW_LIGHTS;
-			rescheduleAlarm = false;
+			timeoutLED = false;
 		}
-		if (rescheduleAlarm){
+		if (timeoutLED){
 			Intent i = new Intent (context,LEDCancelReceiver.class);
 			PendingIntent p = PendingIntent.getBroadcast(context, RECEIVER_REQUEST_CODE, i, PendingIntent.FLAG_UPDATE_CURRENT);
 			AlarmManager a = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

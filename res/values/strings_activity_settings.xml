@@ -46,7 +46,7 @@
     </string-array>
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
-
+    <string name="pref_header_other">Other</string>
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>

@@ -11,5 +11,4 @@ public class AlarmDismissReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		NotificationUtils.dismissAlarm(context);
 	}
-
 }

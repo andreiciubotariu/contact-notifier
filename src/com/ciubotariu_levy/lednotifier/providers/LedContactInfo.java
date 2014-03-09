@@ -14,7 +14,7 @@ public class LedContactInfo {
 			return new long[0];
 		}
 		String [] sPattern= s.split(",");
-		System.out.println (sPattern);
+		//System.out.println (sPattern);
 		long [] pattern = new long [sPattern.length];
 		for (int x=0;x<pattern.length;x++){
 			try{
