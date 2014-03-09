@@ -2,7 +2,6 @@ package com.ciubotariu_levy.lednotifier;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -38,7 +37,7 @@ public class NotificationService extends NotificationListenerService {
 	private Runnable mDismissNotification = new Runnable(){
 		@Override
 		public void run(){
-			((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(SMSReceiver.NOTIFICATION_ID);
+			NotificationUtils.cancel(NotificationService.this);
 			mCurrentNotification = null;
 		}
 	};
@@ -89,7 +88,7 @@ public class NotificationService extends NotificationListenerService {
 			else {
 				mCurrentNotification = notif;
 			}
-			notify (context, notif);
+			NotificationUtils.notify (context, notif,true);
 		}
 	};
 
@@ -139,7 +138,7 @@ public class NotificationService extends NotificationListenerService {
 				mCurrentNotification = copyNotification(this, sbn.getNotification(),color);
 				cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
 			}
-			SMSReceiver.notify (this, mCurrentNotification);
+			NotificationUtils.notify (this, mCurrentNotification);//check if this is needed
 		}
 	}
 

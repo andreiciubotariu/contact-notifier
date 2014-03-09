@@ -31,6 +31,14 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="com.ciubotariu_levy.lednotifier.LEDCancelReceiver"
+            android:exported="false" >
+        </receiver>
+        <receiver
+            android:name="com.ciubotariu_levy.lednotifier.AlarmDismissReceiver"
+            android:exported="false" >
+        </receiver>
 
         <activity
             android:name="com.ciubotariu_levy.lednotifier.MainActivity"

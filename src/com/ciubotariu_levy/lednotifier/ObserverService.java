@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -81,8 +80,7 @@ public class ObserverService extends Service {
 
 			System.out.println ("Stats " + unseen+ "|" + unread);
 			if (unseen <mUnseen || unread<mUnread){
-				NotificationManager notifManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-				notifManager.cancel(SMSReceiver.NOTIFICATION_ID);
+				NotificationUtils.cancel(ObserverService.this);
 			}
 			mUnseen = unseen;
 			mUnread = unread;

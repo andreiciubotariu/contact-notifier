@@ -11,6 +11,14 @@
         android:summaryOff="Hiding sender and message from status bar preview"
         android:summaryOn="Showing full status bar preview"
         android:title="Status bar preview"/>
+    
+    <CheckBoxPreference 
+        android:defaultValue="false"
+        android:key="led_timeout"
+        android:summaryOff="Led flashing indefinitely"
+        android:summaryOn="Turning off LED after 5 minutes"
+        android:title="LED timeout"/>
+    
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="show_all_notifications"

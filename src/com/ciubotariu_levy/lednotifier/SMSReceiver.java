@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -33,7 +32,8 @@ import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
 public class SMSReceiver extends BroadcastReceiver {
-	public static final int NOTIFICATION_ID = 1;
+	public static final int ACTIVITY_REQUEST_CODE = 0;
+	public static final int DEL_REQUEST_CODE = 2;
 	protected static final String SHOW_ALL_NOTIFS = "show_all_notifications";
 	
 	@Override
@@ -89,24 +89,32 @@ public class SMSReceiver extends BroadcastReceiver {
 			if (smsAppIntent == null){
 				smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(this.getClass().getPackage().getName());
 			}
-			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			PendingIntent pendingIntent = PendingIntent.getActivity(context,ACTIVITY_REQUEST_CODE,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context)
 			.setContentTitle (sender [1])
 			.setContentText (message)
 			.setContentIntent (pendingIntent)
 			.setSmallIcon(R.drawable.ic_stat_new_msg)
-			.setLights(color, 1000, 1000) //should flash
+			.setLights(color, 1000, 1000) //flash
 			.setAutoCancel(true);
 
 			if (preferences.getBoolean("status_bar_preview", false)){
 				notifBuilder.setTicker(sender[1]+": " + message);
 			}
 			else {
-				notifBuilder.setTicker("New Message");
+				notifBuilder.setTicker("New message");
 			}
 			if (preferences.getBoolean("notif_and_sound", false)){
 				notifBuilder.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())));
 			}
+			
+			NotificationUtils.title = sender[1];
+			NotificationUtils.message = message;
+			NotificationUtils.contentIntent = pendingIntent;
+			
+			Intent delIntent = new Intent (context, AlarmDismissReceiver.class);
+			PendingIntent deletePendIntent = PendingIntent.getBroadcast(context, DEL_REQUEST_CODE, delIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			notifBuilder.setDeleteIntent(deletePendIntent);
 			
 //			boolean showAllNotifs = preferences.getBoolean("notifications_new_message_vibrate", false);
 //			if (showAllNotifs){
@@ -152,12 +160,9 @@ public class SMSReceiver extends BroadcastReceiver {
 			notif.vibrate = null;
 		}
 		if (!isServiceOn && (showAllNotifications || notif.ledARGB != Color.GRAY)){
-			notify (context, notif);
+			boolean ledTimeout = prefs.getBoolean("led_timeout", false);
+			NotificationUtils.notify (context, notif,ledTimeout);
 		}
-	}
-	
-	public static void notify (Context context, Notification notif){
-		((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notif);
 	}
 
 	/**
