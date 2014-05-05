@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -19,14 +20,26 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
 public class ContactsFragment extends ListFragment implements ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
+	//copied ListFragment Constants due to access issue.
+	private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
+    private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
+    private static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
+    
 	/*
 	 * Defines an array that contains column names to move from
 	 * the Cursor to the ListView.
@@ -69,7 +82,7 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		// Gets a CursorAdapter
-		mCursorAdapter = new SimpleCursorAdapter(
+		mCursorAdapter = new SectionedCursorAdapter(
 				getActivity(),
 				R.layout.list_row,
 				null,
@@ -105,7 +118,7 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 		
 		//change space between list items
 		ListView listView = getListView();
-		listView.setFastScrollEnabled(true);
+		//listView.setFastScrollEnabled(true);
 		listView.setDivider(null);
 		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
 		listView.setDividerHeight(dividerSize);
@@ -113,6 +126,49 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 		
 		mFetcher = new DataFetcher(this, LedContacts.CONTENT_URI);
 		mFetcher.execute(getActivity());
+	}
+	
+	//copied from support ListFragment source to include FastScrollThemedListView. Swapped FILL_PARENT for MATCH_PARENT
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+		//return inflater.inflate(R.layout.fast_scroll_listview,container,false);
+		final Context context = getActivity();
+        FrameLayout root = new FrameLayout(context);
+        // ------------------------------------------------------------------
+        LinearLayout pframe = new LinearLayout(context);
+        pframe.setId(INTERNAL_PROGRESS_CONTAINER_ID);
+        pframe.setOrientation(LinearLayout.VERTICAL);
+        pframe.setVisibility(View.GONE);
+        pframe.setGravity(Gravity.CENTER);
+        ProgressBar progress = new ProgressBar(context, null,
+                android.R.attr.progressBarStyleLarge);
+        pframe.addView(progress, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        root.addView(pframe, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // ------------------------------------------------------------------
+        FrameLayout lframe = new FrameLayout(context);
+        lframe.setId(INTERNAL_LIST_CONTAINER_ID);
+        
+        TextView tv = new TextView(getActivity());
+        tv.setId(INTERNAL_EMPTY_ID);
+        tv.setGravity(Gravity.CENTER);
+        lframe.addView(tv, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        
+        ListView lv = new FastScrollThemedListView(getActivity());
+        lv.setId(android.R.id.list);
+        lv.setDrawSelectorOnTop(false);
+        lframe.addView(lv, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        root.addView(lframe, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        
+        // ------------------------------------------------------------------
+        root.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        
+        return root;
 	}
 
 	@Override
@@ -130,6 +186,7 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
+		getListView().setFastScrollEnabled(false);
 		return new CursorLoader(
 				getActivity(),
 				CommonDataKinds.Phone.CONTENT_URI,
@@ -141,6 +198,7 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		mCursorAdapter.swapCursor(cursor);
+		getListView().setFastScrollEnabled(true);
 		setEmptyText("No contacts found");
 	}
 
