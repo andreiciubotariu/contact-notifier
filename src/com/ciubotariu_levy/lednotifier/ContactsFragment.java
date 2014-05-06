@@ -51,12 +51,12 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	 * the Cursor to the ListView.
 	 */
 	@SuppressLint("InlinedApi")
-	private final static String CONTACT_NAME = Build.VERSION.SDK_INT
+	private static final String CONTACT_NAME = Build.VERSION.SDK_INT
 	>= Build.VERSION_CODES.HONEYCOMB ?
 			Contacts.DISPLAY_NAME_PRIMARY :
 				Contacts.DISPLAY_NAME;
 
-	private final static String[] FROM_COLUMNS = {
+	private static final String[] FROM_COLUMNS = {
 		CONTACT_NAME, CommonDataKinds.Phone.NUMBER,Contacts._ID, Contacts.LOOKUP_KEY
 	};
 
@@ -73,17 +73,25 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	 * that get the Cursor column contents. The id is pre-defined in
 	 * the Android framework, so it is prefaced with "android.R.id"
 	 */
-	private final static int[] TO_IDS = {
+	private static final int[] TO_IDS = {
 		android.R.id.text1, android.R.id.text2,R.id.contact_vibrate, R.id.contact_display_color
 	};
 
 	private static final String TAG = "ContactsFragment";
 
+	private static final String bareQuery = CommonDataKinds.Phone.TYPE + "=?";
+	private static final String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
+	private static final String KEY_CONSTRAINT = "KEY_FILTER";
+	private static final String KEY_SEARCH_CLOSED = "KEY_SEARCH_CLOSED";
+	private static final int LOADER_ID = 0;
 	// An adapter that binds the result Cursor to the ListView
 	private SimpleCursorAdapter mCursorAdapter;
 
 	private HashMap <String, LedContactInfo> mLedData;
 	private DataFetcher mFetcher;
+	
+	private boolean searchViewClosed = true;
+	private boolean shouldRestartLoader = false; //one-time use
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -126,7 +134,10 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 				return false;
 			}
 		});
-		// Sets the adapter for the ListView
+		
+		if (savedInstanceState != null){
+			shouldRestartLoader = (savedInstanceState.getBoolean(KEY_SEARCH_CLOSED,true) == false);
+		}
 		setListAdapter(mCursorAdapter);
 
 		//change space between list items
@@ -198,12 +209,13 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	@Override
 	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
 		inflater.inflate(R.menu.contacts_frag, menu);
-		MenuItem searchItem = menu.findItem(R.id.action_search);
+		MenuItem searchItem = menu.findItem(R.id.action_search); 
 		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 
 			@Override
 			public boolean onClose() {
+				searchViewClosed = true;
 				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
 				return false;
 			}
@@ -230,26 +242,29 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 
 			@Override
 			public boolean onMenuItemActionExpand(MenuItem item) {
+				searchViewClosed = false;
 				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
 				return true;
 			}
 
 			@Override
 			public boolean onMenuItemActionCollapse(MenuItem item) {
+				searchViewClosed = true;
 				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
 				return true;
 			}
 		});
 	}
-
-	private final static String bareQuery = CommonDataKinds.Phone.TYPE + "=?";
-	private final static String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
-	private final static String KEY_CONSTRAINT = "KEY_FILTER";
-	private final static int LOADER_ID = 0;
-
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState){
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(KEY_SEARCH_CLOSED, searchViewClosed);
+	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
+		Log.d (TAG,"Creating Loader");
 		getListView().setFastScrollEnabled(false);
 		String constraint = "";
 		if (args != null && args.getString(KEY_CONSTRAINT) != null){
@@ -268,9 +283,14 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		Log.d (TAG,"Load finished");
 		mCursorAdapter.swapCursor(cursor);
 		getListView().setFastScrollEnabled(true);
 		setEmptyText("No contacts found");
+		if (shouldRestartLoader){
+			shouldRestartLoader = false;
+			getLoaderManager().restartLoader(LOADER_ID, null, this);
+		}
 	}
 
 	@Override
@@ -281,6 +301,7 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 
 	@Override
 	public void onDataFetched(HashMap<String, LedContactInfo> fetchedData) {
+		Log.d(TAG, "Data Fetched");
 		mFetcher = null;
 		mLedData = fetchedData;
 		//Initializes the loader
