@@ -16,12 +16,18 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -37,9 +43,9 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 {
 	//copied ListFragment Constants due to access issue.
 	private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
-    private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
-    private static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
-    
+	private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
+	private static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
+
 	/*
 	 * Defines an array that contains column names to move from
 	 * the Cursor to the ListView.
@@ -79,6 +85,13 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	private HashMap <String, LedContactInfo> mLedData;
 	private DataFetcher mFetcher;
 
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		// Gets a CursorAdapter
@@ -98,7 +111,7 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 					int color = info == null ? Color.GRAY : info.color;
 					view.setBackgroundColor(color);
 					return true;
-				
+
 				case R.id.contact_vibrate:
 					info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 					if (info != null && !TextUtils.isEmpty(info.vibratePattern)){
@@ -108,67 +121,65 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 					else {
 						view.setVisibility(View.GONE);
 					}
-				return true;
+					return true;
 				}
 				return false;
 			}
 		});
 		// Sets the adapter for the ListView
 		setListAdapter(mCursorAdapter);
-		
+
 		//change space between list items
 		ListView listView = getListView();
-		//listView.setFastScrollEnabled(true);
 		listView.setDivider(null);
 		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
 		listView.setDividerHeight(dividerSize);
 		listView.setCacheColorHint(Color.TRANSPARENT);
-		
+
 		mFetcher = new DataFetcher(this, LedContacts.CONTENT_URI);
 		mFetcher.execute(getActivity());
 	}
-	
+
 	//copied from support ListFragment source to include FastScrollThemedListView. Swapped FILL_PARENT for MATCH_PARENT
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-		//return inflater.inflate(R.layout.fast_scroll_listview,container,false);
 		final Context context = getActivity();
-        FrameLayout root = new FrameLayout(context);
-        // ------------------------------------------------------------------
-        LinearLayout pframe = new LinearLayout(context);
-        pframe.setId(INTERNAL_PROGRESS_CONTAINER_ID);
-        pframe.setOrientation(LinearLayout.VERTICAL);
-        pframe.setVisibility(View.GONE);
-        pframe.setGravity(Gravity.CENTER);
-        ProgressBar progress = new ProgressBar(context, null,
-                android.R.attr.progressBarStyleLarge);
-        pframe.addView(progress, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        root.addView(pframe, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // ------------------------------------------------------------------
-        FrameLayout lframe = new FrameLayout(context);
-        lframe.setId(INTERNAL_LIST_CONTAINER_ID);
-        
-        TextView tv = new TextView(getActivity());
-        tv.setId(INTERNAL_EMPTY_ID);
-        tv.setGravity(Gravity.CENTER);
-        lframe.addView(tv, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        
-        ListView lv = new FastScrollThemedListView(getActivity());
-        lv.setId(android.R.id.list);
-        lv.setDrawSelectorOnTop(false);
-        lframe.addView(lv, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        root.addView(lframe, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        
-        // ------------------------------------------------------------------
-        root.setLayoutParams(new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        
-        return root;
+		FrameLayout root = new FrameLayout(context);
+		// ------------------------------------------------------------------
+		LinearLayout pframe = new LinearLayout(context);
+		pframe.setId(INTERNAL_PROGRESS_CONTAINER_ID);
+		pframe.setOrientation(LinearLayout.VERTICAL);
+		pframe.setVisibility(View.GONE);
+		pframe.setGravity(Gravity.CENTER);
+		ProgressBar progress = new ProgressBar(context, null,
+				android.R.attr.progressBarStyleLarge);
+		pframe.addView(progress, new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		root.addView(pframe, new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		// ------------------------------------------------------------------
+		FrameLayout lframe = new FrameLayout(context);
+		lframe.setId(INTERNAL_LIST_CONTAINER_ID);
+
+		TextView tv = new TextView(getActivity());
+		tv.setId(INTERNAL_EMPTY_ID);
+		tv.setGravity(Gravity.CENTER);
+		lframe.addView(tv, new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+		ListView lv = new FastScrollThemedListView(getActivity());
+		lv.setId(android.R.id.list);
+		lv.setDrawSelectorOnTop(false);
+		lframe.addView(lv, new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		root.addView(lframe, new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+		// ------------------------------------------------------------------
+		root.setLayoutParams(new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+		return root;
 	}
 
 	@Override
@@ -180,19 +191,79 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 			color = mLedData.get(lookupValue).color;
 			vibratePattern = mLedData.get(lookupValue).vibratePattern;
 		}
-			ColorVibrateDialog.getInstance(lookupValue, color,vibratePattern)
-			.show(getChildFragmentManager(), "color_vibrate_dialog");
+		ColorVibrateDialog.getInstance(lookupValue, color,vibratePattern)
+		.show(getChildFragmentManager(), "color_vibrate_dialog");
 	}
+
+	@Override
+	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
+		inflater.inflate(R.menu.contacts_frag, menu);
+		MenuItem searchItem = menu.findItem(R.id.action_search);
+		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+
+			@Override
+			public boolean onClose() {
+				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
+				return false;
+			}
+		});
+		searchView.setOnQueryTextListener(new OnQueryTextListener() {
+
+			@Override
+			public boolean onQueryTextSubmit(String newText) {
+				Bundle args = new Bundle();
+				args.putString(KEY_CONSTRAINT, newText);
+				getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(String query) {
+				Bundle args = new Bundle();
+				args.putString(KEY_CONSTRAINT, query);
+				getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
+				return false;
+			}
+		});
+		MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
+
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item) {
+				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
+				return true;
+			}
+
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item) {
+				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
+				return true;
+			}
+		});
+	}
+
+	private final static String bareQuery = CommonDataKinds.Phone.TYPE + "=?";
+	private final static String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
+	private final static String KEY_CONSTRAINT = "KEY_FILTER";
+	private final static int LOADER_ID = 0;
+
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
 		getListView().setFastScrollEnabled(false);
+		String constraint = "";
+		if (args != null && args.getString(KEY_CONSTRAINT) != null){
+			constraint = args.getString(KEY_CONSTRAINT);
+		}
+
+		String [] filteredSelectionArgs = new String [] {String.valueOf(CommonDataKinds.Phone.TYPE_MOBILE), "%"+constraint+"%", "%"+constraint+"%"};
+
 		return new CursorLoader(
 				getActivity(),
 				CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION,
-				CommonDataKinds.Phone.TYPE + "=?",
-				new String [] {String.valueOf(CommonDataKinds.Phone.TYPE_MOBILE)},
+				query,
+				filteredSelectionArgs,
 				CONTACT_NAME + " ASC");
 	}
 
@@ -213,7 +284,9 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 		mFetcher = null;
 		mLedData = fetchedData;
 		//Initializes the loader
-		getLoaderManager().initLoader(0, null, this);
+		if (getActivity() != null){
+			getLoaderManager().initLoader(LOADER_ID, null, this);
+		}
 	}
 
 	@Override

@@ -3,13 +3,15 @@
 
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:icon="@drawable/ic_action_settings"
+        android:orderInCategory="200"
         android:showAsAction="always"
         android:title="@string/action_settings"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_help"
-        android:orderInCategory="100"
+        android:icon="@drawable/ic_action_help"
+        android:orderInCategory="300"
         android:showAsAction="ifRoom"
         android:title="@string/action_help"
         app:showAsAction="ifRoom"/>

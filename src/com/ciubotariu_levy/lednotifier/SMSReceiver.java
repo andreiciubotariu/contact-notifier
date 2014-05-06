@@ -3,8 +3,6 @@
  */
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.Arrays;
-
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -35,7 +33,7 @@ public class SMSReceiver extends BroadcastReceiver {
 	public static final int ACTIVITY_REQUEST_CODE = 0;
 	public static final int DEL_REQUEST_CODE = 2;
 	protected static final String SHOW_ALL_NOTIFS = "show_all_notifications";
-	
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Bundle bundle = intent.getExtras();
@@ -61,10 +59,10 @@ public class SMSReceiver extends BroadcastReceiver {
 			String [] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_ID, LedContacts.VIBRATE_PATTERN};
 			String selection = null;
 			String [] selectionArgs = null;
-				selection = LedContacts.SYSTEM_CONTACT_ID + " = ?" ;
-				if (sender [0] != null){
-					selectionArgs = new String [] {	sender [0] };
-				}
+			selection = LedContacts.SYSTEM_CONTACT_ID + " = ?" ;
+			if (sender [0] != null){
+				selectionArgs = new String [] {	sender [0] };
+			}
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
 			int color = Color.GRAY;
 			String vibratePattern = null;
@@ -74,7 +72,7 @@ public class SMSReceiver extends BroadcastReceiver {
 					vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
 				}
 				catch (Exception e){
-					
+
 					e.printStackTrace();
 				}
 			}
@@ -85,64 +83,64 @@ public class SMSReceiver extends BroadcastReceiver {
 			String smsAppPackageName = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ? 
 					preferences.getString(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE, this.getClass().getPackage().getName())
 					: Sms.getDefaultSmsPackage(context);
-			Intent smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(smsAppPackageName);
-			if (smsAppIntent == null){
-				smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(this.getClass().getPackage().getName());
-			}
-			PendingIntent pendingIntent = PendingIntent.getActivity(context,ACTIVITY_REQUEST_CODE,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context)
-			.setContentTitle (sender [1])
-			.setContentText (message)
-			.setContentIntent (pendingIntent)
-			.setSmallIcon(R.drawable.ic_stat_new_msg)
-			.setLights(color, 1000, 1000) //flash
-			.setAutoCancel(true);
+					Intent smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(smsAppPackageName);
+					if (smsAppIntent == null){
+						smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(this.getClass().getPackage().getName());
+					}
+					PendingIntent pendingIntent = PendingIntent.getActivity(context,ACTIVITY_REQUEST_CODE,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+					NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context)
+					.setContentTitle (sender [1])
+					.setContentText (message)
+					.setContentIntent (pendingIntent)
+					.setSmallIcon(R.drawable.ic_stat_new_msg)
+					.setLights(color, 1000, 1000) //flash
+					.setAutoCancel(true);
 
-			if (preferences.getBoolean("status_bar_preview", false)){
-				notifBuilder.setTicker(sender[1]+": " + message);
-			}
-			else {
-				notifBuilder.setTicker("New message");
-			}
-			if (preferences.getBoolean("notif_and_sound", false)){
-				notifBuilder.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())));
-			}
-			
-			NotificationUtils.title = sender[1];
-			NotificationUtils.message = message;
-			NotificationUtils.contentIntent = pendingIntent;
-			
-			Intent delIntent = new Intent (context, AlarmDismissReceiver.class);
-			PendingIntent deletePendIntent = PendingIntent.getBroadcast(context, DEL_REQUEST_CODE, delIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			notifBuilder.setDeleteIntent(deletePendIntent);
-			
-//			boolean showAllNotifs = preferences.getBoolean("notifications_new_message_vibrate", false);
-//			if (showAllNotifs){
-//				//use vibrator only if no color needed
-//			}
-//			if (!TextUtils.isEmpty(vibratePattern)){
-//				long [] pattern = LedContactInfo.getVibratePattern(vibratePattern);
-//				if (showAllNotifs || color != Color.GRAY){
-//				  notifBuilder.setVibrate(pattern);
-//				}
-//				else {
-//					Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-//					v.vibrate(pattern, -1 /*no repeat*/);
-//				}
-//			}
-//			Notification notif = notifBuilder.build();
-//			if (TextUtils.isEmpty(vibratePattern) && showAllNotifs){
-//				notif.defaults|=Notification.DEFAULT_VIBRATE;
-//			}
-			if (!TextUtils.isEmpty(vibratePattern)){
-				notifBuilder.setVibrate(LedContactInfo.getVibratePattern(vibratePattern));
-			}
-			Notification notif = notifBuilder.build();
-			if (TextUtils.isEmpty(vibratePattern) && preferences.getBoolean("notifications_new_message_vibrate", false)){
-				notif.defaults|=Notification.DEFAULT_VIBRATE;
-			}
-			//System.out.println ("Vibrate: " + Arrays.toString(notif.vibrate));
-			onNotificationGenerated(context, notif);
+					if (preferences.getBoolean("status_bar_preview", false)){
+						notifBuilder.setTicker(sender[1]+": " + message);
+					}
+					else {
+						notifBuilder.setTicker("New message");
+					}
+					if (preferences.getBoolean("notif_and_sound", false)){
+						notifBuilder.setSound(Uri.parse(preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString())));
+					}
+
+					NotificationUtils.title = sender[1];
+					NotificationUtils.message = message;
+					NotificationUtils.contentIntent = pendingIntent;
+
+					Intent delIntent = new Intent (context, AlarmDismissReceiver.class);
+					PendingIntent deletePendIntent = PendingIntent.getBroadcast(context, DEL_REQUEST_CODE, delIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+					notifBuilder.setDeleteIntent(deletePendIntent);
+
+					//			boolean showAllNotifs = preferences.getBoolean("notifications_new_message_vibrate", false);
+					//			if (showAllNotifs){
+					//				//use vibrator only if no color needed
+					//			}
+					//			if (!TextUtils.isEmpty(vibratePattern)){
+					//				long [] pattern = LedContactInfo.getVibratePattern(vibratePattern);
+					//				if (showAllNotifs || color != Color.GRAY){
+					//				  notifBuilder.setVibrate(pattern);
+					//				}
+					//				else {
+					//					Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+					//					v.vibrate(pattern, -1 /*no repeat*/);
+					//				}
+					//			}
+					//			Notification notif = notifBuilder.build();
+					//			if (TextUtils.isEmpty(vibratePattern) && showAllNotifs){
+					//				notif.defaults|=Notification.DEFAULT_VIBRATE;
+					//			}
+					if (!TextUtils.isEmpty(vibratePattern)){
+						notifBuilder.setVibrate(LedContactInfo.getVibratePattern(vibratePattern));
+					}
+					Notification notif = notifBuilder.build();
+					if (TextUtils.isEmpty(vibratePattern) && preferences.getBoolean("notifications_new_message_vibrate", false)){
+						notif.defaults|=Notification.DEFAULT_VIBRATE;
+					}
+					//System.out.println ("Vibrate: " + Arrays.toString(notif.vibrate));
+					onNotificationGenerated(context, notif);
 		}
 	}
 

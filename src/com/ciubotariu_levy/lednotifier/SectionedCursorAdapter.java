@@ -8,9 +8,9 @@ import android.widget.AlphabetIndexer;
 import android.widget.SectionIndexer;
 
 public class SectionedCursorAdapter extends SimpleCursorAdapter implements SectionIndexer{
-	
+
 	private AlphabetIndexer mIndexer;
-	
+
 	public SectionedCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags){
 		super(context,layout,c,from, to, flags);
 	}
@@ -27,17 +27,20 @@ public class SectionedCursorAdapter extends SimpleCursorAdapter implements Secti
 
 	@Override
 	public Object[] getSections() {
-		System.out.println (mIndexer == null);
 		return mIndexer.getSections();
 	}
-	
+
 	@Override
 	public Cursor swapCursor (Cursor c){
 		if (c != null){
-			mIndexer = new AlphabetIndexer(c, c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME),
-	                " ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+			if (mIndexer != null){
+				mIndexer.setCursor(c);
+			}
+			else {
+				mIndexer = new AlphabetIndexer(c, c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME),
+						" ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+			}
 		}
 		return super.swapCursor(c);
-	}
-			 
+	}		 
 }

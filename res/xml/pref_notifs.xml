@@ -9,7 +9,7 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="led_timeout"
-        android:summaryOff="Led flashing indefinitely"
+        android:summaryOff="LED flashing indefinitely"
         android:summaryOn="Turning off LED after 10 minutes"
         android:title="LED timeout" />
     <CheckBoxPreference
