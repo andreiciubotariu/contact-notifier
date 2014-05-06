@@ -16,18 +16,12 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -39,7 +33,7 @@ import android.widget.TextView;
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
-public class ContactsFragment extends ListFragment implements ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
+public class ContactsFragment extends ListFragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
 	//copied ListFragment Constants due to access issue.
 	private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
@@ -82,21 +76,19 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	private static final String bareQuery = CommonDataKinds.Phone.TYPE + "=?";
 	private static final String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
 	private static final String KEY_CONSTRAINT = "KEY_FILTER";
-	private static final String KEY_SEARCH_CLOSED = "KEY_SEARCH_CLOSED";
 	private static final int LOADER_ID = 0;
-	// An adapter that binds the result Cursor to the ListView
+	
 	private SimpleCursorAdapter mCursorAdapter;
 
 	private HashMap <String, LedContactInfo> mLedData;
 	private DataFetcher mFetcher;
 	
-	private boolean searchViewClosed = true;
-	private boolean shouldRestartLoader = false; //one-time use
-
+	private Bundle args = new Bundle();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
+		setHasOptionsMenu(false);
 	}
 
 	@Override
@@ -135,9 +127,6 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 			}
 		});
 		
-		if (savedInstanceState != null){
-			shouldRestartLoader = (savedInstanceState.getBoolean(KEY_SEARCH_CLOSED,true) == false);
-		}
 		setListAdapter(mCursorAdapter);
 
 		//change space between list items
@@ -207,62 +196,6 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 	}
 
 	@Override
-	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
-		inflater.inflate(R.menu.contacts_frag, menu);
-		MenuItem searchItem = menu.findItem(R.id.action_search); 
-		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-
-			@Override
-			public boolean onClose() {
-				searchViewClosed = true;
-				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
-				return false;
-			}
-		});
-		searchView.setOnQueryTextListener(new OnQueryTextListener() {
-
-			@Override
-			public boolean onQueryTextSubmit(String newText) {
-				Bundle args = new Bundle();
-				args.putString(KEY_CONSTRAINT, newText);
-				getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
-				return false;
-			}
-
-			@Override
-			public boolean onQueryTextChange(String query) {
-				Bundle args = new Bundle();
-				args.putString(KEY_CONSTRAINT, query);
-				getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
-				return false;
-			}
-		});
-		MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
-
-			@Override
-			public boolean onMenuItemActionExpand(MenuItem item) {
-				searchViewClosed = false;
-				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
-				return true;
-			}
-
-			@Override
-			public boolean onMenuItemActionCollapse(MenuItem item) {
-				searchViewClosed = true;
-				getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
-				return true;
-			}
-		});
-	}
-	
-	@Override
-	public void onSaveInstanceState(Bundle outState){
-		super.onSaveInstanceState(outState);
-		outState.putBoolean(KEY_SEARCH_CLOSED, searchViewClosed);
-	}
-
-	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
 		Log.d (TAG,"Creating Loader");
 		getListView().setFastScrollEnabled(false);
@@ -287,10 +220,6 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 		mCursorAdapter.swapCursor(cursor);
 		getListView().setFastScrollEnabled(true);
 		setEmptyText("No contacts found");
-		if (shouldRestartLoader){
-			shouldRestartLoader = false;
-			getLoaderManager().restartLoader(LOADER_ID, null, this);
-		}
 	}
 
 	@Override
@@ -339,5 +268,27 @@ public class ContactsFragment extends ListFragment implements ColorVibrateDialog
 			info.id = Long.parseLong (uri.getLastPathSegment());
 		}
 		mCursorAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onSearchClosed() {
+		getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
+	}
+
+	@Override
+	public void onSearchOpened() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onQueryTextSubmit(String newText) {
+		args.putString(KEY_CONSTRAINT, newText);
+		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
+	}
+
+	@Override
+	public void onQueryTextChange(String query) {
+		args.putString(KEY_CONSTRAINT, query);
+		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
 	}
 }
