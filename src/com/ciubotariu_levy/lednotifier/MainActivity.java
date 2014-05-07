@@ -43,9 +43,9 @@ public class MainActivity extends ActionBarActivity {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (!prefs.contains(KEY_FIRST_RUN)){
 			if (Build.BRAND.toLowerCase().contains("samsung") && Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2){
-				prefs.edit().putBoolean("delay_dismissal", true);
+				prefs.edit().putBoolean("delay_dismissal", true).commit();
 			}
-			prefs.edit().putBoolean(KEY_FIRST_RUN, true);
+			prefs.edit().putBoolean(KEY_FIRST_RUN, true).commit();
 		}
 		
 		if (savedInstanceState != null){
