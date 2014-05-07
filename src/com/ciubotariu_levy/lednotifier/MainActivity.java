@@ -43,9 +43,9 @@ public class MainActivity extends ActionBarActivity {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (!prefs.contains(KEY_FIRST_RUN)){
 			if (Build.BRAND.toLowerCase().contains("samsung")){
-				prefs.edit().putBoolean(KEY_DELAY_DISMISS, true).commit();
+				prefs.edit().putBoolean(KEY_DELAY_DISMISS, true).apply();
 			}
-			prefs.edit().putBoolean(KEY_FIRST_RUN, true).commit();
+			prefs.edit().putBoolean(KEY_FIRST_RUN, true).apply();
 		}
 		
 		if (savedInstanceState != null){
