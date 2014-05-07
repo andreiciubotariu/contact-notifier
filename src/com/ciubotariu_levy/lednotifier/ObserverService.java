@@ -19,6 +19,7 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Telephony.Sms;
+import android.util.Log;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
@@ -27,7 +28,7 @@ public class ObserverService extends Service {
 	private Handler mHandler = new Handler();
 
 	@SuppressLint("InlinedApi")
-	private final static String CONTACT_NAME = Build.VERSION.SDK_INT
+	private static final String CONTACT_NAME = Build.VERSION.SDK_INT
 	>= Build.VERSION_CODES.HONEYCOMB ?
 			Contacts.DISPLAY_NAME_PRIMARY :
 				Contacts.DISPLAY_NAME;
@@ -62,10 +63,12 @@ public class ObserverService extends Service {
 	int mUnread;
 	int mUnseen;
 	boolean registeredObserver = false;
-	final static Uri SMS_CONTENT_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.CONTENT_URI : Uri.parse("content://sms/");
-	final static Uri INBOX_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.CONTENT_URI : Uri.parse("content://sms/inbox/");
-	final static String READ =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Sms.Inbox.READ : "read";	
-	final static String SEEN =  Build.VERSION.SDK_INT 	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.SEEN : "seen";	
+	static final Uri SMS_CONTENT_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.CONTENT_URI : Uri.parse("content://sms/");
+	static final Uri INBOX_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.CONTENT_URI : Uri.parse("content://sms/inbox/");
+	static final String READ =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Sms.Inbox.READ : "read";	
+	static final String SEEN =  Build.VERSION.SDK_INT 	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.SEEN : "seen";
+
+	private static final String TAG = "ObserverService";	
 	
 	ContentObserver mSMSContentObserver = new ContentObserver (mHandler){
 		@Override
@@ -78,7 +81,7 @@ public class ObserverService extends Service {
 			int unseen = getUnseenSms();
 			int unread = getUnreadSms();
 
-			System.out.println ("Stats " + unseen+ "|" + unread);
+			Log.i (TAG,"Stats " + unseen+ "|" + unread);
 			if (unseen <mUnseen || unread<mUnread){
 				NotificationUtils.cancel(ObserverService.this);
 			}
@@ -97,7 +100,7 @@ public class ObserverService extends Service {
 			mUnseen = getUnseenSms();
 			getContentResolver().registerContentObserver(SMS_CONTENT_URI, true, mSMSContentObserver);
 			registeredObserver = true;
-			System.out.println ("Registered observer " + mUnseen +"|" + mUnread);
+			Log.i(TAG,"Registered observer " + mUnseen +"|" + mUnread);
 		}catch (Exception e){ //sms inbox not standardized on jellybean and older
 			e.printStackTrace();
 			throw new RuntimeException();

@@ -70,7 +70,7 @@
         android:enabled="@bool/notification_service_enabled"
         android:key="delay_dismissal"
         android:summaryOff="Dismissing our notification as soon as SMS app notification is dismissed"
-        android:summaryOn="Dismissing our notification 5 seconds after SMS app notification dismissal"
+        android:summaryOn="Dismissing our notification 5 seconds after SMS app notification dismissal. Does nothing if SMS app also modifies SMS seen or read status"
         android:title="Delay dismissal" />
 
 </PreferenceScreen>

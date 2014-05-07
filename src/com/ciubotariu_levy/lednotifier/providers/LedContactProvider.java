@@ -18,7 +18,7 @@ import android.util.Log;
 public class LedContactProvider extends ContentProvider {
 
 	private static final String TAG = "LedContactProvider";
-	private final static String DATABASE_NAME  = "ledcontacts.db";
+	private static final String DATABASE_NAME  = "ledcontacts.db";
 	private static final int DATABASE_VERSION  = 1;
 	private static final String LEDCONTACTS_TABLE_NAME = "led_contacts";
 

@@ -20,12 +20,11 @@ import android.support.v4.app.NotificationCompat;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
-	//private final static String TAG = "NotificationService";
-	private final static String KEY_REPLACE_NOTIFICATION = "replace_notification";
-	private final static String KEY_TIE_NOTIFICATION = "tie_to_sms_app";
-	private final static String KEY_DELAY_DISMISS = "delay_dismissal";
-	
-	private final static int DELAY_MILLIS = 5000;
+	//private static final String TAG = "NotificationService";
+	private static final String KEY_REPLACE_NOTIFICATION = "replace_notification";
+	private static final String KEY_TIE_NOTIFICATION = "tie_to_sms_app";
+	private static final String KEY_DELAY_DISMISS = "delay_dismissal";
+	private static final int DELAY_MILLIS = 5000;
 
 	protected static boolean isNotificationListenerServiceOn = false;
 	private Notification mCurrentNotification = null;

@@ -9,8 +9,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 
 public class DefaultColorChooserContainer extends ActionBarActivity implements ColorDialog.OnColorChosenListener{
-	private final static String COLOR_CHOOSER_DIALOG_TAG = "color_chooser";
-	protected final static String DEFAULT_COLOR = "default_notification_color";
+	private static final String COLOR_CHOOSER_DIALOG_TAG = "color_chooser";
+	protected static final String DEFAULT_COLOR = "default_notification_color";
 	private SharedPreferences mPrefs;
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)

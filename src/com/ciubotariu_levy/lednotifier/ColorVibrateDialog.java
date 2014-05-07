@@ -31,10 +31,10 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener 
 		public void onContactDetailsUpdated (String lookupKey, int color, String vibratePattern);
 	}
 
-	private final static String LOOKUP_KEY_VALUE = "row_id";
-	private final static String USER_COLOR = "user_color";
-	private final static String USER_CURRENT_COLOR = "user_color";
-	private final static String USER_CUSTOM_VIB = "custom_vibrate_pattern";
+	private static final String LOOKUP_KEY_VALUE = "row_id";
+	private static final String USER_COLOR = "user_color";
+	private static final String USER_CURRENT_COLOR = "user_color";
+	private static final String USER_CUSTOM_VIB = "custom_vibrate_pattern";
 	
 
 	public static ColorVibrateDialog getInstance (String lookupKey, int color,String vibratePattern){

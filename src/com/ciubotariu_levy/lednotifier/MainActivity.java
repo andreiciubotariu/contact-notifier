@@ -20,6 +20,7 @@ import android.view.MenuItem;
 public class MainActivity extends ActionBarActivity {
 	private static final String KEY_FIRST_RUN = "first_run";
 	private static final String KEY_SEARCH_TEXT = "KEY_SEARCH_TEXT";
+	public static final String KEY_DELAY_DISMISS = "delay_dismissal";
 	
 	public interface SearchReceiver{
 		public void onSearchClosed();
@@ -32,7 +33,6 @@ public class MainActivity extends ActionBarActivity {
 	private MenuItem searchItem;
 	private String searchText="";
 	
-	
 	@TargetApi(19)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +42,8 @@ public class MainActivity extends ActionBarActivity {
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (!prefs.contains(KEY_FIRST_RUN)){
-			if (Build.BRAND.toLowerCase().contains("samsung") && Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2){
-				prefs.edit().putBoolean("delay_dismissal", true).commit();
+			if (Build.BRAND.toLowerCase().contains("samsung")){
+				prefs.edit().putBoolean(KEY_DELAY_DISMISS, true).commit();
 			}
 			prefs.edit().putBoolean(KEY_FIRST_RUN, true).commit();
 		}

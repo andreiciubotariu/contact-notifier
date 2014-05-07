@@ -25,9 +25,9 @@ public class ColorDialog extends DialogFragment implements ColorListener{
 		public void onColorChosen (int color, String lookupKey);
 	}
 
-	private final static String LOOKUP_KEY_VALUE = "row_id";
-	private final static String USER_COLOR = "user_color";
-	private final static String USER_CURRENT_COLOR = "user_color";
+	private static final String LOOKUP_KEY_VALUE = "row_id";
+	private static final String USER_COLOR = "user_color";
+	private static final String USER_CURRENT_COLOR = "user_color";
 
 	public static ColorDialog getInstance (String lookupKey, int color){
 		ColorDialog dialog = new ColorDialog ();
