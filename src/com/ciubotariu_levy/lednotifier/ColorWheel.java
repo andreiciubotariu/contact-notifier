@@ -25,6 +25,7 @@ public class ColorWheel extends View {
 	public ColorWheel(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		paint = new Paint();
+		paint.setAntiAlias(true);
 		paint.setColor(color);
 		wheelColors = new int[360];
 		for (int i = 0; i<360; i++){

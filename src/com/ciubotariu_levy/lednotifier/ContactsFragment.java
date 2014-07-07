@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -32,6 +33,9 @@ import android.widget.TextView;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+import com.makeramen.RoundedTransformationBuilder;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 public class ContactsFragment extends ListFragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
@@ -51,7 +55,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 				Contacts.DISPLAY_NAME;
 
 	private static final String[] FROM_COLUMNS = {
-		CONTACT_NAME, CommonDataKinds.Phone.NUMBER,Contacts._ID, Contacts.LOOKUP_KEY
+		CONTACT_NAME, CommonDataKinds.Phone.NUMBER,Contacts._ID, Contacts.LOOKUP_KEY,Contacts._ID
 	};
 
 	private static final String[] PROJECTION = {
@@ -68,7 +72,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	 * the Android framework, so it is prefaced with "android.R.id"
 	 */
 	private static final int[] TO_IDS = {
-		android.R.id.text1, android.R.id.text2,R.id.contact_vibrate, R.id.contact_display_color
+		R.id.contact_name, R.id.contact_number,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
 	};
 
 	private static final String TAG = "ContactsFragment";
@@ -94,6 +98,12 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		final Transformation transformation = new RoundedTransformationBuilder()
+        .borderColor(Color.BLACK)
+        .borderWidthDp(0)
+        .cornerRadiusDp(30)
+        .oval(false)
+        .build();
 		// Gets a CursorAdapter
 		mCursorAdapter = new SectionedCursorAdapter(
 				getActivity(),
@@ -106,10 +116,19 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				switch (view.getId()){
+				case R.id.contact_image:
+					Uri contactUri = Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(Contacts._ID)), cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+					Picasso.with(getActivity())
+				    .load(contactUri)
+				    .placeholder(R.drawable.contact_picture_placeholder)
+				    .fit()
+				    .transform(transformation)
+				    .into((ImageView)view);
+					return true;
 				case R.id.contact_display_color:
 					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 					int color = info == null ? Color.GRAY : info.color;
-					view.setBackgroundColor(color);
+					((CircularColorView)view).setColor(color);
 					return true;
 
 				case R.id.contact_vibrate:
@@ -131,8 +150,9 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 
 		//change space between list items
 		ListView listView = getListView();
+		listView.setItemsCanFocus(true);
 		listView.setDivider(null);
-		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics());
 		listView.setDividerHeight(dividerSize);
 		listView.setCacheColorHint(Color.TRANSPARENT);
 
@@ -184,14 +204,18 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
-		String lookupValue = mCursorAdapter.getCursor().getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));
+		Cursor c = mCursorAdapter.getCursor();
+		
+		String name = c.getString(mCursorAdapter.getCursor().getColumnIndex(CONTACT_NAME));
+		String number = c.getString(mCursorAdapter.getCursor().getColumnIndex(CommonDataKinds.Phone.NUMBER));
+		String lookupValue = c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));
 		int color = Color.GRAY;
 		String vibratePattern = null;
 		if (mLedData.get(lookupValue)!=null){
 			color = mLedData.get(lookupValue).color;
 			vibratePattern = mLedData.get(lookupValue).vibratePattern;
 		}
-		ColorVibrateDialog.getInstance(lookupValue, color,vibratePattern)
+		ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
 		.show(getChildFragmentManager(), "color_vibrate_dialog");
 	}
 
