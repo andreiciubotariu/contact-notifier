@@ -10,15 +10,17 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import com.ciubotariu_levy.lednotifier.ColorWheel.ColorListener;
+import com.larswerkman.holocolorpicker.LinearColorPicker;
+import com.larswerkman.holocolorpicker.OnColorChangedListener;
 
-public class ColorDialog extends DialogFragment implements ColorListener{
+public class ColorDialog extends DialogFragment implements OnColorChangedListener{
 	//0xFF000000 to 0xFFFFFFFF
 	private int color;
 
 	private int originalColor;
 	
-	private ColorWheel sample;
+	private LinearColorPicker picker;
+	private View colorState;
 
 
 	public interface OnColorChosenListener {
@@ -27,7 +29,7 @@ public class ColorDialog extends DialogFragment implements ColorListener{
 
 	private static final String LOOKUP_KEY_VALUE = "row_id";
 	private static final String USER_COLOR = "user_color";
-	private static final String USER_CURRENT_COLOR = "user_color";
+	private static final String USER_CURRENT_COLOR = "user_current_color";
 
 	public static ColorDialog getInstance (String lookupKey, int color){
 		ColorDialog dialog = new ColorDialog ();
@@ -43,8 +45,9 @@ public class ColorDialog extends DialogFragment implements ColorListener{
 	}
 
 	@Override
-	public void setColor(int color){
+	public void onColorChanged(int color){
 		this.color = color;
+		colorState.setBackgroundColor(color);
 	}
 
 	@Override
@@ -66,12 +69,12 @@ public class ColorDialog extends DialogFragment implements ColorListener{
 		view.findViewById(R.id.reset_color).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				onColorChosen (Color.GRAY);
-				dismiss();
+				onColorChanged (Color.GRAY);
 			}
 		});
 	}
 
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		View view = inflater.inflate(R.layout.color_dialog, container,false);
@@ -81,14 +84,17 @@ public class ColorDialog extends DialogFragment implements ColorListener{
 		if (savedInstanceState != null){
 			color = savedInstanceState.getInt(USER_CURRENT_COLOR, originalColor);
 		}		
-		sample = (ColorWheel) view.findViewById(R.id.wheel);
-		sample.setDialog(this);
-		sample.lockWidth=true;
-		sample.setColor(color);		
+		colorState = view.findViewById(R.id.display_color);
+		colorState.setBackgroundColor(color);
+		
+		picker = (LinearColorPicker) view.findViewById(R.id.colorbar);
+		picker.setColor(color);		
+		picker.setOnColorChangedListener(this);
 		return view;
 	}
 	
-	public void onSaveInstaceState (Bundle outState){
+	@Override
+	public void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
 		outState.putInt(USER_CURRENT_COLOR, color);
 	}

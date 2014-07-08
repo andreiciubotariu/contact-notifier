@@ -20,7 +20,7 @@ public class NotificationUtils {
 	public static final int DELAY_TIME = 10*60*1000;
 	
 	@TargetApi(19)
-	public static void notify (Context context,Notification notif,boolean timeoutLED){
+	public static void notify (Context context, Notification notif, boolean timeoutLED){
 		dismissAlarm (context);
 		if (notif.ledARGB == Color.GRAY){ //ensure LED is turned off
 			notif.ledARGB = 0;

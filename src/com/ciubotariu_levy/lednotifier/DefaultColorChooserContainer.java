@@ -33,7 +33,6 @@ public class DefaultColorChooserContainer extends ActionBarActivity implements C
 	}
 	@Override
 	public void onColorChosen(int color, String lookupKey) {
-		//System.out.println (color);
 		mPrefs.edit().putInt(DEFAULT_COLOR, color).apply();
 	}
 }

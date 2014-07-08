@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -149,10 +150,12 @@ public class SMSReceiver extends BroadcastReceiver {
 				NotificationService.isNotificationListenerServiceOn : false;
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		boolean showAllNotifications = prefs.getBoolean(SHOW_ALL_NOTIFS, false);
+		boolean inFullSilentMode = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE)).getRingerMode() == AudioManager.RINGER_MODE_SILENT;
+		
 		if (showAllNotifications && notif.ledARGB == Color.GRAY){
 			notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
 		}
-		if (notif.ledARGB == Color.GRAY && notif.vibrate != null){
+		if (notif.ledARGB == Color.GRAY && notif.vibrate != null && !inFullSilentMode){
 			Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 			v.vibrate(notif.vibrate, -1 /*no repeat*/);
 			notif.vibrate = null;

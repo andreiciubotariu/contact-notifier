@@ -44,6 +44,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
 	private static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
+	private static final String CONTACT_DIALOG_TAG = "color_vibrate_dialog";
 	/*
 	 * Defines an array that contains column names to move from
 	 * the Cursor to the ListView.
@@ -81,14 +82,14 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	private static final String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
 	private static final String KEY_CONSTRAINT = "KEY_FILTER";
 	private static final int LOADER_ID = 0;
-	
+
 	private SimpleCursorAdapter mCursorAdapter;
 
 	private HashMap <String, LedContactInfo> mLedData;
 	private DataFetcher mFetcher;
-	
+
 	private Bundle args = new Bundle();
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -99,11 +100,11 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		final Transformation transformation = new RoundedTransformationBuilder()
-        .borderColor(Color.BLACK)
-        .borderWidthDp(0)
-        .cornerRadiusDp(30)
-        .oval(false)
-        .build();
+		.borderColor(Color.BLACK)
+		.borderWidthDp(0)
+		.cornerRadiusDp(30)
+		.oval(false)
+		.build();
 		// Gets a CursorAdapter
 		mCursorAdapter = new SectionedCursorAdapter(
 				getActivity(),
@@ -119,11 +120,11 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 				case R.id.contact_image:
 					Uri contactUri = Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(Contacts._ID)), cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 					Picasso.with(getActivity())
-				    .load(contactUri)
-				    .placeholder(R.drawable.contact_picture_placeholder)
-				    .fit()
-				    .transform(transformation)
-				    .into((ImageView)view);
+					.load(contactUri)
+					.placeholder(R.drawable.contact_picture_placeholder)
+					.fit()
+					.transform(transformation)
+					.into((ImageView)view);
 					return true;
 				case R.id.contact_display_color:
 					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
@@ -145,7 +146,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 				return false;
 			}
 		});
-		
+
 		setListAdapter(mCursorAdapter);
 
 		//change space between list items
@@ -205,7 +206,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
 		Cursor c = mCursorAdapter.getCursor();
-		
+
 		String name = c.getString(mCursorAdapter.getCursor().getColumnIndex(CONTACT_NAME));
 		String number = c.getString(mCursorAdapter.getCursor().getColumnIndex(CommonDataKinds.Phone.NUMBER));
 		String lookupValue = c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));
@@ -215,8 +216,11 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 			color = mLedData.get(lookupValue).color;
 			vibratePattern = mLedData.get(lookupValue).vibratePattern;
 		}
-		ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
-		.show(getChildFragmentManager(), "color_vibrate_dialog");
+
+		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
+			ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
+			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
+		}
 	}
 
 	@Override

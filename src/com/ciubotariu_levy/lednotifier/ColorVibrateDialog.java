@@ -1,9 +1,11 @@
 package com.ciubotariu_levy.lednotifier;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -19,16 +22,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ciubotariu_levy.lednotifier.ColorWheel.ColorListener;
+import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.larswerkman.holocolorpicker.LinearColorPicker;
 import com.larswerkman.holocolorpicker.OnColorChangedListener;
 import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-public class ColorVibrateDialog extends DialogFragment implements ColorListener, OnColorChangedListener {
+public class ColorVibrateDialog extends DialogFragment implements OnColorChangedListener {
 	//0xFF000000 to 0xFFFFFFFF
-	private int color;
+	private int mColor;
 	private int originalColor;
 
 	private LinearColorPicker picker;
@@ -46,9 +49,9 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 	private static final String USER_NAME = "user_name";
 	private static final String USER_NUM = "user_number";
 	private static final String USER_COLOR = "user_color";
-	private static final String USER_CURRENT_COLOR = "user_color";
+	private static final String USER_CURRENT_COLOR = "user_current_color";
 	private static final String USER_CUSTOM_VIB = "custom_vibrate_pattern";
-	
+	private static final int VIB_NO_REPEAT = -1;
 
 	public static ColorVibrateDialog getInstance (String name, String number, String lookupKey,long id, int color,String vibratePattern){
 		ColorVibrateDialog dialog = new ColorVibrateDialog ();
@@ -68,13 +71,8 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 	}
 
 	@Override
-	public void setColor(int color){
-		this.color = color;
-	}
-	
-	@Override
 	public void onColorChanged(int color) {
-		this.color = color;
+		mColor = color;
 		colorState.setColor(color);
 	}
 
@@ -87,7 +85,7 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 				if (((CheckBox)view.findViewById(R.id.vibrate_checkbox)).isChecked()){
 					vibratePattern = ((EditText)view.findViewById(R.id.vib_input)).getText().toString().trim();
 				}
-				onConfirm (color,vibratePattern);
+				onConfirm (mColor,vibratePattern);
 				dismiss();
 			}
 		});
@@ -113,6 +111,8 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 		
 		return b.getString(key);
 	}
+	
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		View view = inflater.inflate(R.layout.color_vibrate_dialog, container,false);
@@ -130,28 +130,40 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 		Uri contactUri = Contacts.getLookupUri(args.getLong(CONTACT_ID), getString(args, LOOKUP_KEY_VALUE, ""));
 		ImageView contactPic = (ImageView) view.findViewById(R.id.contact_image);
 		Picasso.with(getActivity())
-	    .load(contactUri)
-	    .placeholder(R.drawable.contact_picture_placeholder)
-	    .fit()
-	    .transform(transformation)
-	    .into(contactPic);
+	    	.load(contactUri)
+	    	.placeholder(R.drawable.contact_picture_placeholder)
+	    	.fit()
+	    	.transform(transformation)
+	    	.into(contactPic);
 		
 		originalColor = args.getInt(USER_COLOR,Color.GRAY);
 		prevVibratePattern = args.getString(USER_CUSTOM_VIB);
-		color = originalColor;
+		mColor = originalColor;
 		vibratePattern = prevVibratePattern;
 		if (savedInstanceState != null){
-			color = savedInstanceState.getInt(USER_CURRENT_COLOR, originalColor);
+			mColor = savedInstanceState.getInt(USER_CURRENT_COLOR, originalColor);
 			vibratePattern = savedInstanceState.getString(USER_CUSTOM_VIB);
 		}	
 		colorState = (CircularColorView) view.findViewById(R.id.contact_display_color);
-		colorState.setColor(color);
-		picker = (LinearColorPicker) view.findViewById(R.id.colorbar);
-		picker.setColor(color);	
+		colorState.setColor(mColor);
+		picker = (LinearColorPicker) view.findViewById(R.id.colorbar);	
+		picker.setColor(mColor);
 		picker.setOnColorChangedListener(this);
 		final View vibrateHint = view.findViewById(R.id.vib_hint);
 		final EditText vibrateInput = (EditText) view.findViewById(R.id.vib_input);
 		vibrateInput.setMaxHeight(vibrateInput.getHeight());
+		
+		final Vibrator vibratorService = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+		final Button testVibrate = (Button) view.findViewById(R.id.test_vibrate);
+		testVibrate.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				long [] pattern = LedContactInfo.getVibratePattern(vibrateInput.getText().toString());
+				vibratorService.vibrate(pattern, VIB_NO_REPEAT);
+			}
+		});
+		
 		CheckBox c = (CheckBox) view.findViewById(R.id.vibrate_checkbox);
 		c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
@@ -160,6 +172,7 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 				if (isChecked){
 					vibrateHint.setVisibility(View.VISIBLE);
 					vibrateInput.setVisibility(View.VISIBLE);
+					testVibrate.setVisibility(View.VISIBLE);
 					if (!TextUtils.isEmpty(vibratePattern)){
 						vibrateInput.setText(vibratePattern);
 						vibrateInput.setSelection(vibratePattern.length());
@@ -168,6 +181,7 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 				else{
 					vibrateHint.setVisibility(View.GONE);
 					vibrateInput.setVisibility(View.GONE);
+					testVibrate.setVisibility(View.GONE);
 				}
 				
 			}
@@ -176,9 +190,10 @@ public class ColorVibrateDialog extends DialogFragment implements ColorListener,
 		return view;
 	}
 	
-	public void onSaveInstaceState (Bundle outState){
+	@Override
+	public void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
-		outState.putInt(USER_CURRENT_COLOR, color);
+		outState.putInt(USER_CURRENT_COLOR, mColor);
 		outState.putString(USER_CUSTOM_VIB, vibratePattern);
 	}
 
