@@ -239,6 +239,7 @@ public class SettingsActivity extends PreferenceActivity {
 								""));
 	}
 
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -249,6 +250,14 @@ public class SettingsActivity extends PreferenceActivity {
 			return true;
 		default: return super.onOptionsItemSelected(item);        
 		}
+	}
+	
+	@Override
+	public boolean isValidFragment(String fragmentName){
+		return GeneralPreferenceFragment.class.getName().equals(fragmentName)
+				|| NotifPreferenceFragment.class.getName().equals(fragmentName)
+				|| OtherPreferenceFragment.class.getName().equals(fragmentName)
+				|| AllPreferencesFragment.class.getName().equals(fragmentName);
 	}
 
 	/**

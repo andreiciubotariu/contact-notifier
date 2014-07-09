@@ -30,9 +30,9 @@
             android:id="@+id/contact_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/contact_name"
-            android:layout_below="@+id/contact_name"
-            android:layout_toRightOf="@+id/contact_img_container"
+            android:layout_alignStart="@id/contact_name"
+            android:layout_below="@id/contact_name"
+            android:layout_toRightOf="@id/contact_img_container"
             android:textColor="@android:color/black"
             android:textSize="14sp" />
     </RelativeLayout>
@@ -57,7 +57,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/colorbar"
+            android:layout_toRightOf="@id/colorbar"
             android:background="@drawable/default_color_selector" />
     </RelativeLayout>
 
@@ -69,14 +69,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
+        <ImageView
+            android:id="@+id/vibrate_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_contact_vibrate" />
+
         <CheckBox
             android:id="@+id/vibrate_checkbox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_height="50dp"
             android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/vibrate_icon"
             android:checked="false"
-            android:text="Custom Vibrate"
+            android:text=""
             android:textColor="@android:color/black" />
 
         <Button
@@ -87,6 +96,7 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/vibrate_checkbox"
             android:text="Test"
+            android:textSize="17sp"
             android:visibility="gone" />
     </RelativeLayout>
 
