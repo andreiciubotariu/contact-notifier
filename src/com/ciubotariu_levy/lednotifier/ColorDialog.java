@@ -10,7 +10,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import com.larswerkman.holocolorpicker.LinearColorPicker;
+import com.larswerkman.holocolorpicker.EndColorPicker;
 import com.larswerkman.holocolorpicker.OnColorChangedListener;
 
 public class ColorDialog extends DialogFragment implements OnColorChangedListener{
@@ -19,7 +19,7 @@ public class ColorDialog extends DialogFragment implements OnColorChangedListene
 
 	private int originalColor;
 	
-	private LinearColorPicker picker;
+	private EndColorPicker picker;
 	private View colorState;
 
 
@@ -66,12 +66,6 @@ public class ColorDialog extends DialogFragment implements OnColorChangedListene
 				dismiss();
 			}
 		});
-		view.findViewById(R.id.reset_color).setOnClickListener(new OnClickListener() {			
-			@Override
-			public void onClick(View v) {
-				onColorChanged (Color.GRAY);
-			}
-		});
 	}
 
 	@Override
@@ -87,7 +81,7 @@ public class ColorDialog extends DialogFragment implements OnColorChangedListene
 		colorState = view.findViewById(R.id.display_color);
 		colorState.setBackgroundColor(color);
 		
-		picker = (LinearColorPicker) view.findViewById(R.id.colorbar);
+		picker = (EndColorPicker) view.findViewById(R.id.colorbar);
 		picker.setColor(color);		
 		picker.setOnColorChangedListener(this);
 		return view;

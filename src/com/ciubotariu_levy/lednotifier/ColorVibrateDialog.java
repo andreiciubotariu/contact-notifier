@@ -23,7 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
-import com.larswerkman.holocolorpicker.LinearColorPicker;
+import com.larswerkman.holocolorpicker.EndColorPicker;
 import com.larswerkman.holocolorpicker.OnColorChangedListener;
 import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
@@ -34,7 +34,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private int mColor;
 	private int originalColor;
 
-	private LinearColorPicker picker;
+	private EndColorPicker picker;
 
 	private String vibratePattern;
 	private String prevVibratePattern;
@@ -96,12 +96,6 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 				dismiss();
 			}
 		});
-		view.findViewById(R.id.reset_color).setOnClickListener(new OnClickListener() {			
-			@Override
-			public void onClick(View v) {
-				onColorChanged (Color.GRAY);
-			}
-		});
 	}
 
 	private String getString (Bundle b, String key, String defValue){ //method not available on API 11 and below
@@ -146,7 +140,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		}	
 		colorState = (CircularColorView) view.findViewById(R.id.contact_display_color);
 		colorState.setColor(mColor);
-		picker = (LinearColorPicker) view.findViewById(R.id.colorbar);	
+		picker = (EndColorPicker) view.findViewById(R.id.colorbar);	
 		picker.setColor(mColor);
 		picker.setOnColorChangedListener(this);
 		final View vibrateHint = view.findViewById(R.id.vib_hint);
