@@ -19,8 +19,8 @@ public class LedContactProvider extends ContentProvider {
 
 	private static final String TAG = "LedContactProvider";
 	private static final String DATABASE_NAME  = "ledcontacts.db";
-	private static final int DATABASE_VERSION  = 1;
-	private static final String LEDCONTACTS_TABLE_NAME = "led_contacts";
+	private static final int DATABASE_VERSION  = 2;//TODO Add boolean column for custom vibrate
+	public static final String LEDCONTACTS_TABLE_NAME = "led_contacts";
 
 	public static final String AUTHORITY = "com.ciubotariu_levy.lednotifier.providers.LedContactProvider";
 	private static final UriMatcher sUriMatcher;
@@ -41,7 +41,7 @@ public class LedContactProvider extends ContentProvider {
 		public void onCreate (SQLiteDatabase db){
 			String CREATE_PROFILES_TABLE = "CREATE TABLE " + LEDCONTACTS_TABLE_NAME + "(" +
 					LedContacts._ID + " INTEGER PRIMARY KEY," +
-					LedContacts.SYSTEM_CONTACT_ID +" INTEGER KEY,"+ LedContacts.COLOR + " TEXT, "
+					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" INTEGER KEY,"+ LedContacts.COLOR + " TEXT, "
 					+ LedContacts.VIBRATE_PATTERN + " TEXT" +
 					")";
 			db.execSQL(CREATE_PROFILES_TABLE);
@@ -59,13 +59,13 @@ public class LedContactProvider extends ContentProvider {
 	private DatabaseHelper mDbHelper;
 
 	@Override
-	public int delete (Uri uri, String selection, String [] selectionArgs){
+	public int delete (Uri uri, String selection, String [] selectionArgs){ 
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		switch (sUriMatcher.match(uri)){
 		case LEDCONTACTS:
 			break;
 		case LEDCONTACTS_ID:
-			selection = selection + LedContacts._ID + " = " + uri.getLastPathSegment();
+			selection = selection + LedContacts._ID + " = " + uri.getLastPathSegment(); //TODO fix this up. If no space. If null, this fails
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -133,7 +133,7 @@ public class LedContactProvider extends ContentProvider {
 		}
 
 		SQLiteDatabase db = mDbHelper.getReadableDatabase();
-		Cursor ledCursor = qb.query(db, projection, selection, selectionArgs, null, null, LedContacts.SYSTEM_CONTACT_ID + " ASC");
+		Cursor ledCursor = qb.query(db, projection, selection, selectionArgs, null, null, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " ASC");
 		ledCursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return ledCursor;
 	}
@@ -147,8 +147,8 @@ public class LedContactProvider extends ContentProvider {
 			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, whereArgs);
 			break;
 		case LEDCONTACTS_ID:
-			where = where + LedContacts._ID + " = " + uri.getLastPathSegment();
-			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, whereArgs);
+			where = /*where +*/ LedContacts._ID + " = " + uri.getLastPathSegment(); //TODO see if using whereArgs throws odd error like last time. Probably was an implementation issue
+			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, null);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -165,7 +165,7 @@ public class LedContactProvider extends ContentProvider {
 
 		ledContactsProjectionMap = new HashMap<String, String>();
 		ledContactsProjectionMap.put(LedContacts._ID, LedContacts._ID);
-		ledContactsProjectionMap.put(LedContacts.SYSTEM_CONTACT_ID, LedContacts.SYSTEM_CONTACT_ID);
+		ledContactsProjectionMap.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI);
 		ledContactsProjectionMap.put(LedContacts.COLOR, LedContacts.COLOR);
 		ledContactsProjectionMap.put(LedContacts.VIBRATE_PATTERN, LedContacts.VIBRATE_PATTERN);
 	}

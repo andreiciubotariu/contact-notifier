@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -64,7 +65,8 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		Contacts.LOOKUP_KEY,
 		CONTACT_NAME,
 		CommonDataKinds.Phone.NUMBER,
-		CommonDataKinds.Phone.TYPE
+		CommonDataKinds.Phone.TYPE,
+		CommonDataKinds.Phone.CONTACT_ID
 	};
 
 	/*
@@ -116,9 +118,9 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				Uri contactUri = Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(Phone.CONTACT_ID)), cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 				switch (view.getId()){
 				case R.id.contact_image:
-					Uri contactUri = Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(Contacts._ID)), cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 					Picasso.with(getActivity())
 					.load(contactUri)
 					.placeholder(R.drawable.contact_picture_placeholder)
@@ -127,13 +129,13 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 					.into((ImageView)view);
 					return true;
 				case R.id.contact_display_color:
-					LedContactInfo info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+					LedContactInfo info = mLedData.get(contactUri.toString());
 					int color = info == null ? Color.GRAY : info.color;
 					((CircularColorView)view).setColor(color);
 					return true;
 
 				case R.id.contact_vibrate:
-					info = mLedData.get(cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+					info = mLedData.get(contactUri.toString());
 					if (info != null && !TextUtils.isEmpty(info.vibratePattern)){
 						view.setVisibility(View.VISIBLE);
 						view.setBackgroundResource(R.drawable.ic_contact_vibrate);
@@ -206,10 +208,11 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
 		Cursor c = mCursorAdapter.getCursor();
-
-		String name = c.getString(mCursorAdapter.getCursor().getColumnIndex(CONTACT_NAME));
-		String number = c.getString(mCursorAdapter.getCursor().getColumnIndex(CommonDataKinds.Phone.NUMBER));
-		String lookupValue = c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));
+		long contactID = c.getLong(c.getColumnIndex(CommonDataKinds.Phone.CONTACT_ID));
+		System.out.println ("Clicked on ID " + contactID + " (rowID) " + rowID);
+		String name = c.getString(c.getColumnIndex(CONTACT_NAME));
+		String number = c.getString(c.getColumnIndex(CommonDataKinds.Phone.NUMBER));
+		String lookupValue = /*c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));*/Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(Contacts.LOOKUP_KEY))).toString();
 		int color = Color.GRAY;
 		String vibratePattern = null;
 		if (mLedData.get(lookupValue)!=null){
@@ -268,20 +271,20 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	}
 
 	@Override
-	public void onContactDetailsUpdated(String lookupKey,int color,String vibratePattern) {
-		LedContactInfo info = mLedData.get(lookupKey);
+	public void onContactDetailsUpdated(String lookupUri,int color,String vibratePattern) {
+		LedContactInfo info = mLedData.get(lookupUri);
 		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
-			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_ID + "=?", new String [] {lookupKey});
+			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {lookupUri});
 			System.out.println ("deleting");
 			if (info != null){
-				mLedData.put(lookupKey, null);
+				mLedData.put(lookupUri, null);
 			}
 		}
 		else {
 			if (info == null){
 				info = new LedContactInfo();
-				info.systemId = lookupKey;
-				mLedData.put(info.systemId, info);
+				info.systemLookupUri = lookupUri;
+				mLedData.put(info.systemLookupUri, info);
 			}
 			info.color = color;
 			info.vibratePattern = vibratePattern;
@@ -289,7 +292,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 			if (info.id != -1){
 				values.put(LedContacts._ID, info.id);
 			}
-			values.put(LedContacts.SYSTEM_CONTACT_ID, lookupKey);
+			values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, lookupUri);
 			values.put(LedContacts.COLOR, color);
 			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
 			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);

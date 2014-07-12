@@ -5,7 +5,7 @@ import android.text.TextUtils;
 public class LedContactInfo {
 
 	public long id = -1;
-	public String systemId;
+	public String systemLookupUri;
 	public int color;
 	public String vibratePattern;
 	

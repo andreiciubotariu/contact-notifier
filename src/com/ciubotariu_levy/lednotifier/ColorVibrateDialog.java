@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -44,7 +43,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		public void onContactDetailsUpdated (String lookupKey, int color, String vibratePattern);
 	}
 
-	private static final String LOOKUP_KEY_VALUE = "lookup_key";
+	private static final String LOOKUP_URI = "lookup_uri";
 	private static final String CONTACT_ID = "_id";
 	private static final String USER_NAME = "user_name";
 	private static final String USER_NUM = "user_number";
@@ -53,12 +52,12 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private static final String USER_CUSTOM_VIB = "custom_vibrate_pattern";
 	private static final int VIB_NO_REPEAT = -1;
 
-	public static ColorVibrateDialog getInstance (String name, String number, String lookupKey,long id, int color,String vibratePattern){
+	public static ColorVibrateDialog getInstance (String name, String number, String lookupUri,long id, int color,String vibratePattern){
 		ColorVibrateDialog dialog = new ColorVibrateDialog ();
 		Bundle args = new Bundle();
 		args.putString(USER_NAME, name);
 		args.putString(USER_NUM, number);
-		args.putString (LOOKUP_KEY_VALUE, lookupKey);
+		args.putString (LOOKUP_URI, lookupUri);
 		args.putLong(CONTACT_ID, id);
 		args.putInt (USER_COLOR, color);		
 		args.putString(USER_CUSTOM_VIB, vibratePattern);
@@ -121,7 +120,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
         .cornerRadiusDp(30)
         .oval(false)
         .build();
-		Uri contactUri = Contacts.getLookupUri(args.getLong(CONTACT_ID), getString(args, LOOKUP_KEY_VALUE, ""));
+		Uri contactUri = Uri.parse(getString(args, LOOKUP_URI, ""));
 		ImageView contactPic = (ImageView) view.findViewById(R.id.contact_image);
 		Picasso.with(getActivity())
 	    	.load(contactUri)
@@ -209,7 +208,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			}
 		}
 		if (listener != null){
-			listener.onContactDetailsUpdated(getArguments().getString(LOOKUP_KEY_VALUE), color, vibrate);
+			listener.onContactDetailsUpdated(getArguments().getString(LOOKUP_URI), color, vibrate);
 		}
 	}
 	
@@ -226,7 +225,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	}
 
 	private void finishHostActivity(){
-		if (getArguments().getString(LOOKUP_KEY_VALUE) == null && getActivity() != null){
+		if (getArguments().getString(LOOKUP_URI) == null && getActivity() != null){
 			getActivity().finish();
 		}
 	}

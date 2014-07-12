@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -50,13 +51,13 @@ public class ObserverService extends Service {
 
 		@Override
 		public void onChange (boolean selfChange, Uri uri){
-			System.out.println ("changed");
+			System.out.println ("changed " + uri);
 			int newNumContacts = getNumContacts(mNumContacts);
 
-			if (mNumContacts != newNumContacts){
+			//if (mNumContacts != newNumContacts){
 				mNumContacts = newNumContacts;
 				new ContactsChangeChecker().execute();
-			}
+			//}
 		}
 	};
 
@@ -82,7 +83,7 @@ public class ObserverService extends Service {
 			int unread = getUnreadSms();
 
 			Log.i (TAG,"Stats " + unseen+ "|" + unread);
-			if (unseen <mUnseen || unread<mUnread){
+			if (unseen < mUnseen || unread < mUnread){
 				NotificationUtils.cancel(ObserverService.this);
 			}
 			mUnseen = unseen;
@@ -158,17 +159,25 @@ public class ObserverService extends Service {
 		@Override
 		protected Void doInBackground(Void... params) {
 			List <String> toDelete = new ArrayList <String> ();
-			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_ID};
+			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI};
 			ContentResolver resolver = getContentResolver();
 			Cursor c = resolver.query(LedContacts.CONTENT_URI, projection, null, null,null);
 			if (c != null && c.moveToFirst()){
 				do {
 					int id = c.getInt(c.getColumnIndex(LedContacts._ID));
-					String systemLookupKey = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_ID));
+					String systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
 
-					Uri lookupUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI,systemLookupKey);
+					Uri lookupUri = Uri.parse(systemLookupUri);
+					System.out.println ("Parsed URi is " + lookupUri);
+					Uri newLookupUri = ContactsContract.Contacts.getLookupUri(resolver, lookupUri);
 					if (ContactsContract.Contacts.lookupContact(resolver, lookupUri) == null){
 						toDelete.add(String.valueOf(id));
+					} else if (newLookupUri != null && !newLookupUri.equals(lookupUri)){
+						System.out.println("Different URIs now. Must update our DB");
+						ContentValues values = new ContentValues();
+						values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newLookupUri.toString());
+						Uri updateUri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(id));
+						resolver.update(updateUri, values, null, null);
 					}
 				}
 				while (c.moveToNext());
@@ -181,10 +190,10 @@ public class ObserverService extends Service {
 
 		private String generateSelectionMarks (int amount){
 			StringBuilder s = new StringBuilder("(");
-			for (int x=0; x<amount-1; x++){
+			for (int x = 0; x < amount-1; x++){
 				s.append("?, ");
 			}
-			if (amount>0){
+			if (amount > 0){
 				s.append ("?");
 			}
 			s.append (")");

@@ -57,10 +57,10 @@ public class SMSReceiver extends BroadcastReceiver {
 			i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-			String [] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_ID, LedContacts.VIBRATE_PATTERN};
+			String [] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.VIBRATE_PATTERN};
 			String selection = null;
 			String [] selectionArgs = null;
-			selection = LedContacts.SYSTEM_CONTACT_ID + " = ?" ;
+			selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?" ;
 			if (sender [0] != null){
 				selectionArgs = new String [] {	sender [0] };
 			}
@@ -178,7 +178,11 @@ public class SMSReceiver extends BroadcastReceiver {
 			Uri phoneNumberUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
 			contactCursor = resolver.query(phoneNumberUri, new String [] {Contacts.LOOKUP_KEY,PhoneLookup._ID,PhoneLookup.DISPLAY_NAME}, null, null, null);
 			if (contactCursor != null && contactCursor.moveToFirst()){
-				return new String [] {contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)),
+//				Uri incompleteUri = Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI,contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+				Uri contactUri = Contacts.getLookupUri(contactCursor.getLong(contactCursor.getColumnIndex(PhoneLookup._ID)), contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+				String contactUriString = contactUri == null ? null : contactUri.toString();
+				System.out.println ("Relookup of shallow contact uri: " + Contacts.getLookupUri(resolver, Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)))));
+				return new String [] {contactUriString,
 						contactCursor.getString (contactCursor.getColumnIndex(PhoneLookup.DISPLAY_NAME))};
 			}
 			else {
