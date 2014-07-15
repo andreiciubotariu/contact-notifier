@@ -41,7 +41,7 @@ public class LedContactProvider extends ContentProvider {
 		public void onCreate (SQLiteDatabase db){
 			String CREATE_PROFILES_TABLE = "CREATE TABLE " + LEDCONTACTS_TABLE_NAME + "(" +
 					LedContacts._ID + " INTEGER PRIMARY KEY," +
-					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" INTEGER KEY,"+ LedContacts.COLOR + " TEXT, "
+					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"+ LedContacts.COLOR + " TEXT, "
 					+ LedContacts.VIBRATE_PATTERN + " TEXT" +
 					")";
 			db.execSQL(CREATE_PROFILES_TABLE);

@@ -38,6 +38,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private String vibratePattern;
 	private String prevVibratePattern;
 	private CircularColorView colorState;
+	private Vibrator vibratorService;
 	
 	public interface ContactDetailsUpdateListener {
 		public void onContactDetailsUpdated (String lookupKey, int color, String vibratePattern);
@@ -97,7 +98,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		});
 	}
 
-	private String getString (Bundle b, String key, String defValue){ //method not available on API 11 and below
+	private String getString (Bundle b, String key, String defValue){ //Bundle#getString (String, String) not available on API 11 and below
 		if (b.getString(key) == null){
 			return defValue;
 		}
@@ -146,7 +147,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		final EditText vibrateInput = (EditText) view.findViewById(R.id.vib_input);
 		vibrateInput.setMaxHeight(vibrateInput.getHeight());
 		
-		final Vibrator vibratorService = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+		vibratorService = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 		final Button testVibrate = (Button) view.findViewById(R.id.test_vibrate);
 		testVibrate.setOnClickListener(new OnClickListener() {
 			
@@ -215,16 +216,19 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	@Override
 	public void onCancel(DialogInterface dialog){
 		super.onCancel(dialog);
-		finishHostActivity();
+		cleanupAndFinish();
 	}
 
 	@Override
 	public void onDismiss(DialogInterface dialog){
 		super.onDismiss(dialog);
-		finishHostActivity();
+		cleanupAndFinish();
 	}
 
-	private void finishHostActivity(){
+	private void cleanupAndFinish(){
+		if (vibratorService != null){
+			vibratorService.cancel();
+		}
 		if (getArguments().getString(LOOKUP_URI) == null && getActivity() != null){
 			getActivity().finish();
 		}

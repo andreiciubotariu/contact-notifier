@@ -19,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/contact_img_container"
+        android:layout_toLeftOf="@id/contact_vibrate"
         android:textColor="@android:color/black"
         android:textSize="20sp" />
 
@@ -29,6 +30,7 @@
         android:layout_alignStart="@id/contact_name"
         android:layout_below="@id/contact_name"
         android:layout_toRightOf="@id/contact_img_container"
+        android:layout_toLeftOf="@id/contact_vibrate"
         android:textColor="@android:color/black"
         android:textSize="14sp" />
 

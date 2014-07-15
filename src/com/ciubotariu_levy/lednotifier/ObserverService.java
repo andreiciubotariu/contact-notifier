@@ -42,7 +42,8 @@ public class ObserverService extends Service {
 	};
 
 
-	int mNumContacts;
+	private int mNumContacts;
+	private ContactsChangeChecker checker;
 	ContentObserver mContactContentObserver = new ContentObserver (mHandler){
 		@Override
 		public void onChange (boolean selfChange){
@@ -54,10 +55,12 @@ public class ObserverService extends Service {
 			System.out.println ("changed " + uri);
 			int newNumContacts = getNumContacts(mNumContacts);
 
-			//if (mNumContacts != newNumContacts){
-				mNumContacts = newNumContacts;
-				new ContactsChangeChecker().execute();
-			//}
+			mNumContacts = newNumContacts;
+			if (checker != null && !checker.isCancelled()){
+				checker.cancel(true);
+			}
+			checker = new ContactsChangeChecker();
+			checker.execute();
 		}
 	};
 
@@ -70,7 +73,7 @@ public class ObserverService extends Service {
 	static final String SEEN =  Build.VERSION.SDK_INT 	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.SEEN : "seen";
 
 	private static final String TAG = "ObserverService";	
-	
+
 	ContentObserver mSMSContentObserver = new ContentObserver (mHandler){
 		@Override
 		public void onChange (boolean selfChange){
@@ -106,6 +109,8 @@ public class ObserverService extends Service {
 			e.printStackTrace();
 			throw new RuntimeException();
 		}
+		checker = new ContactsChangeChecker();
+		checker.execute();
 	}
 
 	@Override
@@ -164,11 +169,14 @@ public class ObserverService extends Service {
 			Cursor c = resolver.query(LedContacts.CONTENT_URI, projection, null, null,null);
 			if (c != null && c.moveToFirst()){
 				do {
+					if (isCancelled()){
+						break;
+					}
 					int id = c.getInt(c.getColumnIndex(LedContacts._ID));
 					String systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
 
 					Uri lookupUri = Uri.parse(systemLookupUri);
-					System.out.println ("Parsed URi is " + lookupUri);
+					System.out.println ("Parsed URI is " + lookupUri);
 					Uri newLookupUri = ContactsContract.Contacts.getLookupUri(resolver, lookupUri);
 					if (ContactsContract.Contacts.lookupContact(resolver, lookupUri) == null){
 						toDelete.add(String.valueOf(id));
