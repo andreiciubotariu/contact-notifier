@@ -1,9 +1,6 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.HashMap;
-
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -11,7 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -32,13 +28,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-public class ContactsFragment extends ListFragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
+public class CustomContactsFragment extends ListFragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, LoaderManager.LoaderCallbacks<Cursor>
 {
 	//copied ListFragment Constants due to access issue.
 	private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
@@ -57,16 +52,15 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 				Contacts.DISPLAY_NAME;
 
 	private static final String[] FROM_COLUMNS = {
-		CONTACT_NAME, CommonDataKinds.Phone.NUMBER,Contacts._ID, Contacts.LOOKUP_KEY,Contacts._ID
+		LedContacts.LAST_KNOWN_NAME, LedContacts.SYSTEM_CONTACT_LOOKUP_URI,LedContacts.VIBRATE_PATTERN, LedContacts.COLOR ,LedContacts.SYSTEM_CONTACT_LOOKUP_URI
 	};
 
 	private static final String[] PROJECTION = {
-		Contacts._ID,
-		Contacts.LOOKUP_KEY,
-		CONTACT_NAME,
-		CommonDataKinds.Phone.NUMBER,
-		CommonDataKinds.Phone.TYPE,
-		CommonDataKinds.Phone.CONTACT_ID
+		LedContacts._ID,
+		LedContacts.SYSTEM_CONTACT_LOOKUP_URI,
+		LedContacts.LAST_KNOWN_NAME,
+		LedContacts.COLOR,
+		LedContacts.VIBRATE_PATTERN
 	};
 
 	/*
@@ -83,12 +77,9 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	private static final String bareQuery = CommonDataKinds.Phone.TYPE + "=?";
 	private static final String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
 	private static final String KEY_CONSTRAINT = "KEY_FILTER";
-	private static final int LOADER_ID = 0;
+	private static final int LOADER_ID = 1;
 
 	private SimpleCursorAdapter mCursorAdapter;
-
-	private HashMap <String, LedContactInfo> mLedData;
-	private DataFetcher mFetcher;
 
 	private Bundle args = new Bundle();
 
@@ -96,6 +87,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(false);
+		
 	}
 
 	@Override
@@ -118,7 +110,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				Uri contactUri = Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(Phone.CONTACT_ID)), cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+				Uri contactUri = Uri.parse(cursor.getString(cursor.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI)));
 				switch (view.getId()){
 				case R.id.contact_image:
 					Picasso.with(getActivity())
@@ -129,19 +121,30 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 					.into((ImageView)view);
 					return true;
 				case R.id.contact_display_color:
-					LedContactInfo info = mLedData.get(contactUri.toString());
-					int color = info == null ? Color.GRAY : info.color;
+					int color = cursor.getInt(cursor.getColumnIndex(LedContacts.COLOR));
 					((CircularColorView)view).setColor(color);
 					return true;
-
 				case R.id.contact_vibrate:
-					info = mLedData.get(contactUri.toString());
-					if (info != null && !TextUtils.isEmpty(info.vibratePattern)){
+					String vibratePattern = cursor.getString(cursor.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+					if (!TextUtils.isEmpty(vibratePattern)){
 						view.setVisibility(View.VISIBLE);
 						view.setBackgroundResource(R.drawable.ic_contact_vibrate);
 					}
 					else {
 						view.setVisibility(View.GONE);
+					}
+					return true;
+				case R.id.contact_number:
+					String contactId = contactUri.getLastPathSegment();
+					Cursor contactPhoneCursor = getActivity().getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, 
+							new String [] {CommonDataKinds.Phone.CONTACT_ID, CommonDataKinds.Phone.NUMBER}, 
+							CommonDataKinds.Phone.CONTACT_ID + "=?", new String[] {contactId}, null);
+					if (contactPhoneCursor != null && contactPhoneCursor.moveToFirst()){
+						TextView t = (TextView) view;
+						t.setText(contactPhoneCursor.getString(contactPhoneCursor.getColumnIndex(CommonDataKinds.Phone.NUMBER)));
+					}
+					if (contactPhoneCursor != null){
+						contactPhoneCursor.close();
 					}
 					return true;
 				}
@@ -158,9 +161,6 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics());
 		listView.setDividerHeight(dividerSize);
 		listView.setCacheColorHint(Color.TRANSPARENT);
-
-		mFetcher = new DataFetcher(this, LedContacts.CONTENT_URI);
-		mFetcher.execute(getActivity());
 	}
 
 	//copied from support ListFragment source to include FastScrollThemedListView. Swapped FILL_PARENT for MATCH_PARENT
@@ -201,29 +201,34 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		// ------------------------------------------------------------------
 		root.setLayoutParams(new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
 		return root;
+	}
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState){
+		super.onViewCreated(view, savedInstanceState);
+		getLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
-		Cursor c = mCursorAdapter.getCursor();
-		long contactID = c.getLong(c.getColumnIndex(CommonDataKinds.Phone.CONTACT_ID));
-		System.out.println ("Clicked on ID " + contactID + " (rowID) " + rowID);
-		String name = c.getString(c.getColumnIndex(CONTACT_NAME));
-		String number = c.getString(c.getColumnIndex(CommonDataKinds.Phone.NUMBER));
-		String lookupValue = /*c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));*/Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(Contacts.LOOKUP_KEY))).toString();
-		int color = Color.GRAY;
-		String vibratePattern = null;
-		if (mLedData.get(lookupValue)!=null){
-			color = mLedData.get(lookupValue).color;
-			vibratePattern = mLedData.get(lookupValue).vibratePattern;
-		}
+//		Cursor c = mCursorAdapter.getCursor();
+//		long contactID = c.getLong(c.getColumnIndex(CommonDataKinds.Phone.CONTACT_ID));
+//		System.out.println ("Clicked on ID " + contactID + " (rowID) " + rowID);
+//		String name = c.getString(c.getColumnIndex(CONTACT_NAME));
+//		String number = c.getString(c.getColumnIndex(CommonDataKinds.Phone.NUMBER));
+//		String lookupValue = /*c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));*/Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(Contacts.LOOKUP_KEY))).toString();
+//		int color = Color.GRAY;
+//		String vibratePattern = null;
+//		if (mLedData.get(lookupValue)!=null){
+//			color = mLedData.get(lookupValue).color;
+//			vibratePattern = mLedData.get(lookupValue).vibratePattern;
+//		}
 
-		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
-			ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
-			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
-		}
+//		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
+//			ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
+//			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
+//		}
 	}
 
 	@Override
@@ -239,11 +244,11 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 
 		return new CursorLoader(
 				getActivity(),
-				CommonDataKinds.Phone.CONTENT_URI,
+				LedContacts.CONTENT_URI,
 				PROJECTION,
-				query,
-				filteredSelectionArgs,
-				CONTACT_NAME + " ASC");
+				null,
+				null,
+				LedContacts.LAST_KNOWN_NAME + " ASC");
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -260,51 +265,39 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	}
 
 	@Override
-	public void onDataFetched(HashMap<String, LedContactInfo> fetchedData) {
-		Log.d(TAG, "Data Fetched");
-		mFetcher = null;
-		mLedData = fetchedData;
-		//Initializes the loader
-		if (getActivity() != null){
-			getLoaderManager().initLoader(LOADER_ID, null, this);
-		}
-	}
-
-	@Override
 	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, int color,String vibratePattern) {
-		LedContactInfo info = mLedData.get(lookupUri);
-		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
-			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {lookupUri});
-			System.out.println ("deleting");
-			if (info != null){
-				mLedData.put(lookupUri, null);
-			}
-		}
-		else {
-			if (info == null){
-				info = new LedContactInfo();
-				info.systemLookupUri = lookupUri;
-				mLedData.put(info.systemLookupUri, info);
-			}
-			info.color = color;
-			info.vibratePattern = vibratePattern;
-			info.lastKnownName = lastKnownName;
-			ContentValues values = new ContentValues();
-			if (info.id != -1){
-				values.put(LedContacts._ID, info.id);
-			}
-			values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, lookupUri);
-			values.put(LedContacts.COLOR, color);
-			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
-			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
-			info.id = Long.parseLong (uri.getLastPathSegment());
-		}
-		mCursorAdapter.notifyDataSetChanged();
+//		LedContactInfo info = mLedData.get(lookupUri);
+//		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
+//			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {lookupUri});
+//			System.out.println ("deleting");
+//			if (info != null){
+//				mLedData.put(lookupUri, null);
+//			}
+//		}
+//		else {
+//			if (info == null){
+//				info = new LedContactInfo();
+//				info.systemLookupUri = lookupUri;
+//				mLedData.put(info.systemLookupUri, info);
+//			}
+//			info.color = color;
+//			info.vibratePattern = vibratePattern;
+//			ContentValues values = new ContentValues();
+//			if (info.id != -1){
+//				values.put(LedContacts._ID, info.id);
+//			}
+//			values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, lookupUri);
+//			values.put(LedContacts.COLOR, color);
+//			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
+//			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
+//			info.id = Long.parseLong (uri.getLastPathSegment());
+//		}
+//		mCursorAdapter.notifyDataSetChanged();
 	}
 
 	@Override
 	public void onSearchClosed() {
-		getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
+		getLoaderManager().restartLoader(LOADER_ID, null, CustomContactsFragment.this);
 	}
 
 	@Override
@@ -315,12 +308,12 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	@Override
 	public void onQueryTextSubmit(String newText) {
 		args.putString(KEY_CONSTRAINT, newText);
-		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
+		getLoaderManager().restartLoader(LOADER_ID, args, CustomContactsFragment.this);
 	}
 
 	@Override
 	public void onQueryTextChange(String query) {
 		args.putString(KEY_CONSTRAINT, query);
-		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
+		getLoaderManager().restartLoader(LOADER_ID, args, CustomContactsFragment.this);
 	}
 }

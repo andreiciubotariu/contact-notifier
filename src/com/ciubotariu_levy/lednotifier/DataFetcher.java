@@ -31,13 +31,14 @@ public class DataFetcher extends
 		if (params [0] == null){
 			return map;
 		}
-		String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.COLOR, LedContacts.VIBRATE_PATTERN};
+		String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME, LedContacts.COLOR, LedContacts.VIBRATE_PATTERN};
 		Cursor c = params[0].getContentResolver().query(mUri, projection, null, null,null);
 		if (c != null && c.moveToFirst()){
 			do {
 				LedContactInfo info = new LedContactInfo();
 				info.id = c.getInt(c.getColumnIndex(LedContacts._ID));
 				info.systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
+				info.lastKnownName = c.getString (c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
 				info.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 				info.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
 				map.put (String.valueOf(info.systemLookupUri),info);

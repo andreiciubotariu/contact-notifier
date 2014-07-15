@@ -41,7 +41,7 @@ public class LedContactProvider extends ContentProvider {
 		public void onCreate (SQLiteDatabase db){
 			String CREATE_PROFILES_TABLE = "CREATE TABLE " + LEDCONTACTS_TABLE_NAME + "(" +
 					LedContacts._ID + " INTEGER PRIMARY KEY," +
-					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"+ LedContacts.COLOR + " TEXT, "
+					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"+ LedContacts.LAST_KNOWN_NAME + " TEXT," + LedContacts.COLOR + " TEXT, "
 					+ LedContacts.VIBRATE_PATTERN + " TEXT" +
 					")";
 			db.execSQL(CREATE_PROFILES_TABLE);
@@ -133,7 +133,7 @@ public class LedContactProvider extends ContentProvider {
 		}
 
 		SQLiteDatabase db = mDbHelper.getReadableDatabase();
-		Cursor ledCursor = qb.query(db, projection, selection, selectionArgs, null, null, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " ASC");
+		Cursor ledCursor = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 		ledCursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return ledCursor;
 	}
@@ -166,6 +166,7 @@ public class LedContactProvider extends ContentProvider {
 		ledContactsProjectionMap = new HashMap<String, String>();
 		ledContactsProjectionMap.put(LedContacts._ID, LedContacts._ID);
 		ledContactsProjectionMap.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI);
+		ledContactsProjectionMap.put(LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NAME);
 		ledContactsProjectionMap.put(LedContacts.COLOR, LedContacts.COLOR);
 		ledContactsProjectionMap.put(LedContacts.VIBRATE_PATTERN, LedContacts.VIBRATE_PATTERN);
 	}

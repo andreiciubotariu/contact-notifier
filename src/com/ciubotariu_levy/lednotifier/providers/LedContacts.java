@@ -6,6 +6,8 @@ import android.provider.BaseColumns;
 public class LedContacts implements BaseColumns{
 	public static final Uri CONTENT_URI = Uri.parse("content://" 
 			+ LedContactProvider.AUTHORITY + "/led_contacts");
+	
+	public static final String LAST_KNOWN_NAME = "contact_last_known_name";
 
 	public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.ciubotariu_levy.ledcontacts";
 

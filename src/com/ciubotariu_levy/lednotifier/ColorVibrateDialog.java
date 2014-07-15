@@ -41,27 +41,27 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private Vibrator vibratorService;
 	
 	public interface ContactDetailsUpdateListener {
-		public void onContactDetailsUpdated (String lookupKey, int color, String vibratePattern);
+		public void onContactDetailsUpdated (String lookupKey, String lastKnownName, int color, String vibratePattern);
 	}
 
 	private static final String LOOKUP_URI = "lookup_uri";
 	private static final String CONTACT_ID = "_id";
-	private static final String USER_NAME = "user_name";
-	private static final String USER_NUM = "user_number";
-	private static final String USER_COLOR = "user_color";
-	private static final String USER_CURRENT_COLOR = "user_current_color";
-	private static final String USER_CUSTOM_VIB = "custom_vibrate_pattern";
+	private static final String CONTACT_NAME = "contact_name";
+	private static final String CONTACT_NUM = "user_number";
+	private static final String CONTACT_COLOR = "user_color";
+	private static final String CONTACT_CURRENT_COLOR = "user_current_color";
+	private static final String CONTACT_CUSTOM_VIB = "custom_vibrate_pattern";
 	private static final int VIB_NO_REPEAT = -1;
 
-	public static ColorVibrateDialog getInstance (String name, String number, String lookupUri,long id, int color,String vibratePattern){
+	public static ColorVibrateDialog getInstance (String name, String number, String lookupUri, long id, int color,String vibratePattern){
 		ColorVibrateDialog dialog = new ColorVibrateDialog ();
 		Bundle args = new Bundle();
-		args.putString(USER_NAME, name);
-		args.putString(USER_NUM, number);
+		args.putString(CONTACT_NAME, name);
+		args.putString(CONTACT_NUM, number);
 		args.putString (LOOKUP_URI, lookupUri);
 		args.putLong(CONTACT_ID, id);
-		args.putInt (USER_COLOR, color);		
-		args.putString(USER_CUSTOM_VIB, vibratePattern);
+		args.putInt (CONTACT_COLOR, color);		
+		args.putString(CONTACT_CUSTOM_VIB, vibratePattern);
 		dialog.setArguments(args);
 		return dialog;
 	}
@@ -112,8 +112,8 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		View view = inflater.inflate(R.layout.color_vibrate_dialog, container,false);
 		Bundle args = getArguments();
 		
-		((TextView)view.findViewById(R.id.contact_name)).setText (getString(args,USER_NAME, ""));
-		((TextView)view.findViewById(R.id.contact_number)).setText (getString(args,USER_NUM, ""));
+		((TextView)view.findViewById(R.id.contact_name)).setText (getString(args,CONTACT_NAME, ""));
+		((TextView)view.findViewById(R.id.contact_number)).setText (getString(args,CONTACT_NUM, ""));
 		
 		Transformation transformation = new RoundedTransformationBuilder()
         .borderColor(Color.BLACK)
@@ -130,13 +130,13 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	    	.transform(transformation)
 	    	.into(contactPic);
 		
-		originalColor = args.getInt(USER_COLOR,Color.GRAY);
-		prevVibratePattern = args.getString(USER_CUSTOM_VIB);
+		originalColor = args.getInt(CONTACT_COLOR,Color.GRAY);
+		prevVibratePattern = args.getString(CONTACT_CUSTOM_VIB);
 		mColor = originalColor;
 		vibratePattern = prevVibratePattern;
 		if (savedInstanceState != null){
-			mColor = savedInstanceState.getInt(USER_CURRENT_COLOR, originalColor);
-			vibratePattern = savedInstanceState.getString(USER_CUSTOM_VIB);
+			mColor = savedInstanceState.getInt(CONTACT_CURRENT_COLOR, originalColor);
+			vibratePattern = savedInstanceState.getString(CONTACT_CUSTOM_VIB);
 		}	
 		colorState = (CircularColorView) view.findViewById(R.id.contact_display_color);
 		colorState.setColor(mColor);
@@ -187,8 +187,8 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	@Override
 	public void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
-		outState.putInt(USER_CURRENT_COLOR, mColor);
-		outState.putString(USER_CUSTOM_VIB, vibratePattern);
+		outState.putInt(CONTACT_CURRENT_COLOR, mColor);
+		outState.putString(CONTACT_CUSTOM_VIB, vibratePattern);
 	}
 
 	//called when user chooses a color
@@ -209,7 +209,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			}
 		}
 		if (listener != null){
-			listener.onContactDetailsUpdated(getArguments().getString(LOOKUP_URI), color, vibrate);
+			listener.onContactDetailsUpdated(getArguments().getString(LOOKUP_URI), getArguments().getString(CONTACT_NAME),color, vibrate);
 		}
 	}
 	

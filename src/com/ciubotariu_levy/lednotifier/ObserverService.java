@@ -164,7 +164,7 @@ public class ObserverService extends Service {
 		@Override
 		protected Void doInBackground(Void... params) {
 			List <String> toDelete = new ArrayList <String> ();
-			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI};
+			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME};
 			ContentResolver resolver = getContentResolver();
 			Cursor c = resolver.query(LedContacts.CONTENT_URI, projection, null, null,null);
 			if (c != null && c.moveToFirst()){
@@ -178,15 +178,40 @@ public class ObserverService extends Service {
 					Uri lookupUri = Uri.parse(systemLookupUri);
 					System.out.println ("Parsed URI is " + lookupUri);
 					Uri newLookupUri = ContactsContract.Contacts.getLookupUri(resolver, lookupUri);
-					if (ContactsContract.Contacts.lookupContact(resolver, lookupUri) == null){
+					if (/*ContactsContract.Contacts.lookupContact(resolver, lookupUri)*/ newLookupUri== null){
+						System.out.println ("deleting contact from our db");
 						toDelete.add(String.valueOf(id));
-					} else if (newLookupUri != null && !newLookupUri.equals(lookupUri)){
-						System.out.println("Different URIs now. Must update our DB");
+					} else {
 						ContentValues values = new ContentValues();
-						values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newLookupUri.toString());
-						Uri updateUri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(id));
-						resolver.update(updateUri, values, null, null);
+						boolean needsUpdating = false;
+
+						if (newLookupUri != null && !newLookupUri.equals(lookupUri)){
+							System.out.println("Different URIs now. Must update our DB");
+							values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newLookupUri.toString());
+							needsUpdating = true;
+						} 
+
+						Cursor contactNameCursor = getContentResolver().query(newLookupUri, new String [] {CONTACT_NAME}, null, null, null);
+						if (contactNameCursor != null && contactNameCursor.moveToFirst()){
+							String name = contactNameCursor.getString(contactNameCursor.getColumnIndex(CONTACT_NAME));
+							if (!name.equals(c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME)))){
+								System.out.println ("Name change");
+								values.put(LedContacts.LAST_KNOWN_NAME, name);	
+								needsUpdating = true;
+							}
+						}
+						if (contactNameCursor != null){
+							contactNameCursor.close();
+						}
+
+						if (needsUpdating){
+							System.out.println ("updating database...");
+							Uri updateUri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(id));
+							resolver.update(updateUri, values, null, null);
+						}
+
 					}
+
 				}
 				while (c.moveToNext());
 				c.close();

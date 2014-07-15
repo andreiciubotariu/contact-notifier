@@ -6,6 +6,7 @@ public class LedContactInfo {
 
 	public long id = -1;
 	public String systemLookupUri;
+	public String lastKnownName;
 	public int color;
 	public String vibratePattern;
 	
