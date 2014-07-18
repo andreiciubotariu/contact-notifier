@@ -212,23 +212,16 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
-//		Cursor c = mCursorAdapter.getCursor();
-//		long contactID = c.getLong(c.getColumnIndex(CommonDataKinds.Phone.CONTACT_ID));
-//		System.out.println ("Clicked on ID " + contactID + " (rowID) " + rowID);
-//		String name = c.getString(c.getColumnIndex(CONTACT_NAME));
-//		String number = c.getString(c.getColumnIndex(CommonDataKinds.Phone.NUMBER));
-//		String lookupValue = /*c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));*/Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(Contacts.LOOKUP_KEY))).toString();
-//		int color = Color.GRAY;
-//		String vibratePattern = null;
-//		if (mLedData.get(lookupValue)!=null){
-//			color = mLedData.get(lookupValue).color;
-//			vibratePattern = mLedData.get(lookupValue).vibratePattern;
-//		}
-
-//		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
-//			ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
-//			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
-//		}
+		Cursor c = mCursorAdapter.getCursor();
+		String name = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
+		String number = ((TextView) item.findViewById(R.id.contact_number)).getText().toString();
+		String lookupValue = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
+		int color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+		String vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
+			ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
+			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
+		}
 	}
 
 	@Override
@@ -265,7 +258,10 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 	}
 
 	@Override
-	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, int color,String vibratePattern) {
+	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, int color,String vibratePattern/*id*/) {
+		//TODO implementation. Use the rowID for update calls. Requires tweaks to the dialog
+		
+		
 //		LedContactInfo info = mLedData.get(lookupUri);
 //		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
 //			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {lookupUri});

@@ -18,9 +18,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Telephony.Sms;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
@@ -166,14 +168,14 @@ public class ObserverService extends Service {
 			List <String> toDelete = new ArrayList <String> ();
 			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME};
 			ContentResolver resolver = getContentResolver();
-			Cursor c = resolver.query(LedContacts.CONTENT_URI, projection, null, null,null);
-			if (c != null && c.moveToFirst()){
+			Cursor customContactsCursor = resolver.query(LedContacts.CONTENT_URI, projection, null, null,null);
+			if (customContactsCursor != null && customContactsCursor.moveToFirst()){
 				do {
 					if (isCancelled()){
 						break;
 					}
-					int id = c.getInt(c.getColumnIndex(LedContacts._ID));
-					String systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
+					int id = customContactsCursor.getInt(customContactsCursor.getColumnIndex(LedContacts._ID));
+					String systemLookupUri = customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
 
 					Uri lookupUri = Uri.parse(systemLookupUri);
 					System.out.println ("Parsed URI is " + lookupUri);
@@ -190,20 +192,28 @@ public class ObserverService extends Service {
 							values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newLookupUri.toString());
 							needsUpdating = true;
 						} 
-
-						Cursor contactNameCursor = getContentResolver().query(newLookupUri, new String [] {CONTACT_NAME}, null, null, null);
+						
+						String contactId = newLookupUri.getLastPathSegment();
+						System.out.println ("Path segments: " + newLookupUri.getPathSegments());
+						Cursor contactNameCursor = getContentResolver().query(Phone.CONTENT_URI, new String [] {CONTACT_NAME, Phone.LOOKUP_KEY, Phone.CONTACT_ID, Phone.NUMBER, Phone.TYPE},Phone.CONTACT_ID + "=?", new String[] {contactId} , null);
 						if (contactNameCursor != null && contactNameCursor.moveToFirst()){
 							String name = contactNameCursor.getString(contactNameCursor.getColumnIndex(CONTACT_NAME));
-							if (!name.equals(c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME)))){
+							if (!name.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NAME)))){
 								System.out.println ("Name change");
 								values.put(LedContacts.LAST_KNOWN_NAME, name);	
 								needsUpdating = true;
+							}
+							
+							if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Phone.TYPE)) != Phone.TYPE_MOBILE){
+								Log.i(TAG,"Not a mobile number, deletion pending");
+								needsUpdating = false;
+								toDelete.add(String.valueOf(id));
 							}
 						}
 						if (contactNameCursor != null){
 							contactNameCursor.close();
 						}
-
+						
 						if (needsUpdating){
 							System.out.println ("updating database...");
 							Uri updateUri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(id));
@@ -213,8 +223,8 @@ public class ObserverService extends Service {
 					}
 
 				}
-				while (c.moveToNext());
-				c.close();
+				while (customContactsCursor.moveToNext());
+				customContactsCursor.close();
 			}
 			resolver.delete(LedContacts.CONTENT_URI, LedContacts._ID + " IN " + generateSelectionMarks(toDelete.size()), toDelete.toArray(new String[toDelete.size()]));
 

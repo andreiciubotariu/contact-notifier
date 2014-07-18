@@ -3,6 +3,8 @@
  */
 package com.ciubotariu_levy.lednotifier;
 
+import java.util.Arrays;
+
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -26,11 +28,13 @@ import android.provider.Telephony.Sms;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
 public class SMSReceiver extends BroadcastReceiver {
+	public static final String TAG = SMSReceiver.class.getName();
 	public static final int ACTIVITY_REQUEST_CODE = 0;
 	public static final int DEL_REQUEST_CODE = 2;
 	protected static final String SHOW_ALL_NOTIFS = "show_all_notifications";
@@ -49,7 +53,10 @@ public class SMSReceiver extends BroadcastReceiver {
 	public void  onNewMessage (Context context, String number, String message){
 		if (!TextUtils.isEmpty(number)){
 			String [] sender = getNameForNumber(number, context.getContentResolver());
-			//System.out.println (Arrays.toString(sender));
+			System.out.println ("Sender: " + Arrays.toString(sender));
+
+			int color = Color.GRAY;
+			String vibratePattern = null;
 
 			Intent i=new Intent(context, MainActivity.class);
 
@@ -63,22 +70,23 @@ public class SMSReceiver extends BroadcastReceiver {
 			selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?" ;
 			if (sender [0] != null){
 				selectionArgs = new String [] {	sender [0] };
-			}
-			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
-			int color = Color.GRAY;
-			String vibratePattern = null;
-			if (c != null && c.moveToFirst()){
-				try {
-					color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
-					vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
-				}
-				catch (Exception e){
 
-					e.printStackTrace();
+				Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
+
+				if (c != null && c.moveToFirst()){
+					Log.v(TAG,"Cursor non-null");
+					try {
+						color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+						vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+					}
+					catch (Exception e){
+
+						e.printStackTrace();
+					}
 				}
-			}
-			if (c != null){
-				c.close();
+				if (c != null){
+					c.close();
+				}
 			}
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 			String smsAppPackageName = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ? 
@@ -151,7 +159,7 @@ public class SMSReceiver extends BroadcastReceiver {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		boolean showAllNotifications = prefs.getBoolean(SHOW_ALL_NOTIFS, false);
 		boolean inFullSilentMode = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE)).getRingerMode() == AudioManager.RINGER_MODE_SILENT;
-		
+
 		if (showAllNotifications && notif.ledARGB == Color.GRAY){
 			notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
 		}
@@ -178,17 +186,18 @@ public class SMSReceiver extends BroadcastReceiver {
 			Uri phoneNumberUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
 			contactCursor = resolver.query(phoneNumberUri, new String [] {Contacts.LOOKUP_KEY,PhoneLookup._ID,PhoneLookup.DISPLAY_NAME}, null, null, null);
 			if (contactCursor != null && contactCursor.moveToFirst()){
-//				Uri incompleteUri = Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI,contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+				//				Uri incompleteUri = Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI,contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 				Uri contactUri = Contacts.getLookupUri(contactCursor.getLong(contactCursor.getColumnIndex(PhoneLookup._ID)), contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+				
 				String contactUriString = contactUri == null ? null : contactUri.toString();
 				System.out.println ("Relookup of shallow contact uri: " + Contacts.getLookupUri(resolver, Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)))));
 				return new String [] {contactUriString,
 						contactCursor.getString (contactCursor.getColumnIndex(PhoneLookup.DISPLAY_NAME))};
 			}
 			else {
+				Log.w(TAG,"Not a contact in phone's database");
 				return new String [] {null,number};
 			}
-
 		}
 		finally {
 			if (contactCursor != null){
