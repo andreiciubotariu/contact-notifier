@@ -22,7 +22,6 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Telephony.Sms;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 

@@ -41,7 +41,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private Vibrator vibratorService;
 	
 	public interface ContactDetailsUpdateListener {
-		public void onContactDetailsUpdated (String lookupKey, String lastKnownName, int color, String vibratePattern);
+		public void onContactDetailsUpdated (String lookupKey, String lastKnownName, long ledContactID, int color, String vibratePattern);
 	}
 
 	private static final String LOOKUP_URI = "lookup_uri";
@@ -81,7 +81,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		view.findViewById(R.id.submit_color).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				vibratePattern = null;
+				vibratePattern = "";
 				if (((CheckBox)view.findViewById(R.id.vibrate_checkbox)).isChecked()){
 					vibratePattern = ((EditText)view.findViewById(R.id.vib_input)).getText().toString().trim();
 				}
@@ -92,7 +92,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		view.findViewById(R.id.cancel).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				onConfirm (originalColor,prevVibratePattern);
+				onConfirm (originalColor,prevVibratePattern); //should we update if values were unchanged?
 				dismiss();
 			}
 		});
@@ -209,7 +209,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			}
 		}
 		if (listener != null){
-			listener.onContactDetailsUpdated(getArguments().getString(LOOKUP_URI), getArguments().getString(CONTACT_NAME),color, vibrate);
+			listener.onContactDetailsUpdated(getArguments().getString(LOOKUP_URI), getArguments().getString(CONTACT_NAME),getArguments().getLong(CONTACT_ID),color, vibrate);
 		}
 	}
 	

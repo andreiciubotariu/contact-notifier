@@ -49,16 +49,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <activity
-            android:name="com.ciubotariu_levy.lednotifier.TestActivity"
-            android:label="Contact LED Notifier TEST" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+       
         <activity android:name="com.ciubotariu_levy.lednotifier.ColorActivity" />
         <activity
             android:name="com.ciubotariu_levy.lednotifier.SettingsActivity"

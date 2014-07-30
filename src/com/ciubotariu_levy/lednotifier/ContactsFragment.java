@@ -271,7 +271,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	}
 
 	@Override
-	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, int color,String vibratePattern) {
+	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, long ledContactID, int color,String vibratePattern) {
 		LedContactInfo info = mLedData.get(lookupUri);
 		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
 			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {lookupUri});
@@ -296,6 +296,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 			values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, lookupUri);
 			values.put(LedContacts.COLOR, color);
 			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
+			values.put(LedContacts.LAST_KNOWN_NAME, lastKnownName);
 			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
 			info.id = Long.parseLong (uri.getLastPathSegment());
 		}

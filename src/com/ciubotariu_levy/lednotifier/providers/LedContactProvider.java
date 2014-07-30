@@ -65,7 +65,7 @@ public class LedContactProvider extends ContentProvider {
 		case LEDCONTACTS:
 			break;
 		case LEDCONTACTS_ID:
-			selection = selection + LedContacts._ID + " = " + uri.getLastPathSegment(); //TODO fix this up. If no space. If null, this fails
+			selection = LedContacts._ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -147,7 +147,7 @@ public class LedContactProvider extends ContentProvider {
 			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, whereArgs);
 			break;
 		case LEDCONTACTS_ID:
-			where = /*where +*/ LedContacts._ID + " = " + uri.getLastPathSegment(); //TODO see if using whereArgs throws odd error like last time. Probably was an implementation issue
+			where = LedContacts._ID + " = " + uri.getLastPathSegment(); //TODO see if using whereArgs throws odd error like last time. Probably was an implementation issue
 			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, null);
 			break;
 		default:

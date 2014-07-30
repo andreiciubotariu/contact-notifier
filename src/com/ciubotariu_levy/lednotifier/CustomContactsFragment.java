@@ -1,6 +1,7 @@
 package com.ciubotariu_levy.lednotifier;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -74,8 +75,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 
 	private static final String TAG = "ContactsFragment";
 
-	private static final String bareQuery = CommonDataKinds.Phone.TYPE + "=?";
-	private static final String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
+	private static final String filterQuery = LedContacts.LAST_KNOWN_NAME + " LIKE ?";
 	private static final String KEY_CONSTRAINT = "KEY_FILTER";
 	private static final int LOADER_ID = 1;
 
@@ -233,14 +233,14 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 			constraint = args.getString(KEY_CONSTRAINT);
 		}
 
-		String [] filteredSelectionArgs = new String [] {String.valueOf(CommonDataKinds.Phone.TYPE_MOBILE), "%"+constraint+"%", "%"+constraint+"%"};
+		String [] filteredSelectionArgs = new String [] {"%"+constraint+"%"};
 
 		return new CursorLoader(
 				getActivity(),
 				LedContacts.CONTENT_URI,
 				PROJECTION,
-				null,
-				null,
+				filterQuery,
+				filteredSelectionArgs,
 				LedContacts.LAST_KNOWN_NAME + " ASC");
 	}
 
@@ -258,37 +258,17 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 	}
 
 	@Override
-	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, int color,String vibratePattern/*id*/) {
-		//TODO implementation. Use the rowID for update calls. Requires tweaks to the dialog
-		
-		
-//		LedContactInfo info = mLedData.get(lookupUri);
-//		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
-//			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {lookupUri});
-//			System.out.println ("deleting");
-//			if (info != null){
-//				mLedData.put(lookupUri, null);
-//			}
-//		}
-//		else {
-//			if (info == null){
-//				info = new LedContactInfo();
-//				info.systemLookupUri = lookupUri;
-//				mLedData.put(info.systemLookupUri, info);
-//			}
-//			info.color = color;
-//			info.vibratePattern = vibratePattern;
-//			ContentValues values = new ContentValues();
-//			if (info.id != -1){
-//				values.put(LedContacts._ID, info.id);
-//			}
-//			values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, lookupUri);
-//			values.put(LedContacts.COLOR, color);
-//			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
-//			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
-//			info.id = Long.parseLong (uri.getLastPathSegment());
-//		}
-//		mCursorAdapter.notifyDataSetChanged();
+	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, long rowID, int color,String vibratePattern) {
+		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
+			getActivity().getContentResolver().delete(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(rowID)), null, null);
+			System.out.println ("deleting");
+		}
+		else {
+			ContentValues values = new ContentValues();
+			values.put(LedContacts.COLOR, color);
+			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
+			getActivity().getContentResolver().update(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(rowID)), values,null, null);
+		}
 	}
 
 	@Override
