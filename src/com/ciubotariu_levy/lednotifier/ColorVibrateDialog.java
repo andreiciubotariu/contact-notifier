@@ -1,11 +1,15 @@
 package com.ciubotariu_levy.lednotifier;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -55,6 +59,8 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 
 	private static final String CONTACT_DATA = "contact_data";
 	private static final int VIB_NO_REPEAT = -1;
+	private static final int REQ_CODE = 1;
+	private Intent ringtonePickerIntent;
 	private LedContactInfo contactData;
 
 	public static ColorVibrateDialog getInstance (String name, String number, String lookupUri, long id, int color,String vibratePattern){
@@ -80,6 +86,15 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 
 	public ColorVibrateDialog(){
 		//Required Empty Constructor
+	}
+	
+	@Override
+	public void onCreate (Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		contactData = getArguments().getParcelable(CONTACT_DATA);
+		ringtonePickerIntent = new Intent (RingtoneManager.ACTION_RINGTONE_PICKER);
+		ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
+		ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Custom contact ringtone");
 	}
 
 	@Override
@@ -108,12 +123,22 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 				dismiss();
 			}
 		});
+		
 	}
-
+	
 	@Override
-	public void onCreate (Bundle savedInstanceState){
-		super.onCreate(savedInstanceState);
-		contactData = getArguments().getParcelable(CONTACT_DATA);
+	public void onActivityResult (int requestCode, int resultCode, Intent data){
+		//Log.i("ACTIVITY RESULTS", "Codes: "  + requestCode + " " + resultCode + " " + data.toString());
+		if (requestCode == REQ_CODE){
+			if (resultCode == Activity.RESULT_OK){
+				Uri ringtoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+				contactData.ringtoneUri = ringtoneUri != null ? ringtoneUri.toString() : null;
+				contactData.hasCustomRingtone = GlobalConstants.TRUE;
+				
+				Log.i("ACTIVITY RESULTS","ok");
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
@@ -167,8 +192,8 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			}
 		});
 
-		CheckBox c = (CheckBox) view.findViewById(R.id.vibrate_checkbox);
-		c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		CheckBox vibrateCheckbox = (CheckBox) view.findViewById(R.id.vibrate_checkbox);
+		vibrateCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -188,7 +213,32 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 				}
 			}
 		});
-		c.setChecked(!TextUtils.isEmpty(vibratePattern));
+		vibrateCheckbox.setChecked(!TextUtils.isEmpty(vibratePattern));
+		
+		
+		CheckBox ringtoneCheckbox = (CheckBox) view.findViewById(R.id.ringtone_checkbox);
+		ringtoneCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {		
+				contactData.hasCustomRingtone = isChecked ?  GlobalConstants.TRUE : GlobalConstants.FALSE;
+			}
+		});
+		ringtoneCheckbox.setChecked(contactData.hasCustomRingtone == GlobalConstants.TRUE);
+		
+		Button chooseRingtoneButton  = (Button) view.findViewById(R.id.choose_ringtone);
+		chooseRingtoneButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String s = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("notifications_new_message_ringtone", "");
+				Log.i("PrefOutput", s);
+				ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(s));
+				
+				startActivityForResult(ringtonePickerIntent, REQ_CODE);
+				
+			}
+		});
 		return view;
 	}
 
@@ -229,7 +279,11 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			contactData.hasCustomVibrate = GlobalConstants.TRUE;
 			contactData.vibratePattern = vibrate;
 		}
-
+		
+		if (contactData.hasCustomRingtone == GlobalConstants.TRUE && contactData.ringtoneUri != null && contactData.ringtoneUri.trim().length() == 0){
+			contactData.hasCustomRingtone = GlobalConstants.FALSE;
+			contactData.ringtoneUri = "";
+		}
 
 		listener.onContactDetailsUpdated(contactData);
 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -232,6 +234,14 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		}
 	}
 
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Fragment child = getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG);
+		if (child != null){
+			child.onActivityResult(requestCode, resultCode, data);
+		}
+    }
+	
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
 		Log.d (TAG,"Creating Loader");

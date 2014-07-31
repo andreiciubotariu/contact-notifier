@@ -3,12 +3,14 @@ package com.ciubotariu_levy.lednotifier;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -91,7 +93,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(false);
-		
+
 	}
 
 	@Override
@@ -194,7 +196,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		return root;
 	}
-	
+
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState){
 		super.onViewCreated(view, savedInstanceState);
@@ -212,13 +214,21 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 		data.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 		data.hasCustomVibrate = c.getInt(c.getColumnIndex(LedContacts.HAS_CUSTOM_VIBRATE));
 		data.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
-		
+
 		/**
 		 * TODO: add ringtone
 		 */
 		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
 			ColorVibrateDialog.getInstance(data)
 			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Fragment child = getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG);
+		if (child != null){
+			child.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 

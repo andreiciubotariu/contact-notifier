@@ -17,7 +17,7 @@
         android:key="show_all_notifications"
         android:summaryOff="Notification shown only for contacts with a set color"
         android:summaryOn="Showing notification for all received messages"
-        android:title="Notification frequency" />
+        android:title="Notification for every SMS" />
 
     <Preference
         android:dependency="show_all_notifications"

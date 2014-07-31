@@ -54,6 +54,41 @@
         android:layout_height="wrap_content" >
 
         <ImageView
+            android:id="@+id/sound_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_launcher" />
+
+        <CheckBox
+            android:id="@+id/ringtone_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/sound_icon"
+            android:checked="false"
+            android:text=""
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/choose_ringtone"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/ringtone_checkbox"
+            android:text="Choose"
+            android:textSize="17sp"
+            android:visibility="gone" />
+    </RelativeLayout>
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
             android:id="@+id/vibrate_icon"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
