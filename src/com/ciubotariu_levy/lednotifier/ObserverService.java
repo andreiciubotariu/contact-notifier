@@ -165,7 +165,7 @@ public class ObserverService extends Service {
 		@Override
 		protected Void doInBackground(Void... params) {
 			List <String> toDelete = new ArrayList <String> ();
-			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME};
+			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER};
 			ContentResolver resolver = getContentResolver();
 			Cursor customContactsCursor = resolver.query(LedContacts.CONTENT_URI, projection, null, null,null);
 			if (customContactsCursor != null && customContactsCursor.moveToFirst()){
@@ -200,6 +200,13 @@ public class ObserverService extends Service {
 							if (!name.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NAME)))){
 								System.out.println ("Name change");
 								values.put(LedContacts.LAST_KNOWN_NAME, name);	
+								needsUpdating = true;
+							}
+							
+							String phoneNumber = contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER));
+							if (!phoneNumber.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER)))){
+								System.out.println ("Number change");
+								values.put(LedContacts.LAST_KNOWN_NUMBER, phoneNumber);
 								needsUpdating = true;
 							}
 							

@@ -10,7 +10,8 @@
             <solid android:color="#ccc" />
         </shape>
     </item>
-    <item android:bottom="2dp">
+    <item android:bottom="2dp"
+        android:drawable="@drawable/abc_list_selector_background_transition_holo_light">
         <shape
             android:dither="true"
             android:shape="rectangle" >

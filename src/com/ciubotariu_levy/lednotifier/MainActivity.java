@@ -18,6 +18,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,7 +72,7 @@ public class MainActivity extends ActionBarActivity {
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_single_choice, android.R.id.text1, mFragmentTitles));
+				R.layout.drawer_bold_checked, android.R.id.text1, mFragmentTitles));
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -93,8 +94,19 @@ public class MainActivity extends ActionBarActivity {
 			/** Called when a drawer has settled in a completely open state. */
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
+				searchText = "";
 				getSupportActionBar().setTitle(mDrawerTitle);
 				supportInvalidateOptionsMenu();
+				Log.i("SEARCH-RELATED", "invalidated menu");
+				if (searchItem != null){
+					SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+					if (searchView != null){
+						searchView.setQuery(searchText, true);
+						Log.i("SEARCH-RELATED", "set blank text");
+					}
+					MenuItemCompat.collapseActionView(searchItem);
+					Log.i("SEARCH-RELATED", "collapsed search view");
+				}
 			}
 		};
 
@@ -111,9 +123,15 @@ public class MainActivity extends ActionBarActivity {
 
 		if (savedInstanceState != null){
 			searchText = savedInstanceState.getString(KEY_SEARCH_TEXT);
+			Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+			if (frag != null && frag.getTag().equals(mFragmentTitles[1])){
+				selectItem(1);
+			} else {
+				selectItem(0);
+			}
 		}
 		else {
-			selectItem (0);
+			selectItem(0);
 		}
 	}
 
@@ -191,13 +209,14 @@ public class MainActivity extends ActionBarActivity {
 		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 		if (!TextUtils.isEmpty(searchText)){
 			MenuItemCompat.expandActionView(searchItem);
-			searchView.setQuery(searchText, false);
+			searchView.setQuery(searchText, true);
 		}
 		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 
 			@Override
 			public boolean onClose() {
-
+				searchText = "";
+				Log.i("SEARCH-RELATED","closed");
 				return false;
 			}
 		});
@@ -236,6 +255,7 @@ public class MainActivity extends ActionBarActivity {
 				if (searchReceiver != null){
 					searchReceiver.onSearchClosed();
 				}
+				searchText = "";
 				return true;
 			}
 		});
@@ -261,7 +281,7 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onKeyDown (int keyCode, KeyEvent event){
-		if (keyCode == KeyEvent.KEYCODE_SEARCH){
+		if (keyCode == KeyEvent.KEYCODE_SEARCH && !mDrawerLayout.isDrawerOpen(GravityCompat.START)){
 			MenuItemCompat.expandActionView(searchItem);
 		}
 		return super.onKeyDown(keyCode, event);

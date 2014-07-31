@@ -207,21 +207,27 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
+		LedContactInfo data = null;
 		Cursor c = mCursorAdapter.getCursor();
 		long contactID = c.getLong(c.getColumnIndex(CommonDataKinds.Phone.CONTACT_ID));
 		System.out.println ("Clicked on ID " + contactID + " (rowID) " + rowID);
-		String name = c.getString(c.getColumnIndex(CONTACT_NAME));
-		String number = c.getString(c.getColumnIndex(CommonDataKinds.Phone.NUMBER));
-		String lookupValue = /*c.getString(mCursorAdapter.getCursor().getColumnIndex(Contacts.LOOKUP_KEY));*/Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(Contacts.LOOKUP_KEY))).toString();
-		int color = Color.GRAY;
-		String vibratePattern = null;
-		if (mLedData.get(lookupValue)!=null){
-			color = mLedData.get(lookupValue).color;
-			vibratePattern = mLedData.get(lookupValue).vibratePattern;
+		String lookupValue = Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(Contacts.LOOKUP_KEY))).toString();
+		if (mLedData.get(lookupValue) != null){
+			data = mLedData.get(lookupValue);
+		} else {
+			data = new LedContactInfo();
+			data.systemLookupUri = lookupValue;
+			data.color = Color.GRAY;
+			data.hasCustomRingtone = GlobalConstants.FALSE;
+			data.vibratePattern = "";
+			data.hasCustomRingtone = GlobalConstants.FALSE;
+			data.ringtoneUri = "";
 		}
+		data.lastKnownName = c.getString(c.getColumnIndex(CONTACT_NAME));
+		data.lastKnownNumber = c.getString(c.getColumnIndex(CommonDataKinds.Phone.NUMBER));
 
 		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
-			ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
+			ColorVibrateDialog.getInstance(data)
 			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
 		}
 	}
@@ -271,40 +277,43 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	}
 
 	@Override
-	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, long ledContactID, int color,String vibratePattern) {
-		LedContactInfo info = mLedData.get(lookupUri);
-		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
-			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {lookupUri});
+	public void onContactDetailsUpdated(LedContactInfo newData) {
+		LedContactInfo info = mLedData.get(newData.systemLookupUri);
+		if (newData.color == Color.GRAY && (newData.hasCustomVibrate == GlobalConstants.FALSE || TextUtils.isEmpty(newData.vibratePattern))){
+			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {newData.systemLookupUri});
 			System.out.println ("deleting");
 			if (info != null){
-				mLedData.put(lookupUri, null);
+				mLedData.put(newData.systemLookupUri, null);
 			}
-		}
-		else {
-			if (info == null){
-				info = new LedContactInfo();
-				info.systemLookupUri = lookupUri;
-				mLedData.put(info.systemLookupUri, info);
-			}
-			info.color = color;
-			info.vibratePattern = vibratePattern;
-			info.lastKnownName = lastKnownName;
+		} else {
 			ContentValues values = new ContentValues();
-			if (info.id != -1){
-				values.put(LedContacts._ID, info.id);
+			values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newData.systemLookupUri);
+			values.put(LedContacts.LAST_KNOWN_NAME, newData.lastKnownName);
+			values.put(LedContacts.LAST_KNOWN_NUMBER, newData.lastKnownNumber);
+			values.put(LedContacts.COLOR, newData.color);
+			values.put(LedContacts.HAS_CUSTOM_VIBRATE, newData.hasCustomVibrate);
+			values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
+			
+			/** TODO Add these
+			 * values.put(LedContacts.HAS_CUSTOM_RINGTONE, newData.hasCustomRingtone);
+			values.put(LedContacts.RINGTONE_URI, newData.ringtoneUri);
+			 */
+			
+			if (newData.id == -1){
+				Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
+				newData.id = Long.parseLong (uri.getLastPathSegment());
+			} else {
+				Uri uri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id));
+				getActivity().getContentResolver().update(uri, values, null, null);
 			}
-			values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, lookupUri);
-			values.put(LedContacts.COLOR, color);
-			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
-			values.put(LedContacts.LAST_KNOWN_NAME, lastKnownName);
-			Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
-			info.id = Long.parseLong (uri.getLastPathSegment());
+			mLedData.put(newData.systemLookupUri, newData);
 		}
 		mCursorAdapter.notifyDataSetChanged();
 	}
 
 	@Override
 	public void onSearchClosed() {
+		args.remove(KEY_CONSTRAINT);
 		getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
 	}
 

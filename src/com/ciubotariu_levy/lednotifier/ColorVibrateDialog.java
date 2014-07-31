@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,9 +40,9 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private String prevVibratePattern;
 	private CircularColorView colorState;
 	private Vibrator vibratorService;
-	
+
 	public interface ContactDetailsUpdateListener {
-		public void onContactDetailsUpdated (String lookupKey, String lastKnownName, long ledContactID, int color, String vibratePattern);
+		public void onContactDetailsUpdated (LedContactInfo updatedData);
 	}
 
 	private static final String LOOKUP_URI = "lookup_uri";
@@ -51,7 +52,10 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private static final String CONTACT_COLOR = "user_color";
 	private static final String CONTACT_CURRENT_COLOR = "user_current_color";
 	private static final String CONTACT_CUSTOM_VIB = "custom_vibrate_pattern";
+
+	private static final String CONTACT_DATA = "contact_data";
 	private static final int VIB_NO_REPEAT = -1;
+	private LedContactInfo contactData;
 
 	public static ColorVibrateDialog getInstance (String name, String number, String lookupUri, long id, int color,String vibratePattern){
 		ColorVibrateDialog dialog = new ColorVibrateDialog ();
@@ -62,6 +66,14 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		args.putLong(CONTACT_ID, id);
 		args.putInt (CONTACT_COLOR, color);		
 		args.putString(CONTACT_CUSTOM_VIB, vibratePattern);
+		dialog.setArguments(args);
+		return dialog;
+	}
+
+	public static ColorVibrateDialog getInstance (LedContactInfo data){
+		ColorVibrateDialog dialog = new ColorVibrateDialog ();
+		Bundle args = new Bundle();
+		args.putParcelable(CONTACT_DATA, data);
 		dialog.setArguments(args);
 		return dialog;
 	}
@@ -98,40 +110,37 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		});
 	}
 
-	private String getString (Bundle b, String key, String defValue){ //Bundle#getString (String, String) not available on API 11 and below
-		if (b.getString(key) == null){
-			return defValue;
-		}
-		
-		return b.getString(key);
+	@Override
+	public void onCreate (Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		contactData = getArguments().getParcelable(CONTACT_DATA);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		View view = inflater.inflate(R.layout.color_vibrate_dialog, container,false);
-		Bundle args = getArguments();
-		
-		((TextView)view.findViewById(R.id.contact_name)).setText (getString(args,CONTACT_NAME, ""));
-		((TextView)view.findViewById(R.id.contact_number)).setText (getString(args,CONTACT_NUM, ""));
-		
+
+		((TextView)view.findViewById(R.id.contact_name)).setText (contactData.lastKnownName);
+		((TextView)view.findViewById(R.id.contact_number)).setText (contactData.lastKnownNumber);
+
 		Transformation transformation = new RoundedTransformationBuilder()
-        .borderColor(Color.BLACK)
-        .borderWidthDp(0)
-        .cornerRadiusDp(30)
-        .oval(false)
-        .build();
-		Uri contactUri = Uri.parse(getString(args, LOOKUP_URI, ""));
+		.borderColor(Color.BLACK)
+		.borderWidthDp(0)
+		.cornerRadiusDp(30)
+		.oval(false)
+		.build();
+		Uri contactUri = Uri.parse(contactData.systemLookupUri);
 		ImageView contactPic = (ImageView) view.findViewById(R.id.contact_image);
 		Picasso.with(getActivity())
-	    	.load(contactUri)
-	    	.placeholder(R.drawable.contact_picture_placeholder)
-	    	.fit()
-	    	.transform(transformation)
-	    	.into(contactPic);
-		
-		originalColor = args.getInt(CONTACT_COLOR,Color.GRAY);
-		prevVibratePattern = args.getString(CONTACT_CUSTOM_VIB);
+		.load(contactUri)
+		.placeholder(R.drawable.contact_picture_placeholder)
+		.fit()
+		.transform(transformation)
+		.into(contactPic);
+
+		originalColor = contactData.color;
+		prevVibratePattern = contactData.vibratePattern;
 		mColor = originalColor;
 		vibratePattern = prevVibratePattern;
 		if (savedInstanceState != null){
@@ -140,27 +149,27 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		}	
 		colorState = (CircularColorView) view.findViewById(R.id.contact_display_color);
 		colorState.setColor(mColor);
-		picker = (EndColorPicker) view.findViewById(R.id.colorbar);	
+		picker = (EndColorPicker) view.findViewById(R.id.colorbar);
 		picker.setColor(mColor);
 		picker.setOnColorChangedListener(this);
 		final View vibrateHint = view.findViewById(R.id.vib_hint);
 		final EditText vibrateInput = (EditText) view.findViewById(R.id.vib_input);
 		vibrateInput.setMaxHeight(vibrateInput.getHeight());
-		
+
 		vibratorService = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 		final Button testVibrate = (Button) view.findViewById(R.id.test_vibrate);
 		testVibrate.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				long [] pattern = LedContactInfo.getVibratePattern(vibrateInput.getText().toString());
 				vibratorService.vibrate(pattern, VIB_NO_REPEAT);
 			}
 		});
-		
+
 		CheckBox c = (CheckBox) view.findViewById(R.id.vibrate_checkbox);
 		c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked){
@@ -177,13 +186,12 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 					vibrateInput.setVisibility(View.GONE);
 					testVibrate.setVisibility(View.GONE);
 				}
-				
 			}
 		});
 		c.setChecked(!TextUtils.isEmpty(vibratePattern));
 		return view;
 	}
-	
+
 	@Override
 	public void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
@@ -208,11 +216,25 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 				e.printStackTrace();
 			}
 		}
-		if (listener != null){
-			listener.onContactDetailsUpdated(getArguments().getString(LOOKUP_URI), getArguments().getString(CONTACT_NAME),getArguments().getLong(CONTACT_ID),color, vibrate);
+
+		if (listener == null){
+			return;
 		}
+
+		contactData.color = color;
+		if (TextUtils.isEmpty(vibrate)){ 
+			contactData.hasCustomVibrate = GlobalConstants.FALSE;
+			contactData.vibratePattern = "";
+		}else {
+			contactData.hasCustomVibrate = GlobalConstants.TRUE;
+			contactData.vibratePattern = vibrate;
+		}
+
+
+		listener.onContactDetailsUpdated(contactData);
+
 	}
-	
+
 	@Override
 	public void onCancel(DialogInterface dialog){
 		super.onCancel(dialog);
@@ -229,7 +251,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		if (vibratorService != null){
 			vibratorService.cancel();
 		}
-		if (getArguments().getString(LOOKUP_URI) == null && getActivity() != null){
+		if ((contactData == null || contactData.systemLookupUri == null)  && getActivity() != null){
 			getActivity().finish();
 		}
 	}

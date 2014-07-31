@@ -41,8 +41,10 @@ public class LedContactProvider extends ContentProvider {
 		public void onCreate (SQLiteDatabase db){
 			String CREATE_PROFILES_TABLE = "CREATE TABLE " + LEDCONTACTS_TABLE_NAME + "(" +
 					LedContacts._ID + " INTEGER PRIMARY KEY," +
-					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"+ LedContacts.LAST_KNOWN_NAME + " TEXT," + LedContacts.COLOR + " TEXT, "
-					+ LedContacts.VIBRATE_PATTERN + " TEXT" +
+					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"+ LedContacts.LAST_KNOWN_NAME + " TEXT," + LedContacts.LAST_KNOWN_NUMBER + " TEXT, "
+					+ LedContacts.COLOR + " INTEGER, "
+					+ LedContacts.HAS_CUSTOM_VIBRATE + " INTEGER,"+ LedContacts.VIBRATE_PATTERN + " TEXT," 
+					+ LedContacts.HAS_CUSTOM_RINGTONE + " INTEGER,"+ LedContacts.RINGTONE_URI + " TEXT" + 
 					")";
 			db.execSQL(CREATE_PROFILES_TABLE);
 		}
@@ -126,7 +128,7 @@ public class LedContactProvider extends ContentProvider {
 		case LEDCONTACTS:
 			break;
 		case LEDCONTACTS_ID:
-			selection = (selection != null ? selection + " " : "") + LedContacts._ID + " = " + uri.getLastPathSegment();
+			selection = (selection != null ? selection + " " : "") + LedContacts._ID + " = " + uri.getLastPathSegment(); //TODO Check if this query is valid when selection != null
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -167,7 +169,11 @@ public class LedContactProvider extends ContentProvider {
 		ledContactsProjectionMap.put(LedContacts._ID, LedContacts._ID);
 		ledContactsProjectionMap.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI);
 		ledContactsProjectionMap.put(LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NAME);
+		ledContactsProjectionMap.put(LedContacts.LAST_KNOWN_NUMBER, LedContacts.LAST_KNOWN_NUMBER);
 		ledContactsProjectionMap.put(LedContacts.COLOR, LedContacts.COLOR);
+		ledContactsProjectionMap.put(LedContacts.HAS_CUSTOM_VIBRATE, LedContacts.HAS_CUSTOM_VIBRATE);
 		ledContactsProjectionMap.put(LedContacts.VIBRATE_PATTERN, LedContacts.VIBRATE_PATTERN);
+		ledContactsProjectionMap.put(LedContacts.HAS_CUSTOM_RINGTONE, LedContacts.HAS_CUSTOM_RINGTONE);
+		ledContactsProjectionMap.put(LedContacts.RINGTONE_URI, LedContacts.RINGTONE_URI);
 	}
 }

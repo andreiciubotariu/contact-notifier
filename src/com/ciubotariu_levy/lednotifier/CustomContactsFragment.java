@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -29,6 +28,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
@@ -53,15 +53,19 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 				Contacts.DISPLAY_NAME;
 
 	private static final String[] FROM_COLUMNS = {
-		LedContacts.LAST_KNOWN_NAME, LedContacts.SYSTEM_CONTACT_LOOKUP_URI,LedContacts.VIBRATE_PATTERN, LedContacts.COLOR ,LedContacts.SYSTEM_CONTACT_LOOKUP_URI
+		LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER,LedContacts.VIBRATE_PATTERN, LedContacts.COLOR ,LedContacts.SYSTEM_CONTACT_LOOKUP_URI
 	};
 
 	private static final String[] PROJECTION = {
 		LedContacts._ID,
 		LedContacts.SYSTEM_CONTACT_LOOKUP_URI,
 		LedContacts.LAST_KNOWN_NAME,
+		LedContacts.LAST_KNOWN_NUMBER,
 		LedContacts.COLOR,
-		LedContacts.VIBRATE_PATTERN
+		LedContacts.HAS_CUSTOM_VIBRATE,
+		LedContacts.VIBRATE_PATTERN,
+		LedContacts.HAS_CUSTOM_RINGTONE,
+		LedContacts.RINGTONE_URI
 	};
 
 	/*
@@ -134,19 +138,6 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 						view.setVisibility(View.GONE);
 					}
 					return true;
-				case R.id.contact_number:
-					String contactId = contactUri.getLastPathSegment();
-					Cursor contactPhoneCursor = getActivity().getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, 
-							new String [] {CommonDataKinds.Phone.CONTACT_ID, CommonDataKinds.Phone.NUMBER}, 
-							CommonDataKinds.Phone.CONTACT_ID + "=?", new String[] {contactId}, null);
-					if (contactPhoneCursor != null && contactPhoneCursor.moveToFirst()){
-						TextView t = (TextView) view;
-						t.setText(contactPhoneCursor.getString(contactPhoneCursor.getColumnIndex(CommonDataKinds.Phone.NUMBER)));
-					}
-					if (contactPhoneCursor != null){
-						contactPhoneCursor.close();
-					}
-					return true;
 				}
 				return false;
 			}
@@ -212,14 +203,21 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 
 	@Override
 	public void onListItemClick(ListView l, View item, int position, long rowID) {
+		LedContactInfo data = new LedContactInfo();
+		data.id = rowID;
 		Cursor c = mCursorAdapter.getCursor();
-		String name = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
-		String number = ((TextView) item.findViewById(R.id.contact_number)).getText().toString();
-		String lookupValue = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
-		int color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
-		String vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+		data.lastKnownName = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
+		data.lastKnownNumber = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER));
+		data.systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
+		data.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+		data.hasCustomVibrate = c.getInt(c.getColumnIndex(LedContacts.HAS_CUSTOM_VIBRATE));
+		data.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+		
+		/**
+		 * TODO: add ringtone
+		 */
 		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
-			ColorVibrateDialog.getInstance(name, number, lookupValue,rowID, color,vibratePattern)
+			ColorVibrateDialog.getInstance(data)
 			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
 		}
 	}
@@ -248,7 +246,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 		Log.d (TAG,"Load finished");
 		mCursorAdapter.swapCursor(cursor);
 		getListView().setFastScrollEnabled(true);
-		setEmptyText("No contacts found");
+		setEmptyText("No custom contacts found. Add some by going to \'All Mobile\'");
 	}
 
 	@Override
@@ -258,21 +256,22 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 	}
 
 	@Override
-	public void onContactDetailsUpdated(String lookupUri,String lastKnownName, long rowID, int color,String vibratePattern) {
-		if (color == Color.GRAY && TextUtils.isEmpty(vibratePattern)){
-			getActivity().getContentResolver().delete(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(rowID)), null, null);
+	public void onContactDetailsUpdated(LedContactInfo newData) {
+		if (newData.color == Color.GRAY && (newData.hasCustomVibrate == GlobalConstants.FALSE || TextUtils.isEmpty(newData.vibratePattern))){
+			getActivity().getContentResolver().delete(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), null, null);
 			System.out.println ("deleting");
 		}
 		else {
 			ContentValues values = new ContentValues();
-			values.put(LedContacts.COLOR, color);
-			values.put(LedContacts.VIBRATE_PATTERN, vibratePattern);
-			getActivity().getContentResolver().update(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(rowID)), values,null, null);
+			values.put(LedContacts.COLOR, newData.color);
+			values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
+			getActivity().getContentResolver().update(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), values,null, null);
 		}
 	}
 
 	@Override
 	public void onSearchClosed() {
+		args.remove(KEY_CONSTRAINT);
 		getLoaderManager().restartLoader(LOADER_ID, null, CustomContactsFragment.this);
 	}
 

@@ -31,7 +31,8 @@ public class DataFetcher extends
 		if (params [0] == null){
 			return map;
 		}
-		String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME, LedContacts.COLOR, LedContacts.VIBRATE_PATTERN};
+		String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER, LedContacts.COLOR, LedContacts.HAS_CUSTOM_VIBRATE, LedContacts.VIBRATE_PATTERN,
+				LedContacts.HAS_CUSTOM_RINGTONE, LedContacts.RINGTONE_URI};
 		Cursor c = params[0].getContentResolver().query(mUri, projection, null, null,null);
 		if (c != null && c.moveToFirst()){
 			do {
@@ -39,8 +40,15 @@ public class DataFetcher extends
 				info.id = c.getInt(c.getColumnIndex(LedContacts._ID));
 				info.systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
 				info.lastKnownName = c.getString (c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
+				info.lastKnownNumber = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER));
 				info.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+				info.hasCustomVibrate = c.getInt(c.getColumnIndex(LedContacts.HAS_CUSTOM_VIBRATE));
 				info.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+				info.hasCustomRingtone = c.getInt(c.getColumnIndex(LedContacts.HAS_CUSTOM_RINGTONE));
+				info.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
+				if (info.ringtoneUri != null && info.ringtoneUri.equalsIgnoreCase("null")){
+					info.ringtoneUri = null;
+				}
 				map.put (String.valueOf(info.systemLookupUri),info);
 			}
 			while (c.moveToNext());

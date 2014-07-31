@@ -48,8 +48,7 @@ public class AboutActivity extends ActionBarActivity {
 		}
 		try{
 			startActivity (new Intent (Intent.ACTION_VIEW,Uri.parse(GH_URL+fragment)));
-		}
-		catch (ActivityNotFoundException e){
+		} catch (ActivityNotFoundException e){
 			//usually won't happen.
 			e.printStackTrace();
 		}
