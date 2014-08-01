@@ -53,6 +53,7 @@ public class NotificationUtils {
 		AlarmManager a = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		a.cancel(p);
 	}
+	
 	public static void cancel (Context context){
 		dismissAlarm(context);
 		((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);

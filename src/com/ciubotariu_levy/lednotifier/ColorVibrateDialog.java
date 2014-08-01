@@ -276,6 +276,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			contactData.hasCustomVibrate = GlobalConstants.FALSE;
 			contactData.vibratePattern = "";
 		}else {
+			Log.i("VIB-PATTERN", "custom vibrate");
 			contactData.hasCustomVibrate = GlobalConstants.TRUE;
 			contactData.vibratePattern = vibrate;
 		}

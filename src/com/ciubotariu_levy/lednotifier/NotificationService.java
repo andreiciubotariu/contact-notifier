@@ -62,34 +62,11 @@ public class NotificationService extends NotificationListenerService {
 	private SMSReceiver mSmsReceiver = new SMSReceiver(){
 
 		@Override
-		public void onNotificationGenerated(Context context, Notification notif){
-			context = NotificationService.this;
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-			boolean showAllNotifications = prefs.getBoolean(SHOW_ALL_NOTIFS, true);
-			if (showAllNotifications && notif.ledARGB == Color.GRAY){
-				notif.ledARGB = prefs.getInt(DefaultColorChooserContainer.DEFAULT_COLOR, Color.GRAY);
+		public void onNotificationReady(Context context, Notification notif, boolean ledTimeout){
+			mCurrentNotification = notif;
+			if (notif != null && context != null){
+				NotificationUtils.notify (context, notif,ledTimeout);
 			}
-			else if (!showAllNotifications && notif.ledARGB == Color.GRAY){
-				mCurrentNotification = null;
-				return;
-			}
-			if (mReplaceNotification){
-				StatusBarNotification [] notifications = getActiveNotifications();
-				for (StatusBarNotification sb: notifications){
-					if (isMessagingApp(sb.getPackageName()) && sb.isClearable()){
-						int color = notif.ledARGB;
-						notif = copyNotification(context, sb.getNotification(),color);
-						cancelNotification(sb.getPackageName(), sb.getTag(), sb.getId());
-						System.out.println ("Notification replaced");
-						break;
-					}
-				}
-			}
-			else {
-				mCurrentNotification = notif;
-			}
-			boolean ledTimeout = prefs.getBoolean("led_timeout", false);
-			NotificationUtils.notify (context, notif,ledTimeout);
 		}
 	};
 

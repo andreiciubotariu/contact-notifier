@@ -274,6 +274,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 		else {
 			ContentValues values = new ContentValues();
 			values.put(LedContacts.COLOR, newData.color);
+			values.put(LedContacts.HAS_CUSTOM_VIBRATE, newData.hasCustomVibrate);
 			values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
 			getActivity().getContentResolver().update(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), values,null, null);
 		}
