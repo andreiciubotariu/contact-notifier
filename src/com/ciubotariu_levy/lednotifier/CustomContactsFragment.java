@@ -78,8 +78,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 	};
 
 	private static final String TAG = "ContactsFragment";
-
-	private static final String filterQuery = LedContacts.LAST_KNOWN_NAME + " LIKE ?";
+	private static final String filterQuery = LedContacts.LAST_KNOWN_NAME + " LIKE ? OR " + LedContacts.LAST_KNOWN_NUMBER + " LIKE ?";
 	private static final String KEY_CONSTRAINT = "KEY_FILTER";
 	private static final int LOADER_ID = 1;
 
@@ -248,7 +247,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 			constraint = args.getString(KEY_CONSTRAINT);
 		}
 
-		String [] filteredSelectionArgs = new String [] {"%"+constraint+"%"};
+		String [] filteredSelectionArgs = new String [] {"%"+constraint+"%","%"+constraint+"%"};
 
 		return new CursorLoader(
 				getActivity(),
@@ -263,7 +262,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 		Log.d (TAG,"Load finished");
 		mCursorAdapter.swapCursor(cursor);
 		getListView().setFastScrollEnabled(true);
-		setEmptyText("No custom contacts found. Add some by going to \'All Mobile\'");
+		setEmptyText("Add custom contacts. Choose \'All Mobile\'");
 	}
 
 	@Override
