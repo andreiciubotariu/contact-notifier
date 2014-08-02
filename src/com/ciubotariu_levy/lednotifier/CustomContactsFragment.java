@@ -294,7 +294,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 
 	@Override
 	public void onSearchOpened() {
-		// TODO Auto-generated method stub
+		args.remove(KEY_CONSTRAINT);
 	}
 
 	@Override

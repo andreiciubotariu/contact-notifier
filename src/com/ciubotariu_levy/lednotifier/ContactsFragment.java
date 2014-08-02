@@ -331,17 +331,19 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 
 	@Override
 	public void onSearchOpened() {
-		// TODO Auto-generated method stub
+		args.remove(KEY_CONSTRAINT);
 	}
 
 	@Override
 	public void onQueryTextSubmit(String newText) {
+		Log.i("Query submit", ""+newText);
 		args.putString(KEY_CONSTRAINT, newText);
 		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
 	}
 
 	@Override
 	public void onQueryTextChange(String query) {
+		Log.i("Query submit", ""+query);
 		args.putString(KEY_CONSTRAINT, query);
 		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
 	}

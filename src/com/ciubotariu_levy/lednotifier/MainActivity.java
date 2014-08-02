@@ -91,6 +91,9 @@ public class MainActivity extends ActionBarActivity {
 				super.onDrawerClosed(view);
 				getSupportActionBar().setTitle(mTitle);
 				supportInvalidateOptionsMenu();
+				if (searchReceiver != null){
+					searchReceiver.onQueryTextSubmit("");
+				}
 			}
 
 			/** Called when a drawer has settled in a completely open state. */
@@ -105,6 +108,9 @@ public class MainActivity extends ActionBarActivity {
 					if (searchView != null){
 						searchView.setQuery(searchText, true);
 						Log.i("SEARCH-RELATED", "set blank text");
+					}
+					if (searchReceiver != null){
+						searchReceiver.onQueryTextSubmit("");
 					}
 					MenuItemCompat.collapseActionView(searchItem);
 					Log.i("SEARCH-RELATED", "collapsed search view");
@@ -219,6 +225,9 @@ public class MainActivity extends ActionBarActivity {
 			public boolean onClose() {
 				searchText = "";
 				Log.i("SEARCH-RELATED","closed");
+				if (searchReceiver != null){
+					searchReceiver.onSearchClosed();
+				}
 				return false;
 			}
 		});
