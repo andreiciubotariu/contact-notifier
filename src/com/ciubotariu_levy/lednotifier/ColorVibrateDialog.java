@@ -5,11 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,20 +35,13 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 public class ColorVibrateDialog extends DialogFragment implements OnColorChangedListener {
-	//0xFF000000 to 0xFFFFFFFF
-	private int mColor;
-	private int originalColor;
-
-	private EndColorPicker picker;
-
-	private String vibratePattern;
-	private String prevVibratePattern;
-	private CircularColorView colorState;
-	private Vibrator vibratorService;
 
 	public interface ContactDetailsUpdateListener {
 		public void onContactDetailsUpdated (LedContactInfo updatedData);
 	}
+
+	public static final String SILENT = "silent_ringtone";
+	public static final String GLOBAL = "application_setting_ringtone";
 
 	private static final String LOOKUP_URI = "lookup_uri";
 	private static final String CONTACT_ID = "_id";
@@ -60,6 +54,18 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	private static final String CONTACT_DATA = "contact_data";
 	private static final int VIB_NO_REPEAT = -1;
 	private static final int REQ_CODE = 1;
+
+	//0xFF000000 to 0xFFFFFFFF
+	private int mColor;
+	private int originalColor;
+
+	private EndColorPicker picker;
+
+	private String vibratePattern;
+	private String prevVibratePattern;
+	private CircularColorView colorState;
+	private Vibrator vibratorService;
+	private Button chooseRingtoneButton;
 	private Intent ringtonePickerIntent;
 	private LedContactInfo contactData;
 
@@ -87,13 +93,16 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	public ColorVibrateDialog(){
 		//Required Empty Constructor
 	}
-	
+
 	@Override
 	public void onCreate (Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		contactData = getArguments().getParcelable(CONTACT_DATA);
 		ringtonePickerIntent = new Intent (RingtoneManager.ACTION_RINGTONE_PICKER);
 		ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
+		ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+		ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+		ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
 		ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Custom contact ringtone");
 	}
 
@@ -111,6 +120,9 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 				vibratePattern = "";
 				if (((CheckBox)view.findViewById(R.id.vibrate_checkbox)).isChecked()){
 					vibratePattern = ((EditText)view.findViewById(R.id.vib_input)).getText().toString().trim();
+				} 
+				if (!((CheckBox)view.findViewById(R.id.ringtone_checkbox)).isChecked()){
+					contactData.ringtoneUri = GLOBAL;
 				}
 				onConfirm (mColor,vibratePattern);
 				dismiss();
@@ -119,23 +131,19 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		view.findViewById(R.id.cancel).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				onConfirm (originalColor,prevVibratePattern); //should we update if values were unchanged?
+				//onConfirm (originalColor,prevVibratePattern);
 				dismiss();
 			}
 		});
-		
+
 	}
-	
+
 	@Override
 	public void onActivityResult (int requestCode, int resultCode, Intent data){
-		//Log.i("ACTIVITY RESULTS", "Codes: "  + requestCode + " " + resultCode + " " + data.toString());
 		if (requestCode == REQ_CODE){
 			if (resultCode == Activity.RESULT_OK){
 				Uri ringtoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-				contactData.ringtoneUri = ringtoneUri != null ? ringtoneUri.toString() : null;
-				contactData.hasCustomRingtone = GlobalConstants.TRUE;
-				
-				Log.i("ACTIVITY RESULTS","ok");
+				onRingtoneSelected(ringtoneUri == null ? SILENT : ringtoneUri.toString());
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
@@ -214,34 +222,65 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			}
 		});
 		vibrateCheckbox.setChecked(!TextUtils.isEmpty(vibratePattern));
-		
-		
+
+		chooseRingtoneButton  = (Button) view.findViewById(R.id.choose_ringtone);
+		chooseRingtoneButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Uri existingUri = Settings.System.DEFAULT_NOTIFICATION_URI;
+				if (!GLOBAL.equals(contactData.ringtoneUri) && SILENT.equals(contactData.ringtoneUri)){
+					Log.i("RingtonePicker", "Custom ringtone. Updating Intent.");
+					existingUri =  contactData.ringtoneUri == null ? existingUri : Uri.parse(contactData.ringtoneUri);
+				} else if (SILENT.equals(contactData.ringtoneUri)){
+					Log.i("RingtonePicker", "silent picked");
+					existingUri = null;
+				}
+				ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, existingUri);
+				startActivityForResult(ringtonePickerIntent, REQ_CODE);
+
+			}
+		});
 		CheckBox ringtoneCheckbox = (CheckBox) view.findViewById(R.id.ringtone_checkbox);
 		ringtoneCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {		
-				contactData.hasCustomRingtone = isChecked ?  GlobalConstants.TRUE : GlobalConstants.FALSE;
+				chooseRingtoneButton.setVisibility (isChecked ? View.VISIBLE : View.GONE);
 			}
 		});
-		ringtoneCheckbox.setChecked(contactData.hasCustomRingtone == GlobalConstants.TRUE);
-		
-		Button chooseRingtoneButton  = (Button) view.findViewById(R.id.choose_ringtone);
-		chooseRingtoneButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				String s = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("notifications_new_message_ringtone", "");
-				Log.i("PrefOutput", s);
-				ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(s));
-				
-				startActivityForResult(ringtonePickerIntent, REQ_CODE);
-				
-			}
-		});
+
+		boolean hasCustomRingtone =  !TextUtils.isEmpty(contactData.ringtoneUri) && !GLOBAL.equals(contactData.ringtoneUri);
+		ringtoneCheckbox.setChecked(hasCustomRingtone);
+		if (!hasCustomRingtone){
+			onRingtoneSelected(GLOBAL);
+		} else {
+			onRingtoneSelected(contactData.ringtoneUri);
+		}
+
 		return view;
 	}
 
+	private void onRingtoneSelected (String uriString){
+		contactData.ringtoneUri = uriString;
+		String buttonText = "No custom ringtone";
+		if (SILENT.equals(uriString)){
+			buttonText = "Force silent";
+		} else {
+			try {
+				Uri uri = Uri.parse(uriString);
+				if (uri != null && !GLOBAL.equals(uriString)){
+					Ringtone ringtone =  RingtoneManager.getRingtone(getActivity(), uri);
+					buttonText = ringtone.getTitle(getActivity());
+					ringtone.stop();
+				}
+			} catch (Exception e){
+				Log.e("RingtoneTitle", "Error");
+				e.printStackTrace();
+			}
+		}
+		chooseRingtoneButton.setText(buttonText);
+	}
 	@Override
 	public void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
@@ -273,17 +312,9 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 
 		contactData.color = color;
 		if (TextUtils.isEmpty(vibrate)){ 
-			contactData.hasCustomVibrate = GlobalConstants.FALSE;
 			contactData.vibratePattern = "";
 		}else {
-			Log.i("VIB-PATTERN", "custom vibrate");
-			contactData.hasCustomVibrate = GlobalConstants.TRUE;
 			contactData.vibratePattern = vibrate;
-		}
-		
-		if (contactData.hasCustomRingtone == GlobalConstants.TRUE && contactData.ringtoneUri != null && contactData.ringtoneUri.trim().length() == 0){
-			contactData.hasCustomRingtone = GlobalConstants.FALSE;
-			contactData.ringtoneUri = "";
 		}
 
 		listener.onContactDetailsUpdated(contactData);

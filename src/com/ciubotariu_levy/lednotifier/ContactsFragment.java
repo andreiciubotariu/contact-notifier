@@ -59,7 +59,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 				Contacts.DISPLAY_NAME;
 
 	private static final String[] FROM_COLUMNS = {
-		CONTACT_NAME, CommonDataKinds.Phone.NUMBER,Contacts._ID, Contacts.LOOKUP_KEY,Contacts._ID
+		CONTACT_NAME, CommonDataKinds.Phone.NUMBER,Contacts._ID, Contacts._ID, Contacts.LOOKUP_KEY,Contacts._ID
 	};
 
 	private static final String[] PROJECTION = {
@@ -77,7 +77,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	 * the Android framework, so it is prefaced with "android.R.id"
 	 */
 	private static final int[] TO_IDS = {
-		R.id.contact_name, R.id.contact_number,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
+		R.id.contact_name, R.id.contact_number,R.id.contact_ringtone,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
 	};
 
 	private static final String TAG = "ContactsFragment";
@@ -135,7 +135,16 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 					int color = info == null ? Color.GRAY : info.color;
 					((CircularColorView)view).setColor(color);
 					return true;
-
+				case R.id.contact_ringtone:
+					info = mLedData.get(contactUri.toString());
+					if (info != null && !TextUtils.isEmpty(info.ringtoneUri) && !ColorVibrateDialog.GLOBAL.equals(info.ringtoneUri)){
+						view.setVisibility(View.VISIBLE);
+						view.setBackgroundResource(R.drawable.ic_custom_ringtone);
+					}
+					else {
+						view.setVisibility(View.GONE);
+					}
+					return true;
 				case R.id.contact_vibrate:
 					info = mLedData.get(contactUri.toString());
 					if (info != null && !TextUtils.isEmpty(info.vibratePattern)){
@@ -220,10 +229,8 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 			data = new LedContactInfo();
 			data.systemLookupUri = lookupValue;
 			data.color = Color.GRAY;
-			data.hasCustomRingtone = GlobalConstants.FALSE;
 			data.vibratePattern = "";
-			data.hasCustomRingtone = GlobalConstants.FALSE;
-			data.ringtoneUri = "";
+			data.ringtoneUri = ColorVibrateDialog.GLOBAL;
 		}
 		data.lastKnownName = c.getString(c.getColumnIndex(CONTACT_NAME));
 		data.lastKnownNumber = c.getString(c.getColumnIndex(CommonDataKinds.Phone.NUMBER));
@@ -289,7 +296,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	@Override
 	public void onContactDetailsUpdated(LedContactInfo newData) {
 		LedContactInfo info = mLedData.get(newData.systemLookupUri);
-		if (newData.color == Color.GRAY && (newData.hasCustomVibrate == GlobalConstants.FALSE || TextUtils.isEmpty(newData.vibratePattern))){
+		if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern)  && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))){
 			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {newData.systemLookupUri});
 			System.out.println ("deleting");
 			if (info != null){
@@ -301,14 +308,9 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 			values.put(LedContacts.LAST_KNOWN_NAME, newData.lastKnownName);
 			values.put(LedContacts.LAST_KNOWN_NUMBER, newData.lastKnownNumber);
 			values.put(LedContacts.COLOR, newData.color);
-			values.put(LedContacts.HAS_CUSTOM_VIBRATE, newData.hasCustomVibrate);
 			values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
-			
-			/** TODO Add these
-			 * values.put(LedContacts.HAS_CUSTOM_RINGTONE, newData.hasCustomRingtone);
 			values.put(LedContacts.RINGTONE_URI, newData.ringtoneUri);
-			 */
-			
+			 
 			if (newData.id == -1){
 				Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
 				newData.id = Long.parseLong (uri.getLastPathSegment());

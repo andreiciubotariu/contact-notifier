@@ -13,9 +13,7 @@ public class LedContactInfo implements Parcelable{
 	public String lastKnownName;
 	public String lastKnownNumber;
 	public int color;
-	public int hasCustomVibrate;
 	public String vibratePattern;
-	public int hasCustomRingtone;
 	public String ringtoneUri;
 
 	public static long [] getVibratePattern (String s){
@@ -47,10 +45,8 @@ public class LedContactInfo implements Parcelable{
 		out.writeString(lastKnownName);
 		out.writeString(lastKnownNumber);
 		out.writeInt(color);
-		out.writeInt(hasCustomVibrate);
 		out.writeString(vibratePattern);
 
-		out.writeInt(hasCustomRingtone);
 		if (ringtoneUri != null){
 			out.writeInt(GlobalConstants.TRUE);
 			out.writeString(ringtoneUri);
@@ -77,10 +73,8 @@ public class LedContactInfo implements Parcelable{
 		lastKnownName = in.readString();
 		lastKnownNumber = in.readString();
 		color = in.readInt();
-		hasCustomVibrate = in.readInt();
 		vibratePattern = in.readString();
 
-		hasCustomRingtone = in.readInt();
 		if (in.readInt() != GlobalConstants.FALSE){
 			ringtoneUri = in.readString();
 		}

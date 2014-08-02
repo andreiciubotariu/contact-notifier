@@ -16,10 +16,8 @@ public class LedContacts implements BaseColumns{
 
 	public static final String COLOR = "color";
 
-	public static final String HAS_CUSTOM_VIBRATE = "has_custom_vibrate";
 	public static final String VIBRATE_PATTERN = "custom_vibrate_pattern";
 	
-	public static final String HAS_CUSTOM_RINGTONE = "has_custom_ringtone";
 	public static final String RINGTONE_URI = "ringtone_uri";
 	
 	public static final String VIBRATE_PATTERN_OLD  = "VIBRATE_PATTERN";

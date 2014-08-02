@@ -42,6 +42,7 @@ public class MainActivity extends ActionBarActivity {
 	private String[] mFragmentTitles;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
+	private View mDrawer;
 	private ListView mDrawerList;
 	private SearchReceiver searchReceiver;
 	private MenuItem searchItem;
@@ -69,7 +70,8 @@ public class MainActivity extends ActionBarActivity {
 		mTitle = mDrawerTitle = getTitle();
 		mFragmentTitles = new String[] {"Custom contacts", "All Mobile"};
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerList = (ListView) findViewById(R.id.left_drawer);
+		mDrawer = findViewById(R.id.left_drawer);
+		mDrawerList = (ListView) findViewById(R.id.fragment_list);
 
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				R.layout.drawer_bold_checked, android.R.id.text1, mFragmentTitles));
@@ -159,7 +161,7 @@ public class MainActivity extends ActionBarActivity {
 		// Highlight the selected item, update the title, and close the drawer
 		mDrawerList.setItemChecked(position, true);
 		setTitle(mFragmentTitles[position]);
-		mDrawerLayout.closeDrawer(mDrawerList);
+		mDrawerLayout.closeDrawer(mDrawer);
 	}
 
 	@Override
@@ -196,7 +198,7 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// If the nav drawer is open, hide action items related to the content view
-		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer);
 		menu.findItem(R.id.action_search).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -262,18 +264,20 @@ public class MainActivity extends ActionBarActivity {
 		return true;
 	}
 
+	public void drawerOptions (View v){
+		switch (v.getId()){
+		case R.id.settings:
+			startActivity (new Intent (this, SettingsActivity.class));
+			break;
+		case R.id.help:
+			startActivity (new Intent (Intent.ACTION_VIEW, Uri.parse("http://github.com/andreiciubotariu/led-notifier/wiki")));
+			break;
+		}
+		mDrawerLayout.closeDrawer(mDrawer);
+	}
 	@Override
 	public boolean onOptionsItemSelected (MenuItem item){
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-
-		switch (item.getItemId()){
-		case R.id.action_settings:
-			startActivity (new Intent (this, SettingsActivity.class));
-			return true;
-		case R.id.action_help:
-			startActivity (new Intent (Intent.ACTION_VIEW, Uri.parse("http://github.com/andreiciubotariu/led-notifier/wiki")));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

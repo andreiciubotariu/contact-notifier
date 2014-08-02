@@ -55,7 +55,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 				Contacts.DISPLAY_NAME;
 
 	private static final String[] FROM_COLUMNS = {
-		LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER,LedContacts.VIBRATE_PATTERN, LedContacts.COLOR ,LedContacts.SYSTEM_CONTACT_LOOKUP_URI
+		LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER,LedContacts.RINGTONE_URI,LedContacts.VIBRATE_PATTERN, LedContacts.COLOR ,LedContacts.SYSTEM_CONTACT_LOOKUP_URI
 	};
 
 	private static final String[] PROJECTION = {
@@ -64,9 +64,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 		LedContacts.LAST_KNOWN_NAME,
 		LedContacts.LAST_KNOWN_NUMBER,
 		LedContacts.COLOR,
-		LedContacts.HAS_CUSTOM_VIBRATE,
 		LedContacts.VIBRATE_PATTERN,
-		LedContacts.HAS_CUSTOM_RINGTONE,
 		LedContacts.RINGTONE_URI
 	};
 
@@ -76,7 +74,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 	 * the Android framework, so it is prefaced with "android.R.id"
 	 */
 	private static final int[] TO_IDS = {
-		R.id.contact_name, R.id.contact_number,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
+		R.id.contact_name, R.id.contact_number,R.id.contact_ringtone,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
 	};
 
 	private static final String TAG = "ContactsFragment";
@@ -129,6 +127,16 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 				case R.id.contact_display_color:
 					int color = cursor.getInt(cursor.getColumnIndex(LedContacts.COLOR));
 					((CircularColorView)view).setColor(color);
+					return true;
+				case R.id.contact_ringtone:
+					String ringtone = cursor.getString(cursor.getColumnIndex(LedContacts.RINGTONE_URI));
+					if (!TextUtils.isEmpty(ringtone) && !ColorVibrateDialog.GLOBAL.equals(ringtone)){
+						view.setVisibility(View.VISIBLE);
+						view.setBackgroundResource(R.drawable.ic_custom_ringtone);
+					}
+					else {
+						view.setVisibility(View.GONE);
+					}
 					return true;
 				case R.id.contact_vibrate:
 					String vibratePattern = cursor.getString(cursor.getColumnIndex(LedContacts.VIBRATE_PATTERN));
@@ -212,12 +220,11 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 		data.lastKnownNumber = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER));
 		data.systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
 		data.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
-		data.hasCustomVibrate = c.getInt(c.getColumnIndex(LedContacts.HAS_CUSTOM_VIBRATE));
 		data.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
-
-		/**
-		 * TODO: add ringtone
-		 */
+		data.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
+		if (TextUtils.isEmpty(data.ringtoneUri)){
+			data.ringtoneUri = ColorVibrateDialog.GLOBAL;
+		}
 		if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
 			ColorVibrateDialog.getInstance(data)
 			.show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
@@ -267,15 +274,15 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 
 	@Override
 	public void onContactDetailsUpdated(LedContactInfo newData) {
-		if (newData.color == Color.GRAY && (newData.hasCustomVibrate == GlobalConstants.FALSE || TextUtils.isEmpty(newData.vibratePattern))){
+		if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern) && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))){
 			getActivity().getContentResolver().delete(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), null, null);
 			System.out.println ("deleting");
 		}
 		else {
 			ContentValues values = new ContentValues();
 			values.put(LedContacts.COLOR, newData.color);
-			values.put(LedContacts.HAS_CUSTOM_VIBRATE, newData.hasCustomVibrate);
 			values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
+			values.put(LedContacts.RINGTONE_URI, newData.ringtoneUri);
 			getActivity().getContentResolver().update(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), values,null, null);
 		}
 	}

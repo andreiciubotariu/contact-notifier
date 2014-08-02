@@ -19,7 +19,7 @@ public class LedContactProvider extends ContentProvider {
 
 	private static final String TAG = "LedContactProvider";
 	private static final String DATABASE_NAME  = "ledcontacts.db";
-	private static final int DATABASE_VERSION  = 2;//TODO Add boolean column for custom vibrate
+	private static final int DATABASE_VERSION  = 2;
 	public static final String LEDCONTACTS_TABLE_NAME = "led_contacts";
 
 	public static final String AUTHORITY = "com.ciubotariu_levy.lednotifier.providers.LedContactProvider";
@@ -43,8 +43,8 @@ public class LedContactProvider extends ContentProvider {
 					LedContacts._ID + " INTEGER PRIMARY KEY," +
 					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"+ LedContacts.LAST_KNOWN_NAME + " TEXT," + LedContacts.LAST_KNOWN_NUMBER + " TEXT, "
 					+ LedContacts.COLOR + " INTEGER, "
-					+ LedContacts.HAS_CUSTOM_VIBRATE + " INTEGER,"+ LedContacts.VIBRATE_PATTERN + " TEXT," 
-					+ LedContacts.HAS_CUSTOM_RINGTONE + " INTEGER,"+ LedContacts.RINGTONE_URI + " TEXT" + 
+					+ LedContacts.VIBRATE_PATTERN + " TEXT," 
+					+ LedContacts.RINGTONE_URI + " TEXT" + 
 					")";
 			db.execSQL(CREATE_PROFILES_TABLE);
 		}
@@ -171,9 +171,7 @@ public class LedContactProvider extends ContentProvider {
 		ledContactsProjectionMap.put(LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NAME);
 		ledContactsProjectionMap.put(LedContacts.LAST_KNOWN_NUMBER, LedContacts.LAST_KNOWN_NUMBER);
 		ledContactsProjectionMap.put(LedContacts.COLOR, LedContacts.COLOR);
-		ledContactsProjectionMap.put(LedContacts.HAS_CUSTOM_VIBRATE, LedContacts.HAS_CUSTOM_VIBRATE);
 		ledContactsProjectionMap.put(LedContacts.VIBRATE_PATTERN, LedContacts.VIBRATE_PATTERN);
-		ledContactsProjectionMap.put(LedContacts.HAS_CUSTOM_RINGTONE, LedContacts.HAS_CUSTOM_RINGTONE);
 		ledContactsProjectionMap.put(LedContacts.RINGTONE_URI, LedContacts.RINGTONE_URI);
 	}
 }
