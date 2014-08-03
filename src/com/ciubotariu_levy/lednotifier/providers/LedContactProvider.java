@@ -2,7 +2,11 @@ package com.ciubotariu_levy.lednotifier.providers;
 
 import java.util.HashMap;
 
+import com.ciubotariu_levy.lednotifier.ColorVibrateDialog;
+import com.ciubotariu_levy.lednotifier.ContactsFragment;
+
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,6 +17,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Contacts;
 import android.util.Log;
 
 public class LedContactProvider extends ContentProvider {
@@ -32,9 +38,10 @@ public class LedContactProvider extends ContentProvider {
 
 	//store our table
 	private static class DatabaseHelper extends SQLiteOpenHelper {
-
+		private Context mContext; 
 		DatabaseHelper (Context context){
 			super (context, DATABASE_NAME, null, DATABASE_VERSION);
+			mContext =  context;
 		}
 
 		@Override
@@ -49,11 +56,70 @@ public class LedContactProvider extends ContentProvider {
 			db.execSQL(CREATE_PROFILES_TABLE);
 		}
 
+		private void upgradeLog (String text){
+			if (text == null){
+				text = "";
+			}
+			Log.i ("DB-Upgrade", text);
+		}
 		@Override
 		public void onUpgrade (SQLiteDatabase db, int oldVersion, int newVersion){
 			Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
-			db.execSQL("DROP TABLE IF EXISTS " + LEDCONTACTS_TABLE_NAME);
+			String tempTableName =  "TEMP_" + LEDCONTACTS_TABLE_NAME;
+			if (newVersion == 2){
+				ContentResolver resolver = mContext.getContentResolver();
+				db.execSQL("ALTER TABLE "  + LEDCONTACTS_TABLE_NAME +  " RENAME TO " + tempTableName);
+				upgradeLog ("Altered table to temp");
+				onCreate(db);
+				upgradeLog ("Created new table");
+				Cursor cursor = db.query(tempTableName, null, null, null, null, null, null);
+				if (cursor != null && cursor.moveToFirst()){
+					do {
+						String systemId =  cursor.getString(cursor.getColumnIndex(LedContacts.SYSTEM_CONTACT_ID_DEPRECATED));
+						Uri contactUri = Contacts.getLookupUri(resolver, Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, systemId));
+						if (contactUri != null){
+							boolean canInsert = true;
+							ContentValues values = new ContentValues();
+							values.put(LedContacts.COLOR, cursor.getInt(cursor.getColumnIndex(LedContacts.COLOR)));
+							values.put(LedContacts.VIBRATE_PATTERN, cursor.getString(cursor.getColumnIndex(LedContacts.VIBRATE_PATTERN_DEPRECATED)));
+							values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, contactUri.toString());
+							values.put(LedContacts.RINGTONE_URI, ColorVibrateDialog.GLOBAL);
+
+							String contactId = contactUri.getLastPathSegment();
+							Cursor contactNameCursor = resolver.query(Phone.CONTENT_URI, new String [] {ContactsFragment.CONTACT_NAME, Phone.LOOKUP_KEY, Phone.CONTACT_ID, Phone.NUMBER, Phone.TYPE},Phone.CONTACT_ID + "=?", new String[] {contactId} , null);
+							if (contactNameCursor != null && contactNameCursor.moveToFirst()){
+								values.put(LedContacts.LAST_KNOWN_NAME, contactNameCursor.getString(contactNameCursor.getColumnIndex(ContactsFragment.CONTACT_NAME)));
+								values.put(LedContacts.LAST_KNOWN_NUMBER, contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER)));
+							} else {
+								canInsert = false;
+								Log.e("DB-Upgrade", "Contact details not found!");
+							}
+
+							if (contactNameCursor != null){
+								contactNameCursor.close();
+							}
+							if (canInsert){
+								db.insert(LEDCONTACTS_TABLE_NAME, null, values);
+								upgradeLog("Inserted a contact");
+							}
+						} else {
+							Log.e("DB-Upgrade","Skipping over contact. DNE");
+						}
+					} while (cursor.moveToNext());
+				}
+				if (cursor != null){
+					cursor.close();
+				}
+
+				db.execSQL("DROP TABLE IF EXISTS " + tempTableName);
+				upgradeLog("Dropped temp table");
+				return;
+			} 
+
 			onCreate(db);
+
+
+
 		}
 	}
 

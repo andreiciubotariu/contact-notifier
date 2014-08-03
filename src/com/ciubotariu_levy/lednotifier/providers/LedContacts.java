@@ -20,6 +20,8 @@ public class LedContacts implements BaseColumns{
 	
 	public static final String RINGTONE_URI = "ringtone_uri";
 	
-	public static final String VIBRATE_PATTERN_OLD  = "VIBRATE_PATTERN";
-	public static final String REPLACE_CONTENT = "PROJ_BREAK";
+	//deprecated
+	public static final String SYSTEM_CONTACT_ID_DEPRECATED = "system_id";
+	public static final String VIBRATE_PATTERN_DEPRECATED   = "VIBRATE_PATTERN";
+	public static final String REPLACE_CONTENT_DEPRECATED = "PROJ_BREAK";
 }

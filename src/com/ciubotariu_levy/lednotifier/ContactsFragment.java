@@ -53,7 +53,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	 * the Cursor to the ListView.
 	 */
 	@SuppressLint("InlinedApi")
-	private static final String CONTACT_NAME = Build.VERSION.SDK_INT
+	public static final String CONTACT_NAME = Build.VERSION.SDK_INT
 	>= Build.VERSION_CODES.HONEYCOMB ?
 			Contacts.DISPLAY_NAME_PRIMARY :
 				Contacts.DISPLAY_NAME;
