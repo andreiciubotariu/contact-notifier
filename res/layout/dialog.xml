@@ -1,0 +1,177 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:colorpicker="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:animateLayoutChanges="true"
+    android:background="@android:color/white" >
+
+    <RelativeLayout
+        android:id="@+id/details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp" >
+
+        <include
+            android:id="@+id/contact_img_container"
+            layout="@layout/contact_image_container" />
+
+        <TextView
+            android:id="@+id/contact_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/contact_image"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/contact_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/contact_name"
+            android:layout_below="@id/contact_name"
+            android:layout_toRightOf="@id/contact_image"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+    </RelativeLayout>
+
+    <com.larswerkman.holocolorpicker.EndColorPicker
+        android:id="@+id/colorbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/details"
+        colorpicker:bar_pointer_halo_radius="16dp"
+        colorpicker:bar_pointer_radius="15dp"
+        colorpicker:notify_from_restore="false" />
+
+    <RelativeLayout
+        android:id="@+id/ringtone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/colorbar"
+        android:layout_alignRight="@id/colorbar"
+        android:layout_below="@id/colorbar" >
+
+        <ImageView
+            android:id="@+id/sound_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Custom ringtone checkbox icon"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_custom_ringtone" />
+
+        <CheckBox
+            android:id="@+id/ringtone_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/sound_icon"
+            android:checked="false"
+            android:text=""
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/choose_ringtone"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/ringtone_checkbox"
+            android:text="Choose ringtone"
+            android:textSize="17sp"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/vibrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/colorbar"
+        android:layout_alignRight="@id/colorbar"
+        android:layout_below="@id/ringtone" >
+
+        <ImageView
+            android:id="@+id/vibrate_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Custom vibrate pattern checkbox icon"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_contact_vibrate" />
+
+        <CheckBox
+            android:id="@+id/vibrate_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/vibrate_icon"
+            android:checked="false"
+            android:text=""
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/test_vibrate"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/vibrate_checkbox"
+            android:text="Test"
+            android:textSize="17sp"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/vib_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vibrate"
+        android:text="Off/on in milliseconds: off, on, off, on, etc"
+        android:textColor="@android:color/black"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/vib_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vib_hint"
+        android:layout_alignLeft = "@id/colorbar"
+         android:layout_alignRight = "@id/colorbar"
+        android:digits="0123456789,"
+        android:inputType="numberDecimal"
+        android:visibility="gone" />
+
+     <LinearLayout
+        android:layout_below = "@id/vib_input"
+        android:layout_alignLeft = "@id/colorbar"
+         android:layout_alignRight = "@id/colorbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/cancel"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel" />
+
+        <View
+            style="@style/Divider_Vertical"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/submit_color"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Confirm" />
+    </LinearLayout>
+
+</RelativeLayout>

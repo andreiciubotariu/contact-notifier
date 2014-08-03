@@ -152,7 +152,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-		View view = inflater.inflate(R.layout.color_vibrate_dialog, container,false);
+		View view = inflater.inflate(R.layout.dialog, container,false);
 
 		((TextView)view.findViewById(R.id.contact_name)).setText (contactData.lastKnownName);
 		((TextView)view.findViewById(R.id.contact_number)).setText (contactData.lastKnownNumber);

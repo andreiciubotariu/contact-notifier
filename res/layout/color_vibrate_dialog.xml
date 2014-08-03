@@ -1,14 +1,13 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:colorpicker="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/color_chooser"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:animateLayoutChanges="true"
-    android:background="@android:color/white"
-    android:orientation="vertical" >
+    android:background="@android:color/white" >
 
     <RelativeLayout
+        android:id="@+id/details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
@@ -22,7 +21,6 @@
             android:id="@+id/contact_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/contact_img_container"
             android:textColor="@android:color/black"
             android:textSize="20sp" />
 
@@ -32,129 +30,128 @@
             android:layout_height="wrap_content"
             android:layout_alignStart="@id/contact_name"
             android:layout_below="@id/contact_name"
-            android:layout_toRightOf="@+id/contact_img_container"
+            android:layout_toRightOf="@id/contact_img_container"
             android:textColor="@android:color/black"
             android:textSize="14sp" />
     </RelativeLayout>
 
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/settings"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/details"
+        android:orientation="vertical" >
 
-        <LinearLayout
+        <com.larswerkman.holocolorpicker.EndColorPicker
+            android:id="@+id/colorbar"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:orientation = "vertical">
+            android:layout_height="wrap_content"
+            colorpicker:bar_pointer_halo_radius="16dp"
+            colorpicker:bar_pointer_radius="15dp"
+            colorpicker:notify_from_restore="false" />
 
-            <com.larswerkman.holocolorpicker.EndColorPicker
-                android:id="@+id/colorbar"
+        <View
+            style="@style/Divider"
+            android:layout_width="match_parent" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/sound_icon"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                colorpicker:bar_pointer_halo_radius="16dp"
-                colorpicker:bar_pointer_radius="15dp"
-                colorpicker:notify_from_restore="false" />
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="Custom ringtone checkbox icon"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_custom_ringtone" />
 
-            <View
-                style="@style/Divider"
-                android:layout_width="match_parent" />
+            <CheckBox
+                android:id="@+id/ringtone_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/sound_icon"
+                android:checked="false"
+                android:text=""
+                android:textColor="@android:color/black" />
 
-            <RelativeLayout
+            <Button
+                android:id="@+id/choose_ringtone"
+                style="@style/Widget.AppCompat.ActionButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <ImageView
-                    android:id="@+id/sound_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="Custom ringtone checkbox icon"
-                    android:src="@drawable/ic_custom_ringtone" />
-
-                <CheckBox
-                    android:id="@+id/ringtone_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@id/sound_icon"
-                    android:checked="false"
-                    android:text=""
-                    android:textColor="@android:color/black" />
-
-                <Button
-                    android:id="@+id/choose_ringtone"
-                    style="@style/Widget.AppCompat.ActionButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_toRightOf="@id/ringtone_checkbox"
-                    android:layout_centerVertical="true"
-                    android:text="Choose ringtone"
-                    android:textSize="17sp"
-                    android:visibility="gone" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <ImageView
-                    android:id="@+id/vibrate_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="Custom vibrate pattern checkbox icon"
-                    android:src="@drawable/ic_contact_vibrate" />
-
-                <CheckBox
-                    android:id="@+id/vibrate_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@id/vibrate_icon"
-                    android:checked="false"
-                    android:text=""
-                    android:textColor="@android:color/black" />
-
-                <Button
-                    android:id="@+id/test_vibrate"
-                    style="@style/Widget.AppCompat.ActionButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@id/vibrate_checkbox"
-                    android:text="Test"
-                    android:textSize="17sp"
-                    android:visibility="gone" />
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/vib_hint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Off/on in milliseconds: off, on, off, on, etc"
-                android:textColor="@android:color/black"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/ringtone_checkbox"
+                android:text="Choose ringtone"
+                android:textSize="17sp"
                 android:visibility="gone" />
+        </RelativeLayout>
 
-            <EditText
-                android:id="@+id/vib_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:digits="0123456789,"
-                android:inputType="numberDecimal"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/vibrate_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="Custom vibrate pattern checkbox icon"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_contact_vibrate" />
+
+            <CheckBox
+                android:id="@+id/vibrate_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/vibrate_icon"
+                android:checked="false"
+                android:text=""
+                android:textColor="@android:color/black" />
+
+            <Button
+                android:id="@+id/test_vibrate"
+                style="@style/Widget.AppCompat.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/vibrate_checkbox"
+                android:text="Test"
+                android:textSize="17sp"
                 android:visibility="gone" />
+        </RelativeLayout>
 
-            <View
-                style="@style/Divider"
-                android:layout_width="match_parent" />
-        </LinearLayout>
-    </ScrollView>
+        <TextView
+            android:id="@+id/vib_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Off/on in milliseconds: off, on, off, on, etc"
+            android:textColor="@android:color/black"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/vib_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:digits="0123456789,"
+            android:inputType="numberDecimal"
+            android:visibility="gone" />
+
+        <View
+            style="@style/Divider"
+            android:layout_width="match_parent" />
+    </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/settings"
         android:orientation="horizontal" >
 
         <Button
@@ -178,8 +175,4 @@
             android:text="Confirm" />
     </LinearLayout>
 
-    <View
-        style="@style/Divider"
-        android:layout_width="match_parent" />
-
-</LinearLayout>
+</RelativeLayout>
