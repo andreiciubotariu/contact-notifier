@@ -1,13 +1,13 @@
 package com.ciubotariu_levy.lednotifier.providers;
 
-import com.ciubotariu_levy.lednotifier.GlobalConstants;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
 public class LedContactInfo implements Parcelable{
-
+	public static final int TRUE = 1;
+	public static final int FALSE = 0;
+	
 	public long id = -1;
 	public String systemLookupUri;
 	public String lastKnownName;
@@ -48,10 +48,10 @@ public class LedContactInfo implements Parcelable{
 		out.writeString(vibratePattern);
 
 		if (ringtoneUri != null){
-			out.writeInt(GlobalConstants.TRUE);
+			out.writeInt(TRUE);
 			out.writeString(ringtoneUri);
 		} else {
-			out.writeInt(GlobalConstants.FALSE);
+			out.writeInt(FALSE);
 		}	
 	}
 
@@ -75,7 +75,7 @@ public class LedContactInfo implements Parcelable{
 		color = in.readInt();
 		vibratePattern = in.readString();
 
-		if (in.readInt() != GlobalConstants.FALSE){
+		if (in.readInt() != FALSE){
 			ringtoneUri = in.readString();
 		}
 	}

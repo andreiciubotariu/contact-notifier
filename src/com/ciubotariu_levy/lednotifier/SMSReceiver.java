@@ -35,8 +35,10 @@ public class SMSReceiver extends BroadcastReceiver {
 	public static final String TAG = SMSReceiver.class.getName();
 	public static final int ACTIVITY_REQUEST_CODE = 0;
 	public static final int DEL_REQUEST_CODE = 2;
+	public static final String KEY_TIMEOUT_LED = "led_timeout";
 	protected static final String SHOW_ALL_NOTIFS = "show_all_notifications";
 	private static final String DEF_VIBRATE = "def_vibrate";
+
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -157,7 +159,7 @@ public class SMSReceiver extends BroadcastReceiver {
 			if (DEF_VIBRATE.equals(vibratePattern)){
 				notif.defaults|=Notification.DEFAULT_VIBRATE;
 			}
-			onNotificationReady(context, notif,preferences.getBoolean("led_timeout", false));
+			onNotificationReady(context, notif,preferences.getBoolean(KEY_TIMEOUT_LED, false));
 		} else {
 			boolean inFullSilentMode = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE)).getRingerMode() == AudioManager.RINGER_MODE_SILENT;
 			if (!inFullSilentMode && !TextUtils.isEmpty(vibratePattern) && !vibratePattern.equals(DEF_VIBRATE)){

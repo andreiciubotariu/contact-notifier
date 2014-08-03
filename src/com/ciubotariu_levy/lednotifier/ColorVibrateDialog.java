@@ -57,13 +57,13 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 
 	//0xFF000000 to 0xFFFFFFFF
 	private int mColor;
-	private int originalColor;
+	private int mOriginalColor;
 
-	private EndColorPicker picker;
+	private EndColorPicker mPicker;
 
-	private String vibratePattern;
-	private String prevVibratePattern;
-	private CircularColorView colorState;
+	private String mVibratePattern;
+	private String mPrevVibratePattern;
+	private CircularColorView mColorState;
 	private Vibrator vibratorService;
 	private Button chooseRingtoneButton;
 	private Intent ringtonePickerIntent;
@@ -109,7 +109,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	@Override
 	public void onColorChanged(int color) {
 		mColor = color;
-		colorState.setColor(color);
+		mColorState.setColor(color);
 	}
 
 	@Override
@@ -117,14 +117,14 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		view.findViewById(R.id.submit_color).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				vibratePattern = "";
+				mVibratePattern = "";
 				if (((CheckBox)view.findViewById(R.id.vibrate_checkbox)).isChecked()){
-					vibratePattern = ((EditText)view.findViewById(R.id.vib_input)).getText().toString().trim();
+					mVibratePattern = ((EditText)view.findViewById(R.id.vib_input)).getText().toString().trim();
 				} 
 				if (!((CheckBox)view.findViewById(R.id.ringtone_checkbox)).isChecked()){
 					contactData.ringtoneUri = GLOBAL;
 				}
-				onConfirm (mColor,vibratePattern);
+				onConfirm (mColor,mVibratePattern);
 				dismiss();
 			}
 		});
@@ -172,19 +172,19 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		.transform(transformation)
 		.into(contactPic);
 
-		originalColor = contactData.color;
-		prevVibratePattern = contactData.vibratePattern;
-		mColor = originalColor;
-		vibratePattern = prevVibratePattern;
+		mOriginalColor = contactData.color;
+		mPrevVibratePattern = contactData.vibratePattern;
+		mColor = mOriginalColor;
+		mVibratePattern = mPrevVibratePattern;
 		if (savedInstanceState != null){
-			mColor = savedInstanceState.getInt(CONTACT_CURRENT_COLOR, originalColor);
-			vibratePattern = savedInstanceState.getString(CONTACT_CUSTOM_VIB);
+			mColor = savedInstanceState.getInt(CONTACT_CURRENT_COLOR, mOriginalColor);
+			mVibratePattern = savedInstanceState.getString(CONTACT_CUSTOM_VIB);
 		}	
-		colorState = (CircularColorView) view.findViewById(R.id.contact_display_color);
-		colorState.setColor(mColor);
-		picker = (EndColorPicker) view.findViewById(R.id.colorbar);
-		picker.setColor(mColor);
-		picker.setOnColorChangedListener(this);
+		mColorState = (CircularColorView) view.findViewById(R.id.contact_display_color);
+		mColorState.setColor(mColor);
+		mPicker = (EndColorPicker) view.findViewById(R.id.colorbar);
+		mPicker.setColor(mColor);
+		mPicker.setOnColorChangedListener(this);
 		final View vibrateHint = view.findViewById(R.id.vib_hint);
 		final EditText vibrateInput = (EditText) view.findViewById(R.id.vib_input);
 		vibrateInput.setMaxHeight(vibrateInput.getHeight());
@@ -209,9 +209,9 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 					vibrateHint.setVisibility(View.VISIBLE);
 					vibrateInput.setVisibility(View.VISIBLE);
 					testVibrate.setVisibility(View.VISIBLE);
-					if (!TextUtils.isEmpty(vibratePattern)){
-						vibrateInput.setText(vibratePattern);
-						vibrateInput.setSelection(vibratePattern.length());
+					if (!TextUtils.isEmpty(mVibratePattern)){
+						vibrateInput.setText(mVibratePattern);
+						vibrateInput.setSelection(mVibratePattern.length());
 					}
 				}
 				else{
@@ -221,7 +221,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 				}
 			}
 		});
-		vibrateCheckbox.setChecked(!TextUtils.isEmpty(vibratePattern));
+		vibrateCheckbox.setChecked(!TextUtils.isEmpty(mVibratePattern));
 
 		chooseRingtoneButton  = (Button) view.findViewById(R.id.choose_ringtone);
 		chooseRingtoneButton.setOnClickListener(new OnClickListener() {
@@ -285,7 +285,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	public void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
 		outState.putInt(CONTACT_CURRENT_COLOR, mColor);
-		outState.putString(CONTACT_CUSTOM_VIB, vibratePattern);
+		outState.putString(CONTACT_CUSTOM_VIB, mVibratePattern);
 	}
 
 	//called when user chooses a color

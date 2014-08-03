@@ -44,7 +44,7 @@ public class ObserverService extends Service {
 
 
 	private int mNumContacts;
-	private ContactsChangeChecker checker;
+	private ContactsChangeChecker mChecker;
 	ContentObserver mContactContentObserver = new ContentObserver (mHandler){
 		@Override
 		public void onChange (boolean selfChange){
@@ -57,11 +57,11 @@ public class ObserverService extends Service {
 			int newNumContacts = getNumContacts(mNumContacts);
 
 			mNumContacts = newNumContacts;
-			if (checker != null && !checker.isCancelled()){
-				checker.cancel(true);
+			if (mChecker != null && !mChecker.isCancelled()){
+				mChecker.cancel(true);
 			}
-			checker = new ContactsChangeChecker();
-			checker.execute();
+			mChecker = new ContactsChangeChecker();
+			mChecker.execute();
 		}
 	};
 
@@ -110,8 +110,8 @@ public class ObserverService extends Service {
 			e.printStackTrace();
 			throw new RuntimeException();
 		}
-		checker = new ContactsChangeChecker();
-		checker.execute();
+		mChecker = new ContactsChangeChecker();
+		mChecker.execute();
 	}
 
 	@Override

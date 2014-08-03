@@ -77,20 +77,19 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 		R.id.contact_name, R.id.contact_number,R.id.contact_ringtone,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
 	};
 
-	private static final String TAG = "ContactsFragment";
+	private static final String TAG = "CustomContactsFragment";
 	private static final String filterQuery = LedContacts.LAST_KNOWN_NAME + " LIKE ? OR " + LedContacts.LAST_KNOWN_NUMBER + " LIKE ?";
 	private static final String KEY_CONSTRAINT = "KEY_FILTER";
 	private static final int LOADER_ID = 1;
 
 	private SimpleCursorAdapter mCursorAdapter;
 
-	private Bundle args = new Bundle();
+	private Bundle mLoaderArgs = new Bundle();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(false);
-
 	}
 
 	@Override
@@ -288,24 +287,24 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 
 	@Override
 	public void onSearchClosed() {
-		args.remove(KEY_CONSTRAINT);
+		mLoaderArgs.remove(KEY_CONSTRAINT);
 		getLoaderManager().restartLoader(LOADER_ID, null, CustomContactsFragment.this);
 	}
 
 	@Override
 	public void onSearchOpened() {
-		args.remove(KEY_CONSTRAINT);
+		mLoaderArgs.remove(KEY_CONSTRAINT);
 	}
 
 	@Override
 	public void onQueryTextSubmit(String newText) {
-		args.putString(KEY_CONSTRAINT, newText);
-		getLoaderManager().restartLoader(LOADER_ID, args, CustomContactsFragment.this);
+		mLoaderArgs.putString(KEY_CONSTRAINT, newText);
+		getLoaderManager().restartLoader(LOADER_ID, mLoaderArgs, CustomContactsFragment.this);
 	}
 
 	@Override
 	public void onQueryTextChange(String query) {
-		args.putString(KEY_CONSTRAINT, query);
-		getLoaderManager().restartLoader(LOADER_ID, args, CustomContactsFragment.this);
+		mLoaderArgs.putString(KEY_CONSTRAINT, query);
+		getLoaderManager().restartLoader(LOADER_ID, mLoaderArgs, CustomContactsFragment.this);
 	}
 }

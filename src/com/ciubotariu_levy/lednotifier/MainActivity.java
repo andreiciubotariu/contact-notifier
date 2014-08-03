@@ -29,6 +29,7 @@ import android.widget.ListView;
 
 public class MainActivity extends ActionBarActivity {
 	private static final String KEY_FIRST_RUN = "first_run";
+	private static final String KEY_FIRST_TIME_DRAWER = "first_time_drawer";
 	private static final String KEY_SEARCH_TEXT = "KEY_SEARCH_TEXT";
 	public static final String KEY_DELAY_DISMISS = "delay_dismissal";
 
@@ -44,11 +45,12 @@ public class MainActivity extends ActionBarActivity {
 	private ActionBarDrawerToggle mDrawerToggle;
 	private View mDrawer;
 	private ListView mDrawerList;
-	private SearchReceiver searchReceiver;
-	private MenuItem searchItem;
-	private String searchText="";
+	private SearchReceiver mSearchReceiver;
+	private MenuItem mSearchItem;
+	private String mSearchText="";
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
+	private boolean mOpenDrawer = false;
 
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {
 		@Override
@@ -91,28 +93,28 @@ public class MainActivity extends ActionBarActivity {
 				super.onDrawerClosed(view);
 				getSupportActionBar().setTitle(mTitle);
 				supportInvalidateOptionsMenu();
-				if (searchReceiver != null){
-					searchReceiver.onQueryTextSubmit("");
+				if (mSearchReceiver != null){
+					mSearchReceiver.onQueryTextSubmit("");
 				}
 			}
 
 			/** Called when a drawer has settled in a completely open state. */
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				searchText = "";
+				mSearchText = "";
 				getSupportActionBar().setTitle(mDrawerTitle);
 				supportInvalidateOptionsMenu();
 				Log.i("SEARCH-RELATED", "invalidated menu");
-				if (searchItem != null){
-					SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+				if (mSearchItem != null){
+					SearchView searchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
 					if (searchView != null){
-						searchView.setQuery(searchText, true);
+						searchView.setQuery(mSearchText, true);
 						Log.i("SEARCH-RELATED", "set blank text");
 					}
-					if (searchReceiver != null){
-						searchReceiver.onQueryTextSubmit("");
+					if (mSearchReceiver != null){
+						mSearchReceiver.onQueryTextSubmit("");
 					}
-					MenuItemCompat.collapseActionView(searchItem);
+					MenuItemCompat.collapseActionView(mSearchItem);
 					Log.i("SEARCH-RELATED", "collapsed search view");
 				}
 			}
@@ -128,9 +130,14 @@ public class MainActivity extends ActionBarActivity {
 			}
 			prefs.edit().putBoolean(KEY_FIRST_RUN, true).apply();
 		}
+		
+		if (!prefs.contains(KEY_FIRST_TIME_DRAWER)){
+			mOpenDrawer =  true;
+			prefs.edit().putBoolean(KEY_FIRST_TIME_DRAWER, true).apply();
+		} 
 
 		if (savedInstanceState != null){
-			searchText = savedInstanceState.getString(KEY_SEARCH_TEXT);
+			mSearchText = savedInstanceState.getString(KEY_SEARCH_TEXT);
 			Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 			if (frag != null && frag.getTag().equals(mFragmentTitles[1])){
 				selectItem(1);
@@ -176,6 +183,15 @@ public class MainActivity extends ActionBarActivity {
 		// Sync the toggle state after onRestoreInstanceState has occurred.
 		mDrawerToggle.syncState();
 	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		if (mOpenDrawer){
+			mDrawerLayout.openDrawer(mDrawer);
+			mOpenDrawer = false;
+		}
+	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -191,13 +207,13 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	protected void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
-		outState.putString(KEY_SEARCH_TEXT, searchText);
+		outState.putString(KEY_SEARCH_TEXT, mSearchText);
 	}
 
 	@Override
 	public void onAttachFragment (Fragment fragment){
 		super.onAttachFragment(fragment);
-		searchReceiver = (SearchReceiver) fragment;
+		mSearchReceiver = (SearchReceiver) fragment;
 	}
 
 
@@ -213,20 +229,20 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu){
 		getMenuInflater().inflate(R.menu.main, menu);
-		searchItem = menu.findItem(R.id.action_search); 
-		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-		if (!TextUtils.isEmpty(searchText)){
-			MenuItemCompat.expandActionView(searchItem);
-			searchView.setQuery(searchText, true);
+		mSearchItem = menu.findItem(R.id.action_search); 
+		SearchView searchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
+		if (!TextUtils.isEmpty(mSearchText)){
+			MenuItemCompat.expandActionView(mSearchItem);
+			searchView.setQuery(mSearchText, true);
 		}
 		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 
 			@Override
 			public boolean onClose() {
-				searchText = "";
+				mSearchText = "";
 				Log.i("SEARCH-RELATED","closed");
-				if (searchReceiver != null){
-					searchReceiver.onSearchClosed();
+				if (mSearchReceiver != null){
+					mSearchReceiver.onSearchClosed();
 				}
 				return false;
 			}
@@ -235,38 +251,38 @@ public class MainActivity extends ActionBarActivity {
 
 			@Override
 			public boolean onQueryTextSubmit(String newText) {
-				searchText = newText;
-				if (searchReceiver != null){
-					searchReceiver.onQueryTextSubmit(newText);
+				mSearchText = newText;
+				if (mSearchReceiver != null){
+					mSearchReceiver.onQueryTextSubmit(newText);
 				}
 				return false;
 			}
 
 			@Override
 			public boolean onQueryTextChange(String query) {
-				searchText = query;
-				if (searchReceiver != null){
-					searchReceiver.onQueryTextChange(query);
+				mSearchText = query;
+				if (mSearchReceiver != null){
+					mSearchReceiver.onQueryTextChange(query);
 				}
 				return false;
 			}
 		});
-		MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
+		MenuItemCompat.setOnActionExpandListener(mSearchItem, new MenuItemCompat.OnActionExpandListener() {
 
 			@Override
 			public boolean onMenuItemActionExpand(MenuItem item) {
-				if (searchReceiver != null){
-					searchReceiver.onSearchOpened();
+				if (mSearchReceiver != null){
+					mSearchReceiver.onSearchOpened();
 				}
 				return true;
 			}
 
 			@Override
 			public boolean onMenuItemActionCollapse(MenuItem item) {
-				if (searchReceiver != null){
-					searchReceiver.onSearchClosed();
+				if (mSearchReceiver != null){
+					mSearchReceiver.onSearchClosed();
 				}
-				searchText = "";
+				mSearchText = "";
 				return true;
 			}
 		});
@@ -295,7 +311,7 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	public boolean onKeyDown (int keyCode, KeyEvent event){
 		if (keyCode == KeyEvent.KEYCODE_SEARCH && !mDrawerLayout.isDrawerOpen(GravityCompat.START)){
-			MenuItemCompat.expandActionView(searchItem);
+			MenuItemCompat.expandActionView(mSearchItem);
 		}
 		return super.onKeyDown(keyCode, event);
 	}

@@ -8,28 +8,28 @@ import android.view.View;
 
 //Graphical circle of color
 public class CircularColorView extends View {
-	private int color;
-	private Paint paint;
+	private int mColor;
+	private Paint mPaint;
 
 	public CircularColorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		paint = new Paint();
-		paint.setAntiAlias(true);
-		paint.setColor(color);
+		mPaint = new Paint();
+		mPaint.setAntiAlias(true);
+		mPaint.setColor(mColor);
 	}
 
 	public void setColor(int color){
-		this.color = color;
-		paint.setColor(color);
+		this.mColor = color;
+		mPaint.setColor(color);
 		invalidate();
 	}
 
 	public int getColor(){
-		return color;
+		return mColor;
 	}
 
 	@Override
 	public void onDraw(Canvas c){
-		c.drawCircle(getWidth()/2, getHeight()/2, getWidth()/2, paint);
+		c.drawCircle(getWidth()/2, getHeight()/2, getWidth()/2, mPaint);
 	}
 }

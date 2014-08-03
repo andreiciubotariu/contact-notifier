@@ -92,7 +92,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	private HashMap <String, LedContactInfo> mLedData;
 	private DataFetcher mFetcher;
 
-	private Bundle args = new Bundle();
+	private Bundle mLoaderArgs = new Bundle();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -325,26 +325,26 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 
 	@Override
 	public void onSearchClosed() {
-		args.remove(KEY_CONSTRAINT);
+		mLoaderArgs.remove(KEY_CONSTRAINT);
 		getLoaderManager().restartLoader(LOADER_ID, null, ContactsFragment.this);
 	}
 
 	@Override
 	public void onSearchOpened() {
-		args.remove(KEY_CONSTRAINT);
+		mLoaderArgs.remove(KEY_CONSTRAINT);
 	}
 
 	@Override
 	public void onQueryTextSubmit(String newText) {
 		Log.i("Query submit", ""+newText);
-		args.putString(KEY_CONSTRAINT, newText);
-		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
+		mLoaderArgs.putString(KEY_CONSTRAINT, newText);
+		getLoaderManager().restartLoader(LOADER_ID, mLoaderArgs, ContactsFragment.this);
 	}
 
 	@Override
 	public void onQueryTextChange(String query) {
 		Log.i("Query submit", ""+query);
-		args.putString(KEY_CONSTRAINT, query);
-		getLoaderManager().restartLoader(LOADER_ID, args, ContactsFragment.this);
+		mLoaderArgs.putString(KEY_CONSTRAINT, query);
+		getLoaderManager().restartLoader(LOADER_ID, mLoaderArgs, ContactsFragment.this);
 	}
 }

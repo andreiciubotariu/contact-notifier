@@ -12,9 +12,10 @@ import android.view.View;
 import android.widget.TextView;
 
 public class AboutActivity extends ActionBarActivity {
-	private String versionName = "";
-	private CharSequence appName = "";
 	private static String GH_URL = "http://www.github.com/";
+	private String mVersionName = "";
+	private CharSequence mAppName = "";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -24,14 +25,14 @@ public class AboutActivity extends ActionBarActivity {
 		TextView appNameTextView = (TextView) findViewById (R.id.app_name);
 		TextView appVersionTextView = (TextView) findViewById (R.id.app_version);
 		try {
-			versionName = getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName;
-			appName = getPackageManager().getApplicationLabel(getApplicationInfo())+ " ";
+			mVersionName = getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName;
+			mAppName = getPackageManager().getApplicationLabel(getApplicationInfo())+ " ";
 		} catch (NameNotFoundException e) {
 			//should not happen
 		}
 
-		appNameTextView.setText (appName);
-		appVersionTextView.setText (versionName);
+		appNameTextView.setText (mAppName);
+		appVersionTextView.setText (mVersionName);
 	}
 
 	public void viewSite (View v){

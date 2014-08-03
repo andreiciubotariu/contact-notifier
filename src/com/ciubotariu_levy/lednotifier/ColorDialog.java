@@ -14,15 +14,6 @@ import com.larswerkman.holocolorpicker.EndColorPicker;
 import com.larswerkman.holocolorpicker.OnColorChangedListener;
 
 public class ColorDialog extends DialogFragment implements OnColorChangedListener{
-	//0xFF000000 to 0xFFFFFFFF
-	private int color;
-
-	private int originalColor;
-	
-	private EndColorPicker picker;
-	private View colorState;
-
-
 	public interface OnColorChosenListener {
 		public void onColorChosen (int color, String lookupKey);
 	}
@@ -30,6 +21,14 @@ public class ColorDialog extends DialogFragment implements OnColorChangedListene
 	private static final String LOOKUP_KEY_VALUE = "row_id";
 	private static final String USER_COLOR = "user_color";
 	private static final String USER_CURRENT_COLOR = "user_current_color";
+	
+	//0xFF000000 to 0xFFFFFFFF
+	private int mColor;
+
+	private int mOriginalColor;
+	
+	private EndColorPicker mPicker;
+	private View mColorState;
 
 	public static ColorDialog getInstance (String lookupKey, int color){
 		ColorDialog dialog = new ColorDialog ();
@@ -46,8 +45,8 @@ public class ColorDialog extends DialogFragment implements OnColorChangedListene
 
 	@Override
 	public void onColorChanged(int color){
-		this.color = color;
-		colorState.setBackgroundColor(color);
+		this.mColor = color;
+		mColorState.setBackgroundColor(color);
 	}
 
 	@Override
@@ -55,14 +54,14 @@ public class ColorDialog extends DialogFragment implements OnColorChangedListene
 		view.findViewById(R.id.submit_color).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				onColorChosen (color);
+				onColorChosen (mColor);
 				dismiss();
 			}
 		});
 		view.findViewById(R.id.cancel).setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
-				onColorChosen (originalColor);
+				onColorChosen (mOriginalColor);
 				dismiss();
 			}
 		});
@@ -73,24 +72,24 @@ public class ColorDialog extends DialogFragment implements OnColorChangedListene
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		View view = inflater.inflate(R.layout.color_dialog, container,false);
 		Bundle args = getArguments();
-		originalColor = args.getInt(USER_COLOR,Color.GRAY);
-		color = originalColor;
+		mOriginalColor = args.getInt(USER_COLOR,Color.GRAY);
+		mColor = mOriginalColor;
 		if (savedInstanceState != null){
-			color = savedInstanceState.getInt(USER_CURRENT_COLOR, originalColor);
+			mColor = savedInstanceState.getInt(USER_CURRENT_COLOR, mOriginalColor);
 		}		
-		colorState = view.findViewById(R.id.display_color);
-		colorState.setBackgroundColor(color);
+		mColorState = view.findViewById(R.id.display_color);
+		mColorState.setBackgroundColor(mColor);
 		
-		picker = (EndColorPicker) view.findViewById(R.id.colorbar);
-		picker.setColor(color);		
-		picker.setOnColorChangedListener(this);
+		mPicker = (EndColorPicker) view.findViewById(R.id.colorbar);
+		mPicker.setColor(mColor);		
+		mPicker.setOnColorChangedListener(this);
 		return view;
 	}
 	
 	@Override
 	public void onSaveInstanceState (Bundle outState){
 		super.onSaveInstanceState(outState);
-		outState.putInt(USER_CURRENT_COLOR, color);
+		outState.putInt(USER_CURRENT_COLOR, mColor);
 	}
 
 	//called when user chooses a color

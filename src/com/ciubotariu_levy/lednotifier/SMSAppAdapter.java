@@ -19,21 +19,22 @@ public class SMSAppAdapter extends ArrayAdapter<IconPackagePair> {
 		public String appName;
 	}
 
-	private LayoutInflater inflater;
 	private static final int LAYOUT_RESOURCE = R.layout.app_row;
 	private static final int TEXTVIEW_RESOURCE = R.id.app_name;
 	private static final int APP_ICON_RESOURCE = R.id.app_icon;
+	
+	private LayoutInflater mInflater;
 
 	public SMSAppAdapter(Context context, IconPackagePair[] objects) {
 		super(context, LAYOUT_RESOURCE, TEXTVIEW_RESOURCE, objects);
-		inflater = LayoutInflater.from(context);
+		mInflater = LayoutInflater.from(context);
 	}
 
 	@Override
 	public View getView (int position, View convertView, ViewGroup parent){
 		View view = convertView;
 		if (view == null){
-			view = inflater.inflate(LAYOUT_RESOURCE, parent, false);
+			view = mInflater.inflate(LAYOUT_RESOURCE, parent, false);
 		}
 
 		IconPackagePair pair = getItem(position);

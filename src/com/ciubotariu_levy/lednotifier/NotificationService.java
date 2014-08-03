@@ -15,19 +15,16 @@ import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
 	//private static final String TAG = "NotificationService";
-	private static final String KEY_REPLACE_NOTIFICATION = "replace_notification";
 	private static final String KEY_TIE_NOTIFICATION = "tie_to_sms_app";
 	private static final String KEY_DELAY_DISMISS = "delay_dismissal";
 	private static final int DELAY_MILLIS = 5000;
 
 	protected static boolean isNotificationListenerServiceOn = false;
 	private Notification mCurrentNotification = null;
-	private boolean mReplaceNotification = false;
 	private boolean mTieNotification = false;
 	private boolean mDelayDismissal = false;
 
@@ -39,16 +36,13 @@ public class NotificationService extends NotificationListenerService {
 			mCurrentNotification = null;
 		}
 	};
-	
+
 	private SharedPreferences.OnSharedPreferenceChangeListener prefListener = new OnSharedPreferenceChangeListener (){
 
 		@Override
 		public void onSharedPreferenceChanged(
 				SharedPreferences sharedPreferences, String key) {
-			if (KEY_REPLACE_NOTIFICATION.equals(key)){
-				mReplaceNotification = /*sharedPreferences.getBoolean(key, false);*/false;
-			}
-			else if (KEY_TIE_NOTIFICATION.equals(key)){
+			if (KEY_TIE_NOTIFICATION.equals(key)){
 				mTieNotification = sharedPreferences.getBoolean(KEY_TIE_NOTIFICATION, false);
 			}
 			else if (KEY_DELAY_DISMISS.equals(key)){
@@ -75,7 +69,6 @@ public class NotificationService extends NotificationListenerService {
 		super.onCreate();
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		sharedPrefs.registerOnSharedPreferenceChangeListener(prefListener);
-		mReplaceNotification = /*sharedPrefs.getBoolean(KEY_REPLACE_NOTIFICATION, false);*/false;
 		mTieNotification = sharedPrefs.getBoolean(KEY_TIE_NOTIFICATION, false);
 		mDelayDismissal = sharedPrefs.getBoolean(KEY_DELAY_DISMISS, false);
 		String filterAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
@@ -109,23 +102,15 @@ public class NotificationService extends NotificationListenerService {
 			mHandler.removeCallbacks(mDismissNotification);
 		}
 		if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
-			if (mReplaceNotification){
-				System.out.println ("Replacing notification");
-				int color = mCurrentNotification.ledARGB;
-				mCurrentNotification = copyNotification(this, sbn.getNotification(),color);
-				cancelNotification(sbn.getPackageName(), sbn.getTag(), sbn.getId());
-			}
-			NotificationUtils.notify (this, mCurrentNotification);//check if this is needed
+			boolean ledTimeout = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SMSReceiver.KEY_TIMEOUT_LED, false);
+			NotificationUtils.notify (this, mCurrentNotification, ledTimeout);//TODO check if this is needed
 		}
 	}
 
 
 	@Override
 	public void onNotificationRemoved(StatusBarNotification sbn) {
-		if (mReplaceNotification && sbn.getPackageName().equals(getPackageName())){
-			mCurrentNotification = null;
-		}
-		else if (mTieNotification && !mReplaceNotification && isMessagingApp(sbn.getPackageName())){
+		if (mTieNotification && isMessagingApp(sbn.getPackageName())){
 			/*((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(SMSReceiver.NOTIFICATION_ID);
 			mCurrentNotification = null;*/
 			if (mDelayDismissal){
@@ -144,28 +129,10 @@ public class NotificationService extends NotificationListenerService {
 		}
 		return !packageName.equals(getPackageName())
 				&&(packageName.equals(PreferenceManager.getDefaultSharedPreferences(this).getString(SmsAppChooserDialog.KEY_SMS_APP_PACKAGE, null))
-				||packageName.contains("mms")
-				||packageName.contains("sms") 
-				||packageName.contains("messaging")
-				||packageName.contains("message")
-				||packageName.contains("talk"));
-	}
-
-	private static Notification copyNotification (Context context, Notification toCopy, int color){
-		Notification n = new NotificationCompat.Builder(context)
-		.setSmallIcon(R.drawable.ic_launcher)
-		.setTicker(toCopy.tickerText, toCopy.tickerView)
-		.setContent(toCopy.contentView)
-		.setAutoCancel(true)
-		.setContentIntent(toCopy.contentIntent)
-		.setSound(toCopy.sound)
-		.setVibrate(toCopy.vibrate)
-		.setLights(color, 1000, 1000)
-		.build();
-
-		if ((toCopy.defaults & Notification.DEFAULT_VIBRATE) == Notification.DEFAULT_VIBRATE){
-			n.defaults|=Notification.DEFAULT_VIBRATE;
-		}
-		return n;
+						||packageName.contains("mms")
+						||packageName.contains("sms") 
+						||packageName.contains("messaging")
+						||packageName.contains("message")
+						||packageName.contains("talk"));
 	}
 }
