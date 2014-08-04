@@ -15,10 +15,11 @@ import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
-	//private static final String TAG = "NotificationService";
+	private static final String TAG = NotificationService.class.getName();
 	private static final String KEY_TIE_NOTIFICATION = "tie_to_sms_app";
 	private static final String KEY_DELAY_DISMISS = "delay_dismissal";
 	private static final int DELAY_MILLIS = 5000;
@@ -95,16 +96,17 @@ public class NotificationService extends NotificationListenerService {
 
 	@Override
 	public void onNotificationPosted(StatusBarNotification sbn) {
+		Log.v(TAG, "Notification received by system");
 		if (sbn.getPackageName().equals(getPackageName())){
 			mCurrentNotification = sbn.getNotification();
 		}
 		if (isMessagingApp(sbn.getPackageName())){
 			mHandler.removeCallbacks(mDismissNotification);
 		}
-		if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
-			boolean ledTimeout = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SMSReceiver.KEY_TIMEOUT_LED, false);
-			NotificationUtils.notify (this, mCurrentNotification, ledTimeout);//TODO check if this is needed
-		}
+//		if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
+//			boolean ledTimeout = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SMSReceiver.KEY_TIMEOUT_LED, false);
+//			NotificationUtils.notify (this, mCurrentNotification, ledTimeout);//TODO check if this is needed
+//		}
 	}
 
 

@@ -42,16 +42,13 @@ import com.squareup.picasso.Transformation;
 
 public class ContactsFragment extends ListFragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
-	//copied ListFragment Constants due to access issue.
+	//copied ListFragment Constants due to visibility.
 	private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
 	private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
 	private static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
 	private static final String CONTACT_DIALOG_TAG = "color_vibrate_dialog";
-	/*
-	 * Defines an array that contains column names to move from
-	 * the Cursor to the ListView.
-	 */
+
 	@SuppressLint("InlinedApi")
 	public static final String CONTACT_NAME = Build.VERSION.SDK_INT
 	>= Build.VERSION_CODES.HONEYCOMB ?
@@ -71,19 +68,14 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		CommonDataKinds.Phone.CONTACT_ID
 	};
 
-	/*
-	 * Defines an array that contains resource ids for the layout views
-	 * that get the Cursor column contents. The id is pre-defined in
-	 * the Android framework, so it is prefaced with "android.R.id"
-	 */
 	private static final int[] TO_IDS = {
 		R.id.contact_name, R.id.contact_number,R.id.contact_ringtone,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
 	};
 
 	private static final String TAG = "ContactsFragment";
 
-	private static final String bareQuery = CommonDataKinds.Phone.TYPE + "=?";
-	private static final String query = bareQuery +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
+	private static final String BARE_QUERY = CommonDataKinds.Phone.TYPE + "=?";
+	private static final String QUERY = BARE_QUERY +" AND (" + CONTACT_NAME + " LIKE ? OR " + CommonDataKinds.Phone.NUMBER + " LIKE ?)";
 	private static final String KEY_CONSTRAINT = "KEY_FILTER";
 	private static final int LOADER_ID = 0;
 
@@ -264,7 +256,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 				getActivity(),
 				CommonDataKinds.Phone.CONTENT_URI,
 				PROJECTION,
-				query,
+				QUERY,
 				filteredSelectionArgs,
 				CONTACT_NAME + " ASC");
 	}

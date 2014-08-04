@@ -11,13 +11,15 @@ import android.graphics.Color;
 import android.os.Build;
 
 public class NotificationUtils {
-	public static String title;
-	public static String message;
-	public static PendingIntent contentIntent;
-
+	public static final String TAG = NotificationUtils.class.getName();
 	public static final int RECEIVER_REQUEST_CODE = 1;
 	public static final int NOTIFICATION_ID = 1;
 	public static final int DELAY_TIME = 10*60*1000;
+
+	
+	public static String title;
+	public static String message;
+	public static PendingIntent contentIntent;
 	
 	@TargetApi(19)
 	public static void notify (Context context, Notification notif, boolean timeoutLED){

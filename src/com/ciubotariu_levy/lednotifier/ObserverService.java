@@ -27,7 +27,12 @@ import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
 @TargetApi(19)
 public class ObserverService extends Service {
-	private Handler mHandler = new Handler();
+	private static final String TAG = ObserverService.class.getName();	
+
+	static final Uri SMS_CONTENT_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.CONTENT_URI : Uri.parse("content://sms/");
+	static final Uri INBOX_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.CONTENT_URI : Uri.parse("content://sms/inbox/");
+	static final String READ =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Sms.Inbox.READ : "read";	
+	static final String SEEN =  Build.VERSION.SDK_INT 	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.SEEN : "seen";
 
 	@SuppressLint("InlinedApi")
 	private static final String CONTACT_NAME = Build.VERSION.SDK_INT
@@ -35,17 +40,27 @@ public class ObserverService extends Service {
 			Contacts.DISPLAY_NAME_PRIMARY :
 				Contacts.DISPLAY_NAME;
 
-	private static final String[] PROJECTION = {
-		Contacts._ID,
-		Contacts.LOOKUP_KEY,
-		CONTACT_NAME,
-		CommonDataKinds.Phone.NUMBER
-	};
 
+	private static final String [] CONTACT_PROJ = new String [] {
+		CONTACT_NAME, 
+		Phone.LOOKUP_KEY,
+		Phone.CONTACT_ID, 
+		Phone.NUMBER, 
+		Phone.TYPE};
 
-	private int mNumContacts;
+	private static final String [] LED_CONTACTS_PROJ = new String [] {
+		LedContacts._ID, 
+		LedContacts.SYSTEM_CONTACT_LOOKUP_URI,
+		LedContacts.LAST_KNOWN_NAME,
+		LedContacts.LAST_KNOWN_NUMBER};
+	
+	private int mUnread;
+	private int mUnseen;
 	private ContactsChangeChecker mChecker;
-	ContentObserver mContactContentObserver = new ContentObserver (mHandler){
+	private Handler mHandler = new Handler();
+	private boolean registeredObserver = false;
+
+	private ContentObserver mContactContentObserver = new ContentObserver (mHandler){
 		@Override
 		public void onChange (boolean selfChange){
 			onChange(selfChange, null);
@@ -54,9 +69,6 @@ public class ObserverService extends Service {
 		@Override
 		public void onChange (boolean selfChange, Uri uri){
 			System.out.println ("changed " + uri);
-			int newNumContacts = getNumContacts(mNumContacts);
-
-			mNumContacts = newNumContacts;
 			if (mChecker != null && !mChecker.isCancelled()){
 				mChecker.cancel(true);
 			}
@@ -65,17 +77,7 @@ public class ObserverService extends Service {
 		}
 	};
 
-	int mUnread;
-	int mUnseen;
-	boolean registeredObserver = false;
-	static final Uri SMS_CONTENT_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.CONTENT_URI : Uri.parse("content://sms/");
-	static final Uri INBOX_URI =  Build.VERSION.SDK_INT	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.CONTENT_URI : Uri.parse("content://sms/inbox/");
-	static final String READ =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Sms.Inbox.READ : "read";	
-	static final String SEEN =  Build.VERSION.SDK_INT 	>= Build.VERSION_CODES.KITKAT ? Sms.Inbox.SEEN : "seen";
-
-	private static final String TAG = "ObserverService";	
-
-	ContentObserver mSMSContentObserver = new ContentObserver (mHandler){
+	private ContentObserver mSMSContentObserver = new ContentObserver (mHandler){
 		@Override
 		public void onChange (boolean selfChange){
 			onChange(selfChange, null);
@@ -86,9 +88,14 @@ public class ObserverService extends Service {
 			int unseen = getUnseenSms();
 			int unread = getUnreadSms();
 
-			Log.i (TAG,"Stats " + unseen+ "|" + unread);
+			//			Log.v(TAG, "**********************************************");
+			//			Log.v (TAG,"Current stats: Unseen - " + unseen+ "| Unread - " + unread);
+			//			Log.v (TAG,"Prev stats: Unseen - " + mUnseen+ "| Unread - " + mUnread);
+			//			Log.v(TAG, "**********************************************");
 			if (unseen < mUnseen || unread < mUnread){
 				NotificationUtils.cancel(ObserverService.this);
+				unseen = 0;
+				unread = 0;
 			}
 			mUnseen = unseen;
 			mUnread = unread;
@@ -98,7 +105,6 @@ public class ObserverService extends Service {
 	@Override
 	public void onCreate(){
 		super.onCreate();
-		mNumContacts = getNumContacts(-1);
 		getContentResolver().registerContentObserver(CommonDataKinds.Phone.CONTENT_URI, true, mContactContentObserver);
 		try{
 			mUnread = getUnreadSms();
@@ -146,28 +152,13 @@ public class ObserverService extends Service {
 		return count;
 	}
 
-	private int getNumContacts (int currentNum){
-		int numContacts = currentNum;
-		Cursor c = getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, 
-				PROJECTION, 
-				null,
-				null, //watch for all contact changes, not just ones with a Phone.TYPE_MOBILE number 
-				CONTACT_NAME + " ASC");
-		if (c != null){
-			numContacts = c.getCount();
-			c.close();
-		}
-		return numContacts;
-	}
-
 	private class ContactsChangeChecker extends AsyncTask <Void,Void,Void>{
 
 		@Override
 		protected Void doInBackground(Void... params) {
 			List <String> toDelete = new ArrayList <String> ();
-			String [] projection = new String [] {LedContacts._ID, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER};
 			ContentResolver resolver = getContentResolver();
-			Cursor customContactsCursor = resolver.query(LedContacts.CONTENT_URI, projection, null, null,null);
+			Cursor customContactsCursor = resolver.query(LedContacts.CONTENT_URI, LED_CONTACTS_PROJ, null, null,null);
 			if (customContactsCursor != null && customContactsCursor.moveToFirst()){
 				do {
 					if (isCancelled()){
@@ -191,10 +182,9 @@ public class ObserverService extends Service {
 							values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newLookupUri.toString());
 							needsUpdating = true;
 						} 
-						
+
 						String contactId = newLookupUri.getLastPathSegment();
-						System.out.println ("Path segments: " + newLookupUri.getPathSegments());
-						Cursor contactNameCursor = getContentResolver().query(Phone.CONTENT_URI, new String [] {CONTACT_NAME, Phone.LOOKUP_KEY, Phone.CONTACT_ID, Phone.NUMBER, Phone.TYPE},Phone.CONTACT_ID + "=?", new String[] {contactId} , null);
+						Cursor contactNameCursor = getContentResolver().query(Phone.CONTENT_URI, CONTACT_PROJ,Phone.CONTACT_ID + "=?", new String[] {contactId} , null);
 						if (contactNameCursor != null && contactNameCursor.moveToFirst()){
 							String name = contactNameCursor.getString(contactNameCursor.getColumnIndex(CONTACT_NAME));
 							if (!name.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NAME)))){
@@ -202,14 +192,14 @@ public class ObserverService extends Service {
 								values.put(LedContacts.LAST_KNOWN_NAME, name);	
 								needsUpdating = true;
 							}
-							
+
 							String phoneNumber = contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER));
 							if (!phoneNumber.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER)))){
 								System.out.println ("Number change");
 								values.put(LedContacts.LAST_KNOWN_NUMBER, phoneNumber);
 								needsUpdating = true;
 							}
-							
+
 							if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Phone.TYPE)) != Phone.TYPE_MOBILE){
 								Log.i(TAG,"Not a mobile number, deletion pending");
 								needsUpdating = false;
@@ -219,7 +209,7 @@ public class ObserverService extends Service {
 						if (contactNameCursor != null){
 							contactNameCursor.close();
 						}
-						
+
 						if (needsUpdating){
 							System.out.println ("updating database...");
 							Uri updateUri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(id));

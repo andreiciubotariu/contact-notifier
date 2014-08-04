@@ -49,10 +49,11 @@ public class SMSReceiver extends BroadcastReceiver {
 			onMessageReceived (context, sms.getOriginatingAddress(), sms.getDisplayMessageBody());
 		}
 	}
-
+	
+	
 	@TargetApi(19)
 	public void onMessageReceived (Context context, String number, String message){
-		if (TextUtils.isEmpty(number)){
+		if (TextUtils.isEmpty(number) || message == null){
 			return;
 		}
 
@@ -79,7 +80,6 @@ public class SMSReceiver extends BroadcastReceiver {
 			Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
 
 			if (c != null && c.moveToFirst()){
-				Log.v(TAG,"Cursor non-null");
 				try {
 					int customColor = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 
@@ -95,12 +95,8 @@ public class SMSReceiver extends BroadcastReceiver {
 					}
 					String customVib = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
 
-					Log.i("VIB-PATTERN", customVib + "");
-
-
 					if (!TextUtils.isEmpty(customVib)){
 						vibratePattern = customVib;
-						Log.i("VIB-PATTERN", ""+vibratePattern);
 					}
 
 				} catch (Exception e){
@@ -193,12 +189,11 @@ public class SMSReceiver extends BroadcastReceiver {
 				Uri contactUri = Contacts.getLookupUri(contactCursor.getLong(contactCursor.getColumnIndex(PhoneLookup._ID)), contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 
 				String contactUriString = contactUri == null ? null : contactUri.toString();
-				System.out.println ("Relookup of shallow contact uri: " + Contacts.getLookupUri(resolver, Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)))));
 				return new String [] {contactUriString,
 						contactCursor.getString (contactCursor.getColumnIndex(PhoneLookup.DISPLAY_NAME))};
 			}
 			else {
-				Log.w(TAG,"Not a contact in phone's database");
+				Log.i(TAG,"Not a contact in phone's database");
 				return new String [] {null,number};
 			}
 		}

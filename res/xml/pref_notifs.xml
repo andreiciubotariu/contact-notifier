@@ -15,8 +15,8 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="show_all_notifications"
-        android:summaryOff="Notification shown only for contacts with a set color"
-        android:summaryOn="Showing notification for all received messages"
+        android:summaryOff="Notifications shown only for contacts with a set color"
+        android:summaryOn="Showing notifications for all received messages"
         android:title="Notification for every SMS" />
 
     <Preference
@@ -32,7 +32,7 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="notif_and_sound"
-        android:summaryOff="No ringtone will be played"
+        android:summaryOff="No ringtone"
         android:summaryOn="Ringtone will accompany notification"
         android:title="Accompanying ringtone" />
 

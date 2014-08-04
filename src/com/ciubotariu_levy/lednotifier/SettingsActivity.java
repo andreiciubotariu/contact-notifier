@@ -102,14 +102,14 @@ public class SettingsActivity extends PreferenceActivity {
 
 	@TargetApi(19)
 	private static void setupSMSAppPreference (Preference smsPreference){
-		String summary = "Tap to set the SMS app you're using";
+		String summary = "Set the SMS app in use";
 		PackageManager packageManager = smsPreference.getContext().getPackageManager();
 		String smsAppPackageName =  Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ? smsPreference.getSharedPreferences().getString(smsPreference.getKey(), null)
 				: Sms.getDefaultSmsPackage(smsPreference.getContext());
 		if (smsAppPackageName != null){
 			try {
 				CharSequence smsAppLabel = packageManager.getApplicationLabel(packageManager.getApplicationInfo(smsAppPackageName, 0));
-				summary = "Launching " + smsAppLabel + " if our notification is tapped";
+				summary = "Launching " + smsAppLabel + " if Contact Notifier notification is tapped";
 			} catch (NameNotFoundException e) {
 				e.printStackTrace();
 			}
