@@ -86,10 +86,10 @@ public class ObserverService extends Service {
 			int unseen = getUnseenSms();
 			int unread = getUnreadSms();
 
-			//			Log.v(TAG, "**********************************************");
-			//			Log.v (TAG,"Current stats: Unseen - " + unseen+ "| Unread - " + unread);
-			//			Log.v (TAG,"Prev stats: Unseen - " + mUnseen+ "| Unread - " + mUnread);
-			//			Log.v(TAG, "**********************************************");
+//			Log.v(TAG, "**********************************************");
+//			Log.v (TAG,"Current stats: Unseen - " + unseen+ "| Unread - " + unread);
+//			Log.v (TAG,"Prev stats: Unseen - " + mUnseen+ "| Unread - " + mUnread);
+//			Log.v(TAG, "**********************************************");
 			if (unseen < mUnseen || unread < mUnread){
 				NotificationUtils.cancel(ObserverService.this);
 				unseen = 0;

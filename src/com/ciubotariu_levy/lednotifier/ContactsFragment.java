@@ -213,10 +213,9 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		LedContactInfo data = null;
 		Cursor c = mCursorAdapter.getCursor();
 		long contactID = c.getLong(c.getColumnIndex(CommonDataKinds.Phone.CONTACT_ID));
-		System.out.println ("Clicked on ID " + contactID + " (rowID) " + rowID);
 		String lookupValue = Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(Contacts.LOOKUP_KEY))).toString();
 		if (mLedData.get(lookupValue) != null){
-			data = mLedData.get(lookupValue);
+			data = new LedContactInfo (mLedData.get(lookupValue));
 		} else {
 			data = new LedContactInfo();
 			data.systemLookupUri = lookupValue;
@@ -262,7 +261,6 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		Log.d (TAG,"Load finished");
 		mCursorAdapter.swapCursor(cursor);
 		getListView().setFastScrollEnabled(true);
 		setEmptyText("No contacts found");
@@ -290,7 +288,6 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		LedContactInfo info = mLedData.get(newData.systemLookupUri);
 		if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern)  && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))){
 			getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {newData.systemLookupUri});
-			System.out.println ("deleting");
 			if (info != null){
 				mLedData.put(newData.systemLookupUri, null);
 			}

@@ -15,7 +15,7 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="show_all_notifications"
-        android:summaryOff="Notifications shown only for contacts with a set color"
+        android:summaryOff="Notifications shown only for contacts with a custom color or ringtone"
         android:summaryOn="Showing notifications for all received messages"
         android:title="Notification for every SMS" />
 
@@ -47,7 +47,7 @@
         android:defaultValue="false"
         android:key="notifications_new_message_vibrate"
         android:summaryOff="Vibrating only for custom contacts"
-        android:summaryOn="Vibrating every time a notification is made"
+        android:summaryOn="Vibrating for every notification"
         android:title="@string/pref_title_vibrate" />
 
     <Preference

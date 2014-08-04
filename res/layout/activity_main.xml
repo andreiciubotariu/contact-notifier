@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/abc_list_selector_holo_light"
+            android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:drawableLeft="@drawable/ic_action_help"
             android:gravity="left|center_vertical"
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_above="@id/help"
-            android:background="@drawable/abc_list_selector_holo_light"
+            android:background="?attr/selectableItemBackground"
             android:drawableLeft="@drawable/ic_action_settings"
             android:gravity="left|center_vertical"
             android:onClick="drawerOptions"
@@ -61,7 +61,7 @@
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp"
-            android:listSelector="@drawable/abc_list_selector_holo_light" />
+            android:listSelector="?attr/selectableItemBackground" />
     </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>

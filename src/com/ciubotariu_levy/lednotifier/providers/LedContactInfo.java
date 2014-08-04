@@ -15,7 +15,8 @@ public class LedContactInfo implements Parcelable{
 	public int color;
 	public String vibratePattern;
 	public String ringtoneUri;
-
+	
+	
 	public static long [] getVibratePattern (String s){
 		if (TextUtils.isEmpty(s)){
 			return new long[0];
@@ -67,7 +68,7 @@ public class LedContactInfo implements Parcelable{
 		}
 	};
 
-	private LedContactInfo (Parcel in){
+	private LedContactInfo(Parcel in){
 		id = in.readLong();
 		systemLookupUri = in.readString();
 		lastKnownName = in.readString();
@@ -80,6 +81,18 @@ public class LedContactInfo implements Parcelable{
 		}
 	}
 
-	public LedContactInfo() { //required
+	//required empty
+	public LedContactInfo() {
+	}
+	
+	//copy constructor
+	public LedContactInfo(LedContactInfo other){
+		id = other.id;
+		systemLookupUri = other.systemLookupUri;
+		lastKnownName = other.lastKnownName;
+		lastKnownNumber = other.lastKnownNumber;
+		color = other.color;
+		vibratePattern = other.vibratePattern;
+		ringtoneUri = other.ringtoneUri;
 	}
 }

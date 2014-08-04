@@ -39,7 +39,8 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 	public interface ContactDetailsUpdateListener {
 		public void onContactDetailsUpdated (LedContactInfo updatedData);
 	}
-
+	public static final String TAG = ColorVibrateDialog.class.getName();
+			
 	public static final String SILENT = "silent_ringtone";
 	public static final String GLOBAL = "application_setting_ringtone";
 
