@@ -241,7 +241,6 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-		Log.d (TAG,"Creating Loader");
 		getListView().setFastScrollEnabled(false);
 		String constraint = "";
 		if (args != null && args.getString(KEY_CONSTRAINT) != null){
@@ -260,7 +259,6 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 	}
 
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		Log.d (TAG,"Load finished");
 		mCursorAdapter.swapCursor(cursor);
 		getListView().setFastScrollEnabled(true);
 		setEmptyText("Add custom contacts. Choose \'All Mobile\'");

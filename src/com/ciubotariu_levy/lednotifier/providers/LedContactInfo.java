@@ -17,7 +17,7 @@ public class LedContactInfo implements Parcelable{
 	public String ringtoneUri;
 	
 	
-	public static long [] getVibratePattern (String s){
+	public static long [] getVibratePattern(String s) {
 		if (TextUtils.isEmpty(s)){
 			return new long[0];
 		}
@@ -33,7 +33,33 @@ public class LedContactInfo implements Parcelable{
 		}
 		return pattern;
 	}
-
+	
+	//adds zeroes to vibratepattern if there are successive commas
+	public static String addZeroesWhereEmpty (String s) {
+		if (TextUtils.isEmpty(s)){
+			return "";
+		}
+		
+		String [] sPattern= s.split(",");
+		StringBuilder builder = new StringBuilder();
+		for (int x = 0;x < sPattern.length-1;x++){
+			appendZeroIfNeeded(builder, sPattern[x]);
+			builder.append (",");
+		}
+		appendZeroIfNeeded(builder, sPattern[sPattern.length -1]);
+		
+		return builder.toString();
+		
+	}
+	
+	private static void appendZeroIfNeeded (StringBuilder builder, String toCheck){
+		if (TextUtils.isEmpty(toCheck)){
+			builder.append ("0");
+		} else {
+			builder.append (toCheck);
+		}
+	}
+	
 	@Override
 	public int describeContents() {
 		return 0;

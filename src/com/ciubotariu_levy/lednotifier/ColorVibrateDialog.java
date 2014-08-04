@@ -12,13 +12,16 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.webkit.WebView.FindListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -187,9 +190,19 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		mPicker.setColor(mColor);
 		mPicker.setOnColorChangedListener(this);
 		final View vibrateHint = view.findViewById(R.id.vib_hint);
+		final View vibrateInputContainer = view.findViewById(R.id.vib_input_container);
 		final EditText vibrateInput = (EditText) view.findViewById(R.id.vib_input);
 		vibrateInput.setMaxHeight(vibrateInput.getHeight());
-
+		
+		Button insertCommaButton = (Button) view.findViewById(R.id.insert_comma);
+		insertCommaButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				vibrateInput.append(",");	
+			}
+		});
+		
 		vibratorService = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 		final Button testVibrate = (Button) view.findViewById(R.id.test_vibrate);
 		testVibrate.setOnClickListener(new OnClickListener() {
@@ -208,7 +221,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked){
 					vibrateHint.setVisibility(View.VISIBLE);
-					vibrateInput.setVisibility(View.VISIBLE);
+					vibrateInputContainer.setVisibility(View.VISIBLE);
 					testVibrate.setVisibility(View.VISIBLE);
 					if (!TextUtils.isEmpty(mVibratePattern)){
 						vibrateInput.setText(mVibratePattern);
@@ -217,7 +230,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 				}
 				else{
 					vibrateHint.setVisibility(View.GONE);
-					vibrateInput.setVisibility(View.GONE);
+					vibrateInputContainer.setVisibility(View.GONE);
 					testVibrate.setVisibility(View.GONE);
 				}
 			}
@@ -291,6 +304,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 
 	//called when user chooses a color
 	private void onConfirm (int color, String vibrate){
+		vibrate = LedContactInfo.addZeroesWhereEmpty (vibrate);
 		ContactDetailsUpdateListener listener = null;
 		try{
 			listener =(ContactDetailsUpdateListener) getParentFragment();

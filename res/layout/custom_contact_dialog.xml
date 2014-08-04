@@ -4,9 +4,9 @@
     android:layout_height="wrap_content"
     android:background="@android:color/white"
     android:fillViewport="true"
+    android:paddingBottom="5dp"
     android:paddingLeft="5dp"
     android:paddingRight="5dp"
-    android:paddingBottom = "5dp"
     android:scrollbars="none" >
 
     <RelativeLayout
@@ -19,8 +19,8 @@
             android:id="@+id/details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" >
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp" >
 
             <include
                 android:id="@+id/contact_img_container"
@@ -143,23 +143,43 @@
             android:textColor="@android:color/black"
             android:visibility="gone" />
 
-        <EditText
-            android:id="@+id/vib_input"
+        <RelativeLayout
+            android:id="@+id/vib_input_container"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_alignLeft="@id/colorbar"
             android:layout_alignRight="@id/colorbar"
             android:layout_below="@id/vib_hint"
-            android:digits="0123456789,"
-            android:inputType="numberDecimal"
-            android:visibility="gone" />
+            android:visibility="gone" >
+
+             <Button
+                android:id="@+id/insert_comma"
+                style="@style/Widget.AppCompat.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_alignParentRight = "true"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:text=" , "
+                android:textSize="17sp" />
+             
+             <EditText
+                android:layout_width="match_parent"
+           		android:layout_height="50dp"
+           		android:layout_alignParentLeft = "true"
+           		android:layout_toLeftOf="@id/insert_comma"
+           		android:layout_centerVertical="true"
+                android:id="@+id/vib_input"
+                android:digits="0123456789,"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="numberDecimal" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/colorbar"
             android:layout_alignRight="@id/colorbar"
-            android:layout_below="@id/vib_input"
+            android:layout_below="@id/vib_input_container"
             android:orientation="horizontal" >
 
             <Button
