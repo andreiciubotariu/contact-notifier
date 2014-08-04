@@ -62,6 +62,7 @@ public class LedContactProvider extends ContentProvider {
 			}
 			Log.i ("DB-Upgrade", text);
 		}
+		
 		@Override
 		public void onUpgrade (SQLiteDatabase db, int oldVersion, int newVersion){
 			Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
@@ -117,11 +118,10 @@ public class LedContactProvider extends ContentProvider {
 			} 
 
 			onCreate(db);
-
-
-
 		}
 	}
+	
+	
 
 	//instance of our table
 	private DatabaseHelper mDbHelper;

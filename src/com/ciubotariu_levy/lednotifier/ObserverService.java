@@ -21,7 +21,6 @@ import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Telephony.Sms;
-import android.util.Log;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
@@ -53,7 +52,7 @@ public class ObserverService extends Service {
 		LedContacts.SYSTEM_CONTACT_LOOKUP_URI,
 		LedContacts.LAST_KNOWN_NAME,
 		LedContacts.LAST_KNOWN_NUMBER};
-	
+
 	private int mUnread;
 	private int mUnseen;
 	private ContactsChangeChecker mChecker;
@@ -68,7 +67,6 @@ public class ObserverService extends Service {
 
 		@Override
 		public void onChange (boolean selfChange, Uri uri){
-			System.out.println ("changed " + uri);
 			if (mChecker != null && !mChecker.isCancelled()){
 				mChecker.cancel(true);
 			}
@@ -111,7 +109,6 @@ public class ObserverService extends Service {
 			mUnseen = getUnseenSms();
 			getContentResolver().registerContentObserver(SMS_CONTENT_URI, true, mSMSContentObserver);
 			registeredObserver = true;
-			Log.i(TAG,"Registered observer " + mUnseen +"|" + mUnread);
 		}catch (Exception e){ //sms inbox not standardized on jellybean and older
 			e.printStackTrace();
 			throw new RuntimeException();
@@ -168,17 +165,14 @@ public class ObserverService extends Service {
 					String systemLookupUri = customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
 
 					Uri lookupUri = Uri.parse(systemLookupUri);
-					System.out.println ("Parsed URI is " + lookupUri);
 					Uri newLookupUri = ContactsContract.Contacts.getLookupUri(resolver, lookupUri);
-					if (/*ContactsContract.Contacts.lookupContact(resolver, lookupUri)*/ newLookupUri== null){
-						System.out.println ("deleting contact from our db");
+					if (newLookupUri== null){
 						toDelete.add(String.valueOf(id));
 					} else {
 						ContentValues values = new ContentValues();
 						boolean needsUpdating = false;
 
 						if (newLookupUri != null && !newLookupUri.equals(lookupUri)){
-							System.out.println("Different URIs now. Must update our DB");
 							values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newLookupUri.toString());
 							needsUpdating = true;
 						} 
@@ -188,20 +182,17 @@ public class ObserverService extends Service {
 						if (contactNameCursor != null && contactNameCursor.moveToFirst()){
 							String name = contactNameCursor.getString(contactNameCursor.getColumnIndex(CONTACT_NAME));
 							if (!name.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NAME)))){
-								System.out.println ("Name change");
 								values.put(LedContacts.LAST_KNOWN_NAME, name);	
 								needsUpdating = true;
 							}
 
 							String phoneNumber = contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER));
 							if (!phoneNumber.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER)))){
-								System.out.println ("Number change");
 								values.put(LedContacts.LAST_KNOWN_NUMBER, phoneNumber);
 								needsUpdating = true;
 							}
 
 							if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Phone.TYPE)) != Phone.TYPE_MOBILE){
-								Log.i(TAG,"Not a mobile number, deletion pending");
 								needsUpdating = false;
 								toDelete.add(String.valueOf(id));
 							}
@@ -211,7 +202,6 @@ public class ObserverService extends Service {
 						}
 
 						if (needsUpdating){
-							System.out.println ("updating database...");
 							Uri updateUri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(id));
 							resolver.update(updateUri, values, null, null);
 						}

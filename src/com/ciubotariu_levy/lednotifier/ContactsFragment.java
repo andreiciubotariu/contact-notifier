@@ -108,7 +108,7 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 				null,
 				FROM_COLUMNS, 
 				TO_IDS,
-				0);
+				0, CONTACT_NAME);
 		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {

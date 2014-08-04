@@ -108,7 +108,7 @@ public class CustomContactsFragment extends ListFragment implements MainActivity
 				null,
 				FROM_COLUMNS, 
 				TO_IDS,
-				0);
+				0, LedContacts.LAST_KNOWN_NAME);
 		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
