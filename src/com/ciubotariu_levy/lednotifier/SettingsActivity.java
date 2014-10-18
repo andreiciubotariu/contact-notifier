@@ -53,7 +53,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 		setupSimplePreferencesScreen();
 		setupNewApiPhoneSizePreferences();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && getActionBar() != null){
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
