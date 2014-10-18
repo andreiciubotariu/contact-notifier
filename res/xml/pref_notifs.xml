@@ -52,9 +52,10 @@
 
     <Preference
         android:enabled="@bool/notification_service_enabled"
-        android:summary="Some of the  preferences below depend on the system&apos;s notification access setting"
-        android:title="System security settings" >
-        <intent android:action="android.settings.SECURITY_SETTINGS" />
+        android:key = "system_notif_settings"
+        android:summary="Required by some of the below preferences"
+        android:title="System notification settings" >
+
     </Preference>
 
     <CheckBoxPreference

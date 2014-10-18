@@ -83,7 +83,6 @@ public class MainActivity extends ActionBarActivity {
 		mDrawerToggle = new ActionBarDrawerToggle(
 				this,                  /* host Activity */
 				mDrawerLayout,         /* DrawerLayout object */
-				  /* nav drawer icon to replace 'Up' caret */
 				R.string.drawer_open,  /* "open drawer" description */
 				R.string.drawer_close  /* "close drawer" description */
 				) {
@@ -130,7 +129,7 @@ public class MainActivity extends ActionBarActivity {
 			}
 			prefs.edit().putBoolean(KEY_FIRST_RUN, true).apply();
 		}
-		
+
 		if (!prefs.contains(KEY_FIRST_TIME_DRAWER)){
 			mOpenDrawer =  true;
 			prefs.edit().putBoolean(KEY_FIRST_TIME_DRAWER, true).apply();
@@ -152,7 +151,6 @@ public class MainActivity extends ActionBarActivity {
 
 	/** Swaps fragments in the main content view */
 	private void selectItem(int position) {
-		// Create a new fragment and specify the planet to show based on position
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		Fragment fragment = fragmentManager.findFragmentByTag(mFragmentTitles[position]);
 		if (fragment == null){
@@ -183,7 +181,7 @@ public class MainActivity extends ActionBarActivity {
 		// Sync the toggle state after onRestoreInstanceState has occurred.
 		mDrawerToggle.syncState();
 	}
-	
+
 	@Override
 	protected void onResume(){
 		super.onResume();

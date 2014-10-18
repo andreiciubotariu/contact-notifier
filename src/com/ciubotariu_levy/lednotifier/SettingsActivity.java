@@ -21,10 +21,12 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.provider.Settings;
 import android.provider.Telephony.Sms;
 import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -128,6 +130,25 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 	}
 
+	private static void setupSysNotifSetting (Preference preference){
+		preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Intent  i = new Intent (Settings.ACTION_SECURITY_SETTINGS);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+					i = new Intent (Settings.ACTION_SOUND_SETTINGS);
+				}
+		        try {
+		        	preference.getContext().startActivity(i);
+		        }
+		        catch (Exception e){
+		        	Toast.makeText(preference.getContext(), "Could not launch setting", Toast.LENGTH_SHORT).show();
+		        }
+				return true;
+			}
+		});
+	}
 	/** {@inheritDoc} */
 	@Override
 	public boolean onIsMultiPane() {
@@ -285,6 +306,7 @@ public class SettingsActivity extends PreferenceActivity {
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.pref_notifs);
 			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+			setupSysNotifSetting(findPreference ("system_notif_settings"));
 		}
 	}
 
@@ -298,7 +320,7 @@ public class SettingsActivity extends PreferenceActivity {
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static class AllPreferencesFragment extends PreferenceFragment{
+	public static class AllPreferencesFragment extends PreferenceFragment {
 		@Override
 		public void onCreate (Bundle savedInstanceState){
 			super.onCreate(savedInstanceState);
@@ -309,6 +331,7 @@ public class SettingsActivity extends PreferenceActivity {
 			getPreferenceScreen().addPreference(notifHeader);
 			addPreferencesFromResource(R.xml.pref_notifs);
 			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+			setupSysNotifSetting(findPreference ("system_notif_settings"));
 
 			PreferenceCategory otherHeader = new PreferenceCategory(getActivity());
 			otherHeader.setTitle(R.string.pref_header_other);

@@ -4,9 +4,11 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    
-    <style name="Theme.MyTheme" parent="Theme.AppCompat.Light.DarkActionBar"> 
-	</style> 
+
+    <style name="Theme.MyTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#CC0000</item>
+        <item name="colorPrimaryDark">#990000</item>
+    </style>
 
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--
@@ -20,11 +22,11 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-    
-     <style name="FastscrollThemedListView" parent="@style/AppTheme">
+
+    <style name="FastscrollThemedListView" parent="@style/AppTheme">
         <item name="android:textColorPrimary">?android:textColorPrimaryInverse</item>
     </style>
-    
+
     <style name="Divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1px</item>
@@ -41,9 +43,11 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsTranslucent">true</item>
-        <!-- Note that we use the base animation style here (that is no
+        <!--
+             Note that we use the base animation style here (that is no
              animations) because we really have no idea how this kind of
-             activity will be used. -->
+             activity will be used.
+        -->
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
