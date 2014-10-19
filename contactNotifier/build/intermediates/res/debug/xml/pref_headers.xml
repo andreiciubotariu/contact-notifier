@@ -1,0 +1,16 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- These settings headers are only used on tablets. -->
+
+    <header
+        android:fragment="com.ciubotariu_levy.lednotifier.SettingsActivity$GeneralPreferenceFragment"
+        android:title="@string/pref_header_general" />
+    <header
+        android:fragment="com.ciubotariu_levy.lednotifier.SettingsActivity$NotifPreferenceFragment"
+        android:title="@string/pref_header_notifications" />
+    <header
+        android:fragment="com.ciubotariu_levy.lednotifier.SettingsActivity$OtherPreferenceFragment"
+        android:title="@string/pref_header_other" />
+
+</preference-headers>
+<!-- From: file:/home/andrei/studio-imports/led-notifier/contactNotifier/src/main/res/xml/pref_headers.xml -->

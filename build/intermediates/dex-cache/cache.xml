@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/pre-dexed/debug/classes-349369edc4225edf38180fe3e63228838465c7ad.jar"
+        jar="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="686344a780033e4ba22b926cd225f8d4941247e6"/>
+    <item
+        dex="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/pre-dexed/debug/classes-39fd7ee9b4156250e2b86056c459bbd5581ea812.jar"
+        jar="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/led-notifier/holoColorPicker/unspecified/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="e8c0a4fc091614c1e3e331bff0e7c2a791bc3e69"/>
+    <item
+        dex="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/pre-dexed/debug/classes-df0984c0427fe49e46d4a4779a892c43dd218eb8.jar"
+        jar="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/21.0.0/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="6c6b497aa9e3aadbaabf975379e7914fa9e65523"/>
+    <item
+        dex="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/pre-dexed/debug/support-annotations-21.0.0-853b1d2976a20b381a7a85c91f8273b2510f586a.jar"
+        jar="/home/andrei/Development/android_sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.0/support-annotations-21.0.0.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="1a578b9607b36266c63d43a4fa0ab5664dbe911e"/>
+    <item
+        dex="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/pre-dexed/debug/classes-e0bcd6cab30c8ca7f4fa96fa4d6de25d57d5e777.jar"
+        jar="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.0/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="95fd37732ec852e99f07eeb516a3650172f1d136"/>
+    <item
+        dex="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/pre-dexed/debug/internal_impl-21.0.0-6aba286255014ec0748708bfca8f231431adee26.jar"
+        jar="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/libs/internal_impl-21.0.0.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="1609e6d42d0480b0f4188e2c29f75388fa12a8f0"/>
+    <item
+        dex="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/pre-dexed/debug/picasso-2.3.2-93683ce656f3dd1b9d200632733ebacb0f66478f.jar"
+        jar="/home/andrei/studio-imports/led-notifier/contactNotifier/libs/picasso-2.3.2.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="d6b7f0093cec6c9faf65dbfd6a6a345d0ed25e27"/>
+
+</pre-dex-items>

@@ -1,0 +1,8 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <Preference
+        android:key="sms_app_package"
+        android:summary="SMS app used"
+        android:title="SMS app" />
+
+</PreferenceScreen><!-- From: file:/home/andrei/studio-imports/led-notifier/contactNotifier/src/main/res/xml/pref_general.xml -->

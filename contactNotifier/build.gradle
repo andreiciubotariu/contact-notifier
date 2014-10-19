@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        applicationId "com.ciubotariu_levy.lednotifier"
+        minSdkVersion 9
+        targetSdkVersion 21
+    }
+
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile project(':holoColorPicker')
+    compile 'com.android.support:gridlayout-v7:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.0'
+    compile files('libs/picasso-2.3.2.jar')
+}

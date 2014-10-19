@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="2" >
+
+    <dataSet config="21.0.0" >
+        <source path="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/assets" />
+    </dataSet>
+    <dataSet config="21.0.0" >
+        <source path="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.0/assets" />
+    </dataSet>
+    <dataSet config="21.0.0" >
+        <source path="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/com.android.support/gridlayout-v7/21.0.0/assets" />
+    </dataSet>
+    <dataSet config="unspecified" >
+        <source path="/home/andrei/studio-imports/led-notifier/contactNotifier/build/intermediates/exploded-aar/led-notifier/holoColorPicker/unspecified/assets" />
+    </dataSet>
+    <dataSet config="main" >
+        <source path="/home/andrei/studio-imports/led-notifier/contactNotifier/src/main/assets" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/home/andrei/studio-imports/led-notifier/contactNotifier/src/debug/assets" />
+    </dataSet>
+
+</merger>

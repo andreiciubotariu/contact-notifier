@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="8dp"
+    android:paddingLeft = "8dp"
+    android:paddingRight ="8dp"
+    android:paddingBottom = "8dp"
+    android:background="?attr/selectableItemBackground" >
+
+    <include
+        android:id="@+id/contact_img_container"
+        layout="@layout/contact_image_container" />
+
+    <RelativeLayout
+        android:id="@+id/custom_ring_vib_container"
+        android:layout_width="60dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" >
+
+        <View
+            android:id="@+id/contact_vibrate"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+
+        <View
+            android:id="@+id/contact_ringtone"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/contact_vibrate" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/contact_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/custom_ring_vib_container"
+        android:layout_toRightOf="@id/contact_image"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/contact_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/contact_name"
+        android:layout_below="@id/contact_name"
+        android:layout_toLeftOf="@id/custom_ring_vib_container"
+        android:layout_toRightOf="@id/contact_image"
+        android:textColor="@android:color/black"
+        android:textSize="14sp" />
+
+</RelativeLayout><!-- From: file:/home/andrei/studio-imports/led-notifier/contactNotifier/src/main/res/layout/contact_row.xml -->

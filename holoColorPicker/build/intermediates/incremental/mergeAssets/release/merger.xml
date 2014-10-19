@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="2" >
+
+    <dataSet config="main" >
+        <source path="/home/andrei/studio-imports/led-notifier/holoColorPicker/src/main/assets" />
+    </dataSet>
+    <dataSet config="release" >
+        <source path="/home/andrei/studio-imports/led-notifier/holoColorPicker/src/release/assets" />
+    </dataSet>
+
+</merger>
