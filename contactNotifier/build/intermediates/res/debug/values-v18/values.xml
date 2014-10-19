@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <!-- From: file:/home/andrei/studio-imports/led-notifier/contactNotifier/src/main/res/values-v18/bools.xml -->
-    <eat-comment />
-
-    <bool name="notification_service_enabled">true</bool>
-
-</resources>
