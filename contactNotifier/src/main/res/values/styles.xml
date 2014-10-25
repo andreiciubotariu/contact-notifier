@@ -8,6 +8,7 @@
     <style name="Theme.MyTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">#CC0000</item>
         <item name="colorPrimaryDark">#990000</item>
+        <item name="colorAccent">#CC0000</item>
     </style>
 
     <style name="AppBaseTheme" parent="android:Theme.Light">
