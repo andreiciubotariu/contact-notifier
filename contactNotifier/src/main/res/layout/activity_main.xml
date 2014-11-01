@@ -9,7 +9,7 @@
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#e5e5e5" />
+        android:background="@android:color/white" />
     <!-- The navigation drawer -->
 
     <RelativeLayout
@@ -59,8 +59,8 @@
             android:background="#FFF"
             android:cacheColorHint="#FFF"
             android:choiceMode="singleChoice"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="0dp"
+            android:divider="@drawable/abc_list_divider_mtrl_alpha"
+            android:dividerHeight="1px"
             android:listSelector="?attr/selectableItemBackground" />
     </RelativeLayout>
 

@@ -7,7 +7,7 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="10dp" />
 
-    <com.ciubotariu_levy.lednotifier.CircularColorView
+    <com.ciubotariu_levy.lednotifier.BorderedCircularColorView
         android:id="@+id/contact_display_color"
         android:layout_width="15dp"
         android:layout_height="15dp"

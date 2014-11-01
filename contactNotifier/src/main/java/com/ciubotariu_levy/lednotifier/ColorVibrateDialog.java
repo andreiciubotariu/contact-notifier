@@ -64,7 +64,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 
 	private String mVibratePattern;
 	private String mPrevVibratePattern;
-	private CircularColorView mColorState;
+	private BorderedCircularColorView mColorState;
 	private Vibrator vibratorService;
 	private Button chooseRingtoneButton;
 	private Intent ringtonePickerIntent;
@@ -159,8 +159,8 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		((TextView)view.findViewById(R.id.contact_number)).setText (contactData.lastKnownNumber);
 
 		Transformation transformation = new RoundedTransformationBuilder()
-		.borderColor(Color.BLACK)
-		.borderWidthDp(0)
+		.borderColor(Color.GRAY)
+		.borderWidthDp(1)
 		.cornerRadiusDp(30)
 		.oval(false)
 		.build();
@@ -181,7 +181,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			mColor = savedInstanceState.getInt(CONTACT_CURRENT_COLOR, mOriginalColor);
 			mVibratePattern = savedInstanceState.getString(CONTACT_CUSTOM_VIB);
 		}	
-		mColorState = (CircularColorView) view.findViewById(R.id.contact_display_color);
+		mColorState = (BorderedCircularColorView) view.findViewById(R.id.contact_display_color);
 		mColorState.setColor(mColor);
 		mPicker = (EndColorPicker) view.findViewById(R.id.colorbar);
 		mPicker.setColor(mColor);

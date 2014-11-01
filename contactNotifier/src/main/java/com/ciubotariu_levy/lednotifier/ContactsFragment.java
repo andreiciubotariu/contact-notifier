@@ -1,7 +1,5 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.HashMap;
-
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,6 +18,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -39,6 +39,8 @@ import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
+
+import java.util.HashMap;
 
 public class ContactsFragment extends ListFragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, DataFetcher.OnDataFetchedListener, LoaderManager.LoaderCallbacks<Cursor>
 {
@@ -96,24 +98,43 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		final Transformation transformation = new RoundedTransformationBuilder()
-		.borderColor(Color.BLACK)
-		.borderWidthDp(0)
+		.borderColor(Color.GRAY)
+		.borderWidthDp(1)
 		.cornerRadiusDp(30)
 		.oval(false)
 		.build();
 		// Gets a CursorAdapter
 		mCursorAdapter = new SectionedCursorAdapter(
 				getActivity(),
-				R.layout.list_row,
+				R.layout.contact_row,
 				null,
 				FROM_COLUMNS, 
 				TO_IDS,
 				0, CONTACT_NAME);
 		mCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+
+            private int numberGone;
+            private View container;
+            private int prevRow = -1;
+
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                if (cursor.getPosition() != prevRow){
+                    prevRow = cursor.getPosition();
+                    numberGone = 0;
+                    container = null;
+                }
+
+                boolean overridden = false;
 				Uri contactUri = Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(Phone.CONTACT_ID)), cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY)));
 				switch (view.getId()){
+                    case R.id.contact_name:
+                        String name  = cursor.getString(cursor.getColumnIndex(CONTACT_NAME));
+                            final SpannableStringBuilder str = new SpannableStringBuilder(name);
+                            str.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, name.indexOf(' ') != -1 ? name.indexOf(' ') : name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            ((TextView) view).setText(str);
+                        overridden = true;
+                        break;
 				case R.id.contact_image:
 					Picasso.with(getActivity())
 					.load(contactUri)
@@ -121,34 +142,47 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 					.fit()
 					.transform(transformation)
 					.into((ImageView)view);
-					return true;
+                    overridden = true;
+                    break;
 				case R.id.contact_display_color:
 					LedContactInfo info = mLedData.get(contactUri.toString());
 					int color = info == null ? Color.GRAY : info.color;
-					((CircularColorView)view).setColor(color);
-					return true;
+					((BorderedCircularColorView)view).setColor(color);
+                    overridden = true;
+                    break;
 				case R.id.contact_ringtone:
 					info = mLedData.get(contactUri.toString());
+                    container = (View) view.getParent();
 					if (info != null && !TextUtils.isEmpty(info.ringtoneUri) && !ColorVibrateDialog.GLOBAL.equals(info.ringtoneUri)){
 						view.setVisibility(View.VISIBLE);
 						view.setBackgroundResource(R.drawable.ic_custom_ringtone);
+                        container.setVisibility(View.VISIBLE);
 					}
 					else {
 						view.setVisibility(View.GONE);
+                        numberGone++;
 					}
-					return true;
+                    overridden = true;
+                    break;
 				case R.id.contact_vibrate:
 					info = mLedData.get(contactUri.toString());
+                    container = (View) view.getParent();
 					if (info != null && !TextUtils.isEmpty(info.vibratePattern)){
 						view.setVisibility(View.VISIBLE);
 						view.setBackgroundResource(R.drawable.ic_contact_vibrate);
+                        container.setVisibility(View.VISIBLE);
 					}
 					else {
 						view.setVisibility(View.GONE);
-					}
-					return true;
+                        numberGone++;
+                    }
+					overridden = true;
+                    break;
 				}
-				return false;
+                if (numberGone == 2 && container != null){
+                    container.setVisibility(View.GONE);
+                }
+				return overridden;
 			}
 		});
 
@@ -157,9 +191,8 @@ public class ContactsFragment extends ListFragment implements MainActivity.Searc
 		//change space between list items
 		ListView listView = getListView();
 		listView.setItemsCanFocus(true);
-		listView.setDivider(null);
-		int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics());
-		listView.setDividerHeight(dividerSize);
+        int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
+        listView.setDividerHeight(dividerSize);
 		listView.setCacheColorHint(Color.TRANSPARENT);
 
 		mFetcher = new DataFetcher(this, LedContacts.CONTENT_URI);

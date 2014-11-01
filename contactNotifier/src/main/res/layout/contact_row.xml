@@ -2,10 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="8dp"
-    android:paddingLeft = "8dp"
-    android:paddingRight ="8dp"
-    android:paddingBottom = "8dp"
+    android:paddingTop="15dp"
+    android:paddingLeft = "15dp"
+    android:paddingRight ="15dp"
+    android:paddingBottom = "15dp"
     android:background="?attr/selectableItemBackground" >
 
     <include
@@ -16,6 +16,7 @@
         android:id="@+id/custom_ring_vib_container"
         android:layout_width="60dp"
         android:layout_height="30dp"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true" >
 
@@ -41,6 +42,8 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/custom_ring_vib_container"
         android:layout_toRightOf="@id/contact_image"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:textColor="@android:color/black"
         android:textSize="20sp" />
 
