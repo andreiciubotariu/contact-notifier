@@ -22,5 +22,5 @@ dependencies {
     compile project(':holoColorPicker')
     compile 'com.android.support:gridlayout-v7:21.0.0'
     compile 'com.android.support:appcompat-v7:21.0.0'
-    compile files('libs/picasso-2.3.2.jar')
+    compile 'com.squareup.picasso:picasso:2.3.4'
 }
