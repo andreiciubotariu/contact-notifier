@@ -268,7 +268,6 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		} else {
 			onRingtoneSelected(contactData.ringtoneUri);
 		}
-
 		return view;
 	}
 
@@ -328,9 +327,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		}else {
 			contactData.vibratePattern = vibrate;
 		}
-
 		listener.onContactDetailsUpdated(contactData);
-
 	}
 
 	@Override

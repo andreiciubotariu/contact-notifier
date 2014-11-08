@@ -160,7 +160,7 @@ public class MainActivity extends ActionBarActivity {
 				break;
 			case 1:
 			default:
-				fragment = new ContactsFragment();
+				fragment = new AllContactsFragment();
 				break;
 			}
 

@@ -1,10 +1,5 @@
 package com.ciubotariu_levy.lednotifier.providers;
 
-import java.util.HashMap;
-
-import com.ciubotariu_levy.lednotifier.ColorVibrateDialog;
-import com.ciubotariu_levy.lednotifier.ContactsFragment;
-
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -20,6 +15,11 @@ import android.net.Uri;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.util.Log;
+
+import com.ciubotariu_levy.lednotifier.AbstractContactsFragment;
+import com.ciubotariu_levy.lednotifier.ColorVibrateDialog;
+
+import java.util.HashMap;
 
 public class LedContactProvider extends ContentProvider {
 
@@ -87,9 +87,9 @@ public class LedContactProvider extends ContentProvider {
 							values.put(LedContacts.RINGTONE_URI, ColorVibrateDialog.GLOBAL);
 
 							String contactId = contactUri.getLastPathSegment();
-							Cursor contactNameCursor = resolver.query(Phone.CONTENT_URI, new String [] {ContactsFragment.CONTACT_NAME, Phone.LOOKUP_KEY, Phone.CONTACT_ID, Phone.NUMBER, Phone.TYPE},Phone.CONTACT_ID + "=?", new String[] {contactId} , null);
+							Cursor contactNameCursor = resolver.query(Phone.CONTENT_URI, new String [] {AbstractContactsFragment.CONTACT_NAME, Phone.LOOKUP_KEY, Phone.CONTACT_ID, Phone.NUMBER, Phone.TYPE},Phone.CONTACT_ID + "=?", new String[] {contactId} , null);
 							if (contactNameCursor != null && contactNameCursor.moveToFirst()){
-								values.put(LedContacts.LAST_KNOWN_NAME, contactNameCursor.getString(contactNameCursor.getColumnIndex(ContactsFragment.CONTACT_NAME)));
+								values.put(LedContacts.LAST_KNOWN_NAME, contactNameCursor.getString(contactNameCursor.getColumnIndex(AbstractContactsFragment.CONTACT_NAME)));
 								values.put(LedContacts.LAST_KNOWN_NUMBER, contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER)));
 							} else {
 								canInsert = false;
