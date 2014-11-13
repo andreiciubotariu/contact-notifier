@@ -49,8 +49,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-       
-        <activity android:name="com.ciubotariu_levy.lednotifier.ColorActivity" />
+
         <activity
             android:name="com.ciubotariu_levy.lednotifier.SettingsActivity"
             android:label="@string/title_activity_settings" >

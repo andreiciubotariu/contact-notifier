@@ -1,13 +1,14 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -24,9 +25,12 @@ import android.preference.RingtonePreference;
 import android.provider.Settings;
 import android.provider.Telephony.Sms;
 import android.support.v4.app.NavUtils;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import java.util.List;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -52,7 +56,15 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
+        setContentView(R.layout.test_pref_layout);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+        toolbar.setTitle("Preferences");
+        toolbar.setTitleTextColor(Color.WHITE);
+        final TypedArray a = getTheme().obtainStyledAttributes(null,
+                new int[]{android.R.attr.homeAsUpIndicator}, android.R.attr.actionBarStyle, 0);
+        final Drawable result = a.getDrawable(0);
+        a.recycle();
+        toolbar.setNavigationIcon(result);
 		setupSimplePreferencesScreen();
 		setupNewApiPhoneSizePreferences();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && getActionBar() != null){
