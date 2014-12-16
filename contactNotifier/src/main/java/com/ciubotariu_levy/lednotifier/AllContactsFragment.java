@@ -30,7 +30,8 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     };
 
     private static final String BARE_QUERY = ContactsContract.Contacts.HAS_PHONE_NUMBER + "=?";
-    private static final String QUERY = BARE_QUERY +" AND (" + CONTACT_NAME + " LIKE ? OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?)";
+    private static final String QUERY = "(" + CONTACT_NAME + " LIKE ? OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?)";
+    private String modQuery = QUERY;
     private static final int LOADER_ID = 0;
 
     private HashMap <String, LedContactInfo> mLedData;
@@ -53,7 +54,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
 
     @Override
     protected String getQuery() {
-        return QUERY;
+        return modQuery;
     }
 
     @Override
@@ -102,7 +103,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
 
     @Override
     protected String[] filteredSelectionArgs(String constraint) {
-        return new String [] {"1", "%"+constraint+"%", "%"+constraint+"%"};
+        return new String [] { "%"+constraint+"%", "%"+constraint+"%"};
     }
 
     @Override
@@ -119,13 +120,15 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     protected String getRowIDColumn() {
         return ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
     }
+
     @Override
     public void onContactDetailsUpdated(LedContactInfo newData) {
         LedContactInfo info = mLedData.get(newData.systemLookupUri);
         if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern)  && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))){
             getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {newData.systemLookupUri});
             if (info != null){
-                mLedData.put(newData.systemLookupUri, null);
+                mLedData.remove(newData.systemLookupUri);
+               // mLedData.put(newData.systemLookupUri, null);
             }
         } else {
             ContentValues values = new ContentValues();
@@ -143,7 +146,27 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
                 Uri uri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id));
                 getActivity().getContentResolver().update(uri, values, null, null);
             }
+
+            StringBuilder addExcludeQuery = new StringBuilder(modQuery);
+            Cursor contactUriCursor = getActivity().getContentResolver().query(Uri.parse(newData.systemLookupUri),new String[]{ContactsContract.Contacts.LOOKUP_KEY},null,null,null);
+            if (contactUriCursor != null && contactUriCursor.moveToFirst()){
+                addExcludeQuery.append(" AND ")
+                        .append(ContactsContract.Contacts.LOOKUP_KEY)
+                        .append(" != \"")
+                        .append(contactUriCursor.getString(contactUriCursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)))
+                        .append("\"");
+            }
+
+            Log.e("TAG",modQuery);
+            modQuery = addExcludeQuery.toString();
+
+            if (contactUriCursor != null) {
+                contactUriCursor.close();
+            }
+
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
             mLedData.put(newData.systemLookupUri, newData);
+
         }
         getCursorAdapter().notifyDataSetChanged();
     }
@@ -177,13 +200,17 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     }
 
     @Override
-    public void onDataFetched(HashMap<String, LedContactInfo> fetchedData) {
+    public void onDataFetched(String excludeQuery, HashMap<String, LedContactInfo> fetchedData) {
         Log.d("AllContacts", "Data Fetched");
         mFetcher = null;
         mLedData = fetchedData;
         //Initializes the loader
         if (getActivity() != null){
-            getLoaderManager().initLoader(LOADER_ID, null, this);
+                modQuery = QUERY + excludeQuery;
+                System.out.println(modQuery);
+                getLoaderManager().initLoader(LOADER_ID, null, this);
         }
+
+
     }
 }

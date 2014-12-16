@@ -104,7 +104,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 		ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 		ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
 		ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
-		ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Custom contact ringtone");
+		ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Contact ringtone");
 	}
 
 	@Override

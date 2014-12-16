@@ -88,7 +88,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
             @Override
             public void onBind(RecyclerView.ViewHolder holder, int pos, Cursor cursor) {
                 System.out.println (holder.getPosition() + " ... "  + pos);
-                   viewBinder.bind(holder, cursor, getActivity());
+                viewBinder.bind(holder, cursor, getActivity());
             }
         };
     }

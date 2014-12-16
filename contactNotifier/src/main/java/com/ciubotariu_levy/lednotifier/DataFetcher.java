@@ -1,24 +1,26 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.HashMap;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+
+import java.util.HashMap;
 
 public class DataFetcher extends
 		AsyncTask<Context, Void, HashMap<String,LedContactInfo>> {
 	
 	public interface OnDataFetchedListener {
-		public void onDataFetched (HashMap <String, LedContactInfo> fetchedData);
+		public void onDataFetched (String excludeQuery, HashMap <String, LedContactInfo> fetchedData);
 	}
 	
 	private Uri mUri;
 	private OnDataFetchedListener mListener;
+    private StringBuilder excludeQuery = new StringBuilder();
 
 	public DataFetcher (OnDataFetchedListener listener, Uri uri){
 		mListener = listener;
@@ -48,6 +50,19 @@ public class DataFetcher extends
 					info.ringtoneUri = null;
 				}
 				map.put (String.valueOf(info.systemLookupUri),info);
+
+                Cursor contactUriCursor = params[0].getContentResolver().query(Uri.parse(info.systemLookupUri),new String[]{ContactsContract.Contacts.LOOKUP_KEY},null,null,null);
+                if (contactUriCursor != null && contactUriCursor.moveToFirst()){
+                    excludeQuery.append(" AND ")
+                            .append(ContactsContract.Contacts.LOOKUP_KEY)
+                            .append(" != \"")
+                            .append(contactUriCursor.getString(contactUriCursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)))
+                            .append("\"");
+                }
+
+                if (contactUriCursor != null) {
+                    contactUriCursor.close();
+                }
 			}
 			while (c.moveToNext());
 			c.close();
@@ -58,7 +73,7 @@ public class DataFetcher extends
 	@Override
 	protected void onPostExecute (HashMap <String, LedContactInfo> map){
 		if (mListener != null){
-			mListener.onDataFetched(map);
+			mListener.onDataFetched(excludeQuery.toString(), map);
 		}
 	}
 
