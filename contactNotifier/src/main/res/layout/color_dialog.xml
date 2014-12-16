@@ -36,7 +36,7 @@
 
         <Button
             android:id="@+id/cancel"
-            style="@style/Widget.AppCompat.ActionButton"
+            android:background="?attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -48,7 +48,7 @@
 
         <Button
             android:id="@+id/submit_color"
-            style="@style/Widget.AppCompat.ActionButton"
+            android:background="?attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

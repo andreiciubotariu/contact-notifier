@@ -50,7 +50,7 @@
 
         <Button
             android:id="@+id/andrei"
-            style="@style/Widget.AppCompat.ActionButton"
+            android:background="?attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:onClick="viewSite"
@@ -70,7 +70,7 @@
 
         <Button
             android:id="@+id/matthew"
-            style="@style/Widget.AppCompat.ActionButton"
+            android:background="?attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:onClick="viewSite"
@@ -90,7 +90,7 @@
 
     <Button
         android:id="@+id/hosted_on"
-        style="@style/Widget.AppCompat.ActionButton"
+        android:background="?attr/selectableItemBackground"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"

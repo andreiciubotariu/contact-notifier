@@ -65,6 +65,7 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		startService (new Intent (this, ObserverService.class));
+//        startActivity(new Intent (this, MainActivity2.class));
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setHomeButtonEnabled(true);

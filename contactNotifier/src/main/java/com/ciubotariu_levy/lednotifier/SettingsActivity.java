@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -52,30 +50,35 @@ public class SettingsActivity extends PreferenceActivity {
 	 */
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Preferences");
+        toolbar.setTitleTextColor(Color.WHITE);
+//        final TypedArray a = getTheme().obtainStyledAttributes(null,
+//                new int[]{android.R.attr.homeAsUpIndicator}, android.R.attr.actionBarStyle, 0);
+//        final Drawable result = a.getDrawable(0);
+//        a.recycle();
+//        toolbar.setNavigationIcon(result);
+    }
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-        setContentView(R.layout.test_pref_layout);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
-        toolbar.setTitle("Preferences");
-        toolbar.setTitleTextColor(Color.WHITE);
-        final TypedArray a = getTheme().obtainStyledAttributes(null,
-                new int[]{android.R.attr.homeAsUpIndicator}, android.R.attr.actionBarStyle, 0);
-        final Drawable result = a.getDrawable(0);
-        a.recycle();
-        toolbar.setNavigationIcon(result);
+
 		setupSimplePreferencesScreen();
 		setupNewApiPhoneSizePreferences();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && getActionBar() != null){
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && getActionBar() != null){
+//			getActionBar().setDisplayHomeAsUpEnabled(true);
+//		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupNewApiPhoneSizePreferences() {
 		if (!isXLargeTablet(this) && Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB){
-			getFragmentManager().beginTransaction().replace(android.R.id.content, new AllPreferencesFragment()).commit();
+			getFragmentManager().beginTransaction().replace(R.id.content, new AllPreferencesFragment()).commit();
 		}
 	}
 

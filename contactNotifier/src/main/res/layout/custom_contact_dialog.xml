@@ -1,7 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:colorpicker="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@android:color/white"
     android:fillViewport="true"
     android:paddingBottom="5dp"
@@ -86,11 +86,11 @@
 
             <Button
                 android:id="@+id/choose_ringtone"
-                style="@style/Widget.AppCompat.ActionButton"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/ringtone_checkbox"
+                android:background="?attr/selectableItemBackground"
                 android:text="Choose ringtone"
                 android:textSize="17sp"
                 android:visibility="gone" />
@@ -126,7 +126,7 @@
 
             <Button
                 android:id="@+id/test_vibrate"
-                style="@style/Widget.AppCompat.ActionButton"
+                android:background="?attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_centerVertical="true"
@@ -141,7 +141,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/vibrate"
-            android:text="Off/on in milliseconds: off, on, off, on, etc"
+            android:text="Off, on, off, on, etc (milliseconds)"
             android:textColor="@android:color/black"
             android:visibility="gone" />
 
@@ -156,7 +156,7 @@
 
              <Button
                 android:id="@+id/insert_comma"
-                style="@style/Widget.AppCompat.ActionButton"
+                android:background="?attr/selectableItemBackground"
                 android:layout_width="wrap_content"
                 android:layout_alignParentRight = "true"
                 android:layout_height="50dp"
@@ -186,10 +186,10 @@
 
             <Button
                 android:id="@+id/cancel"
-                style="@style/Widget.AppCompat.ActionButton"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_weight="1"
+                android:background="?attr/selectableItemBackground"
                 android:text="Cancel" />
 
             <View
@@ -198,7 +198,7 @@
 
             <Button
                 android:id="@+id/submit_color"
-                style="@style/Widget.AppCompat.ActionButton"
+                android:background="?attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_weight="1"
