@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ListView;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
@@ -59,8 +58,8 @@ public class CustomContactsFragment extends AbstractContactsFragment {
     }
 
     @Override
-    protected AbstractViewBinder getViewBinder(Transformation transformation) {
-        return new AbstractViewBinder(getActivity(), transformation) {
+    protected AbstractRecyclerViewBinder getViewBinder(Transformation transformation) {
+        return new AbstractRecyclerViewBinder(transformation, this) {
             @Override
             protected Uri getContactUri(Cursor cursor) {
                 return Uri.parse(cursor.getString(cursor.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI)));
@@ -109,6 +108,33 @@ public class CustomContactsFragment extends AbstractContactsFragment {
     }
 
     @Override
+    protected String getRowIDColumn() {
+        return LedContacts._ID;
+    }
+
+    @Override
+    public void onContactSelected(int position, long id) {
+        LedContactInfo data = new LedContactInfo();
+        data.id = id;
+        if (!getCursorAdapter().moveToPos(position)) {
+            return;
+        }
+        Cursor c = getCursorAdapter().getCursor();
+        data.lastKnownName = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
+        data.lastKnownNumber = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER));
+        data.systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
+        data.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+        data.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+        data.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));       if (TextUtils.isEmpty(data.ringtoneUri)) {
+            data.ringtoneUri = ColorVibrateDialog.GLOBAL;
+        }
+        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null) {
+            ColorVibrateDialog.getInstance(data)
+                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
+        }
+    }
+
+    @Override
     public void onContactDetailsUpdated(LedContactInfo newData) {
         if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern) && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))) {
             getActivity().getContentResolver().delete(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), null, null);
@@ -119,26 +145,6 @@ public class CustomContactsFragment extends AbstractContactsFragment {
             values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
             values.put(LedContacts.RINGTONE_URI, newData.ringtoneUri);
             getActivity().getContentResolver().update(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), values, null, null);
-        }
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View item, int position, long rowID) {
-        LedContactInfo data = new LedContactInfo();
-        data.id = rowID;
-        Cursor c = getCursorAdapter().getCursor();
-        data.lastKnownName = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
-        data.lastKnownNumber = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER));
-        data.systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
-        data.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
-        data.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
-        data.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
-        if (TextUtils.isEmpty(data.ringtoneUri)) {
-            data.ringtoneUri = ColorVibrateDialog.GLOBAL;
-        }
-        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null) {
-            ColorVibrateDialog.getInstance(data)
-                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
         }
     }
 

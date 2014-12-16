@@ -7,8 +7,6 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.widget.ListView;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
@@ -19,19 +17,19 @@ import java.util.HashMap;
 public class AllContactsFragment extends AbstractContactsFragment implements DataFetcher.OnDataFetchedListener {
 
     private static final String[] FROM_COLUMNS = {
-            CONTACT_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.Contacts._ID, ContactsContract.Contacts._ID, ContactsContract.Contacts.LOOKUP_KEY, ContactsContract.Contacts._ID
+            CONTACT_NAME, /*ContactsContract.CommonDataKinds.Phone.NUMBER,*/ ContactsContract.Contacts._ID, ContactsContract.Contacts._ID, ContactsContract.Contacts.LOOKUP_KEY, ContactsContract.Contacts._ID
     };
 
     private static final String[] PROJECTION = {
-            ContactsContract.Contacts._ID,
+           /* ContactsContract.Contacts._ID,*/
             ContactsContract.Contacts.LOOKUP_KEY,
             CONTACT_NAME,
-            ContactsContract.CommonDataKinds.Phone.NUMBER,
-            ContactsContract.CommonDataKinds.Phone.TYPE,
+            //ContactsContract.CommonDataKinds.Phone.NUMBER,
+            //ContactsContract.CommonDataKinds.Phone.TYPE,
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID
     };
 
-    private static final String BARE_QUERY = ContactsContract.CommonDataKinds.Phone.TYPE + "=?";
+    private static final String BARE_QUERY = ContactsContract.Contacts.HAS_PHONE_NUMBER + "=?";
     private static final String QUERY = BARE_QUERY +" AND (" + CONTACT_NAME + " LIKE ? OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?)";
     private static final int LOADER_ID = 0;
 
@@ -64,8 +62,8 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     }
 
     @Override
-    protected AbstractViewBinder getViewBinder(final Transformation transformation) {
-        return new AbstractViewBinder(getActivity(), transformation) {
+    protected AbstractRecyclerViewBinder getViewBinder(final Transformation transformation) {
+        return new AbstractRecyclerViewBinder(transformation, this) {
             @Override
             protected Uri getContactUri(Cursor cursor) {
                 return ContactsContract.Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)), cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
@@ -104,7 +102,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
 
     @Override
     protected String[] filteredSelectionArgs(String constraint) {
-        return new String [] {String.valueOf(ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE), "%"+constraint+"%", "%"+constraint+"%"};
+        return new String [] {"1", "%"+constraint+"%", "%"+constraint+"%"};
     }
 
     @Override
@@ -117,6 +115,10 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
         return CONTACT_NAME;
     }
 
+    @Override
+    protected String getRowIDColumn() {
+        return ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
+    }
     @Override
     public void onContactDetailsUpdated(LedContactInfo newData) {
         LedContactInfo info = mLedData.get(newData.systemLookupUri);
@@ -147,10 +149,14 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     }
 
     @Override
-    public void onListItemClick(ListView l, View item, int position, long rowID) {
+    public void onContactSelected(int position, long id) {
         LedContactInfo data = null;
+        if (!getCursorAdapter().moveToPos(position)) {
+            return;
+        }
         Cursor c = getCursorAdapter().getCursor();
         long contactID = c.getLong(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+        //Log.i("CONTACT_INFO", position + " " + contactID + " " + c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
         String lookupValue = ContactsContract.Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY))).toString();
         if (mLedData.get(lookupValue) != null){
             data = new LedContactInfo (mLedData.get(lookupValue));
@@ -162,7 +168,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             data.ringtoneUri = ColorVibrateDialog.GLOBAL;
         }
         data.lastKnownName = c.getString(c.getColumnIndex(CONTACT_NAME));
-        data.lastKnownNumber = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        //data.lastKnownNumber = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
         if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
             ColorVibrateDialog.getInstance(data)
