@@ -10,7 +10,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
@@ -169,8 +168,6 @@ public class CustomContactsFragment extends AbstractContactsFragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),"..." + getActivity().getSupportFragmentManager()
-                             .getFragments().size(),Toast.LENGTH_SHORT).show();
                 getActivity().getSupportFragmentManager().beginTransaction()
                              .replace(R.id.content_frame, new AllContactsFragment(), "add_contacts")
                              .addToBackStack("add_contacts").commit();

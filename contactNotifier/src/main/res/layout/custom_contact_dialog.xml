@@ -192,10 +192,6 @@
                 android:background="?attr/selectableItemBackground"
                 android:text="Cancel" />
 
-            <View
-                style="@style/Divider_Vertical"
-                android:layout_height="match_parent" />
-
             <Button
                 android:id="@+id/submit_color"
                 android:background="?attr/selectableItemBackground"

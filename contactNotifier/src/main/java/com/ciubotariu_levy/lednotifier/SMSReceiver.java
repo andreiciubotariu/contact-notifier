@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -132,6 +133,10 @@ public class SMSReceiver extends BroadcastReceiver {
 			.setLights(color, 1000, 1000) //flash
 			.setAutoCancel(true);
 
+            if (sender [0] != null) {
+                notifBuilder.setLargeIcon(BitmapFactory.decodeStream(Contacts.openContactPhotoInputStream(context.getContentResolver(),Uri.parse(sender[0]),false)));
+                notifBuilder.addPerson(sender[0]);
+            }
 			if (preferences.getBoolean("status_bar_preview", false)){
 				notifBuilder.setTicker(sender[1]+": " + message);
 			} else {
