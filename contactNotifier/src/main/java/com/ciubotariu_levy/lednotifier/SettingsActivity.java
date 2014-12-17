@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -26,6 +28,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.List;
@@ -57,11 +60,15 @@ public class SettingsActivity extends PreferenceActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Preferences");
         toolbar.setTitleTextColor(Color.WHITE);
-//        final TypedArray a = getTheme().obtainStyledAttributes(null,
-//                new int[]{android.R.attr.homeAsUpIndicator}, android.R.attr.actionBarStyle, 0);
-//        final Drawable result = a.getDrawable(0);
-//        a.recycle();
-//        toolbar.setNavigationIcon(result);
+        final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        upArrow.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
+        toolbar.setNavigationIcon(upArrow);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override

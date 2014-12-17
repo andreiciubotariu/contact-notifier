@@ -121,22 +121,22 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.custom_contacts_frag2, container, false);
+        return inflater.inflate(R.layout.frag_contact_list_default, container, false);
     }
 
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
-        RecyclerView mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
 
-        mRecyclerView.setAdapter(mCursorAdapter);
+        recyclerView.setAdapter(mCursorAdapter);
 
         listSetupComplete();
     }

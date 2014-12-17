@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="drawer_gray">#646464</color>
+    <color name="gray">#2d000000</color>
+    <color name="primary">#CC0000</color>
+    <color name="primaryDark">#990000</color>
+    <color name="accent">#ffaf0000</color>
+    <color name="ripple">@color/primaryDark</color>
+
 </resources>
