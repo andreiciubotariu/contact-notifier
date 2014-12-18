@@ -8,6 +8,8 @@
     android:orientation="vertical" >
 
     <com.larswerkman.holocolorpicker.EndColorPicker
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:id="@+id/colorbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +40,7 @@
             android:id="@+id/cancel"
             android:background="?attr/selectableItemBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:text="Cancel" />
 
@@ -50,7 +52,7 @@
             android:id="@+id/submit_color"
             android:background="?attr/selectableItemBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:text="Confirm" />
     </LinearLayout>

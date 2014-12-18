@@ -5,6 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AbstractContactsFragment">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/contact_list"
         android:scrollbars="vertical"
@@ -20,6 +25,15 @@
         android:src="@drawable/ic_action_content_add"
         fab:fab_colorNormal="@color/primary"
         fab:fab_colorPressed="@color/accent"
-        fab:fab_colorRipple="@color/ripple"
-       />
+        fab:fab_colorRipple="@color/ripple" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id = "@+id/empty_text"
+        android:text="NO CUSTOM CONTACTS"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:visibility="gone"/>
 </FrameLayout>

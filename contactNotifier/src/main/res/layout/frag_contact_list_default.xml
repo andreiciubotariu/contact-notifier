@@ -4,9 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AbstractContactsFragment">
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/contact_list"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id = "@+id/empty_text"
+        android:text="NO CONTACTS FOUND"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:visibility="gone"/>
 </FrameLayout>

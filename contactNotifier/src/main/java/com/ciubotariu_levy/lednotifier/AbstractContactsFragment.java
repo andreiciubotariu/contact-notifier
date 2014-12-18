@@ -176,6 +176,18 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mCursorAdapter.changeCursor(cursor, getRowIDColumn());
+        View emptyText = getView().findViewById(R.id.empty_text);
+        View list = getView().findViewById(R.id.contact_list);
+        if (emptyText != null && list != null) {
+            if (mCursorAdapter.getItemCount() <= 0) {
+                 emptyText.setVisibility(View.VISIBLE);
+                 list.setVisibility(View.GONE);
+            } else {
+                 emptyText.setVisibility(View.GONE);
+                 list.setVisibility(View.VISIBLE);
+            }
+        }
+
 //        getListView().setFastScrollEnabled(true);
 //        setEmptyText("Add custom contacts. Choose \'All Mobile\'");
     }

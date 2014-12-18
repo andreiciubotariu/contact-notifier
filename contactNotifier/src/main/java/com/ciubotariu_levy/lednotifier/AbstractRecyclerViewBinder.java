@@ -72,11 +72,12 @@ public abstract class AbstractRecyclerViewBinder {
         }
 
         Picasso.with(context)
-                .load(contactUri)
-                .placeholder(R.drawable.contact_picture_placeholder)
-                .fit()
-                .transform(mTransformation)
-                .into(viewHolder.mPic);
+               .load(contactUri)
+               .placeholder(R.drawable.contact_picture_placeholder)
+               .fit()
+               .transform(mTransformation)
+               .into(viewHolder.mPic);
+
         int color = getColor(cursor, contactUri.toString());
         viewHolder.mColor.setColor(color);
         String ringtoneUri = getRingtoneUri (cursor, contactUri.toString());

@@ -97,7 +97,7 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
      * If the given new Cursor is the same instance is the previously set
      * Cursor, null is also returned.
      */
-    private Cursor swapCursor (Cursor newCursor,String rowIdColumnName){
+    private Cursor swapCursor (Cursor newCursor, String rowIdColumnName) {
         if (newCursor == mCursor) {
             return null;
         }
@@ -110,7 +110,6 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
             if (mDataSetObserver != null) newCursor.registerDataSetObserver (mDataSetObserver);
             mRowIDColumn = newCursor.getColumnIndexOrThrow (rowIdColumnName);
             mDataValid = true;
-
             notifyDataSetChanged();
         }
         else {

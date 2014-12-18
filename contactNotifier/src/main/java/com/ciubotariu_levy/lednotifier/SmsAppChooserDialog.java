@@ -1,7 +1,5 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -19,6 +17,8 @@ import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 
 import com.ciubotariu_levy.lednotifier.SMSAppAdapter.IconPackagePair;
+
+import java.util.List;
 
 public class SmsAppChooserDialog extends DialogFragment {
 	public static final String KEY_SMS_APP_PACKAGE = "sms_app_package";
@@ -40,8 +40,9 @@ public class SmsAppChooserDialog extends DialogFragment {
 			userList [x] = pair;
 		}
 
+
 		Context context = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ? 
-				new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Light_DarkActionBar):
+				new ContextThemeWrapper(getActivity(), R.style.Theme_ContactNotifierBase):
 					getActivity();
 
 				SMSAppAdapter adapter = new SMSAppAdapter(getActivity(), userList);

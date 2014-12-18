@@ -36,10 +36,10 @@ public class NotificationUtils {
 			PendingIntent p = PendingIntent.getBroadcast(context, RECEIVER_REQUEST_CODE, i, PendingIntent.FLAG_UPDATE_CURRENT);
 			AlarmManager a = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
-				a.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+DELAY_TIME, p);
+				a.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY_TIME, p);
 			}
 			else {
-				a.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+DELAY_TIME, p);
+				a.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY_TIME, p);
 			}
 		}
 		notify (context,notif);

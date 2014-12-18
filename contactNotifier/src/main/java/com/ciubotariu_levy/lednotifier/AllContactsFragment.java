@@ -132,7 +132,6 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             }
         } else {
             ContentValues values = new ContentValues();
-            values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newData.systemLookupUri);
             values.put(LedContacts.LAST_KNOWN_NAME, newData.lastKnownName);
             values.put(LedContacts.LAST_KNOWN_NUMBER, newData.lastKnownNumber);
             values.put(LedContacts.COLOR, newData.color);
@@ -140,6 +139,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             values.put(LedContacts.RINGTONE_URI, newData.ringtoneUri);
 
             if (newData.id == -1){
+                values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newData.systemLookupUri);
                 Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
                 newData.id = Long.parseLong (uri.getLastPathSegment());
             } else {

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,6 +20,8 @@ import com.squareup.picasso.Transformation;
 
 public class CustomContactsFragment extends AbstractContactsFragment {
 
+    public static final String SELECT_CONTACTS_TAG = "select_contacts";
+    public static final String SELECT_CONTACTS_TRANSACTION = "transaction_select_contacts";
     private static final String[] FROM_COLUMNS = {
             LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER, LedContacts.RINGTONE_URI, LedContacts.VIBRATE_PATTERN, LedContacts.COLOR, LedContacts.SYSTEM_CONTACT_LOOKUP_URI
     };
@@ -153,7 +156,12 @@ public class CustomContactsFragment extends AbstractContactsFragment {
             values.put(LedContacts.COLOR, newData.color);
             values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
             values.put(LedContacts.RINGTONE_URI, newData.ringtoneUri);
-            getActivity().getContentResolver().update(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), values, null, null);
+            getActivity().getContentResolver()
+                    .update(Uri.withAppendedPath(LedContacts.CONTENT_URI,
+                                    String.valueOf(newData.id)),
+                            values,
+                            null,
+                            null);
         }
     }
 
@@ -169,8 +177,9 @@ public class CustomContactsFragment extends AbstractContactsFragment {
             @Override
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                             .replace(R.id.content_frame, new AllContactsFragment(), "add_contacts")
-                             .addToBackStack("add_contacts").commit();
+                             .replace(R.id.content_frame, new AllContactsFragment(), SELECT_CONTACTS_TAG)
+                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                             .addToBackStack(SELECT_CONTACTS_TRANSACTION).commit();
             }
         });
     }

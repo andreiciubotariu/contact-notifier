@@ -48,7 +48,9 @@ public class LedContactProvider extends ContentProvider {
 		public void onCreate (SQLiteDatabase db){
 			String CREATE_PROFILES_TABLE = "CREATE TABLE " + LEDCONTACTS_TABLE_NAME + "(" +
 					LedContacts._ID + " INTEGER PRIMARY KEY," +
-					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"+ LedContacts.LAST_KNOWN_NAME + " TEXT," + LedContacts.LAST_KNOWN_NUMBER + " TEXT, "
+					LedContacts.SYSTEM_CONTACT_LOOKUP_URI +" TEXT UNIQUE,"
+                    + LedContacts.LAST_KNOWN_NAME + " TEXT,"
+                    + LedContacts.LAST_KNOWN_NUMBER + " TEXT, "
 					+ LedContacts.COLOR + " INTEGER, "
 					+ LedContacts.VIBRATE_PATTERN + " TEXT," 
 					+ LedContacts.RINGTONE_URI + " TEXT" + 
@@ -212,11 +214,11 @@ public class LedContactProvider extends ContentProvider {
 		int count;
 		switch (sUriMatcher.match(uri)) {
 		case LEDCONTACTS:
-			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, whereArgs);
+			count = db.updateWithOnConflict(LEDCONTACTS_TABLE_NAME, values, where, whereArgs, SQLiteDatabase.CONFLICT_REPLACE);
 			break;
 		case LEDCONTACTS_ID:
-			where = LedContacts._ID + " = " + uri.getLastPathSegment(); //TODO see if using whereArgs throws odd error like last time. Probably was an implementation issue
-			count = db.update(LEDCONTACTS_TABLE_NAME, values, where, null);
+			where = LedContacts._ID + " = " + uri.getLastPathSegment();
+			count = db.updateWithOnConflict(LEDCONTACTS_TABLE_NAME, values, where, null, SQLiteDatabase.CONFLICT_REPLACE);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

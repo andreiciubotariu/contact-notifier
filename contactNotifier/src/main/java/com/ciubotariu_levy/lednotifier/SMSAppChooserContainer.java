@@ -8,6 +8,7 @@ public class SMSAppChooserContainer extends FragmentActivity {
 	@Override
 	protected void onCreate (Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+
 		if (getSupportFragmentManager().findFragmentByTag(SMS_DIALOG_TAG) == null){
 			new SmsAppChooserDialog().show(getSupportFragmentManager(), SMS_DIALOG_TAG);
 		}
