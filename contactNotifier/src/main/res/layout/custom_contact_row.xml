@@ -15,7 +15,7 @@
 
     <include
         android:id="@+id/contact_img_container"
-        layout="@layout/contact_image_container" />
+        layout="@layout/custom_contact_image_container" />
 
     <RelativeLayout
         android:id="@+id/custom_ring_vib_container"

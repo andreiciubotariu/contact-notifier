@@ -23,7 +23,7 @@ import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Transformation;
 
-public abstract class AbstractContactsFragment extends Fragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, LoaderManager.LoaderCallbacks<Cursor>, AbstractRecyclerViewBinder.ContactClickListener{
+public abstract class AbstractContactsFragment extends Fragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, LoaderManager.LoaderCallbacks<Cursor>, AbstractContactViewBinder.ContactClickListener{
     //copied ListFragment Constants due to access issue.
     private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
     private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
@@ -70,7 +70,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
                 .cornerRadiusDp(30)
                 .oval(false)
                 .build();
-        final AbstractRecyclerViewBinder viewBinder = getViewBinder(transformation);
+        final AbstractContactViewBinder viewBinder = getViewBinder(transformation);
 
         mCursorAdapter = new RecyclerCursorAdapter(null,"_id") {
 
@@ -79,15 +79,14 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
                 // create a new view
                 View v = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.contact_row, parent, false);
-                // set the view's size, margins, paddings and layout parameters
-                AbstractRecyclerViewBinder.ContactHolder vh = new AbstractRecyclerViewBinder.ContactHolder(v);
+                        .inflate(getRowResID(), parent, false);
+
+                AbstractContactViewBinder.ContactHolder vh = new AbstractContactViewBinder.ContactHolder(v,viewBinder.hasColorView());
                 return vh;
             }
 
             @Override
             public void onBind(RecyclerView.ViewHolder holder, int pos, Cursor cursor) {
-                System.out.println (holder.getPosition() + " ... "  + pos);
                 viewBinder.bind(holder, cursor, getActivity());
             }
         };
@@ -216,12 +215,13 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
                 getSortColumn() + " ASC");
     }
 
-    protected abstract AbstractRecyclerViewBinder getViewBinder(Transformation transformation);
+    protected abstract AbstractContactViewBinder getViewBinder(Transformation transformation);
     protected abstract void listSetupComplete();
     protected abstract String[] filteredSelectionArgs(String constraint);
     protected abstract Uri getContentUri();
     protected abstract String getSortColumn();
     protected abstract String getRowIDColumn();
+    protected abstract int getRowResID();
 
     @Override
     public abstract void onContactSelected(int position, long id);

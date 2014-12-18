@@ -63,8 +63,13 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     }
 
     @Override
-    protected AbstractRecyclerViewBinder getViewBinder(final Transformation transformation) {
-        return new AbstractRecyclerViewBinder(transformation, this) {
+    protected AbstractContactViewBinder getViewBinder(final Transformation transformation) {
+        return new AbstractContactViewBinder(transformation, this) {
+            @Override
+            protected boolean hasColorView() {
+                return false;
+            }
+
             @Override
             protected Uri getContactUri(Cursor cursor) {
                 return ContactsContract.Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)), cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
@@ -119,6 +124,11 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     @Override
     protected String getRowIDColumn() {
         return ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
+    }
+
+    @Override
+    protected int getRowResID() {
+        return R.layout.contact_row;
     }
 
     @Override

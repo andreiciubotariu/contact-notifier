@@ -1,6 +1,5 @@
 package com.ciubotariu_levy.lednotifier;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
@@ -11,16 +10,11 @@ import android.support.v7.widget.RecyclerView;
 public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean mDataValid;
 
-    private boolean mAutoRequery;
-
     private Cursor mCursor;
-
-    private Context mContext;
 
     private int mRowIDColumn;
 
     private static final String TAG = RecyclerCursorAdapter.class.getName();
-//    private ChangeObserver mChangeObserver;
 
     private DataSetObserver mDataSetObserver;
 
@@ -40,10 +34,11 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
         mDataSetObserver = new MyDataSetObserver();
         mDataSetObserver = null;
         if (cursorPresent) {
-            if (mDataSetObserver != null) c.registerDataSetObserver(mDataSetObserver);
+            if (mDataSetObserver != null) {
+                c.registerDataSetObserver(mDataSetObserver);
+            }
         }
     }
-
 
     @Override
     public long getItemId (int pos) {
@@ -61,7 +56,6 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
         }
         return false;
     }
-
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int pos) {
@@ -87,16 +81,7 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
     public Cursor getCursor() {
         return mCursor;
     }
-    /**
-     * Swap in a new Cursor, returning the old Cursor.  Unlike
-     * {@link #changeCursor(Cursor)}, the returned old Cursor is <em>not</em>
-     * closed.
-     *
-     * @param newCursor The new cursor to be used.
-     * @return Returns the previously set Cursor, or null if there wasa not one.
-     * If the given new Cursor is the same instance is the previously set
-     * Cursor, null is also returned.
-     */
+
     private Cursor swapCursor (Cursor newCursor, String rowIdColumnName) {
         if (newCursor == mCursor) {
             return null;
@@ -135,7 +120,6 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
         public void onInvalidated() {
             mDataValid = false;
             notifyDataSetChanged();
-            //notifyDataSetInvalidated();
         }
     }
 }

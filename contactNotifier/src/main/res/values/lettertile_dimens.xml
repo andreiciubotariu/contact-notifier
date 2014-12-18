@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="letter_to_tile_ratio" type="dimen">67%</item>
+</resources>

@@ -11,7 +11,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,7 +33,6 @@ import android.util.Log;
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -223,14 +221,6 @@ public class SMSReceiver extends BroadcastReceiver {
         }
     }
 
-    /**
-     * Load a contact photo thumbnail and return it as a Bitmap,
-     * resizing the image to the provided image dimensions as needed.
-     * @param photoData photo ID Prior to Honeycomb, the contact's _ID value.
-     * For Honeycomb and later, the value of PHOTO_THUMBNAIL_URI.
-     * @return A thumbnail Bitmap, sized to the provided width and height.
-     * Returns null if the thumbnail is not found.
-     */
     private Bitmap loadContactPhotoThumbnail(Context context, String contactUri) {
 
         Cursor mCursor = context.getContentResolver().query((Uri.parse(contactUri)),new String[]{Contacts._ID,

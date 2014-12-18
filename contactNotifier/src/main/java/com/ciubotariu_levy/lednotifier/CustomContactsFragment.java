@@ -65,8 +65,13 @@ public class CustomContactsFragment extends AbstractContactsFragment {
     }
 
     @Override
-    protected AbstractRecyclerViewBinder getViewBinder(Transformation transformation) {
-        return new AbstractRecyclerViewBinder(transformation, this) {
+    protected AbstractContactViewBinder getViewBinder(Transformation transformation) {
+        return new AbstractContactViewBinder(transformation, this) {
+            @Override
+            protected boolean hasColorView() {
+                return true;
+            }
+
             @Override
             protected Uri getContactUri(Cursor cursor) {
                 return Uri.parse(cursor.getString(cursor.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI)));
@@ -122,6 +127,11 @@ public class CustomContactsFragment extends AbstractContactsFragment {
     @Override
     protected String getRowIDColumn() {
         return LedContacts._ID;
+    }
+
+    @Override
+    protected int getRowResID() {
+        return R.layout.custom_contact_row;
     }
 
     @Override

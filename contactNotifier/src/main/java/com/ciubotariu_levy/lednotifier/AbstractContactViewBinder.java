@@ -11,12 +11,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.contacts.common.lettertiles.SimpleLetterTileDrawable;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-public abstract class AbstractRecyclerViewBinder {
-    private Transformation mTransformation;
-    private ContactClickListener mListener;
+public abstract class AbstractContactViewBinder {
+
+    protected abstract boolean hasColorView();
     protected abstract Uri getContactUri (Cursor cursor);
     protected abstract String getName(Cursor cursor);
     protected abstract int getColor (Cursor cursor, String contactUri);
@@ -27,24 +28,27 @@ public abstract class AbstractRecyclerViewBinder {
         public void onContactSelected (int pos, long id);
     }
     public static class ContactHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
         public TextView mName;
         public ImageView mPic;
         public View mRowContainer,mVib, mRingtone,mContainer;
         public BorderedCircularColorView mColor;
-        public ContactHolder(View v) {
+        public ContactHolder(View v, boolean hasColor) {
             super(v);
             mRowContainer = v.findViewById(R.id.contact_row_container);
             mName = (TextView) v.findViewById(R.id.contact_name);
             mPic = (ImageView)v.findViewById(R.id.contact_image);
-            mColor = (BorderedCircularColorView)v.findViewById(R.id.contact_display_color);
+            if (hasColor) {
+                mColor = (BorderedCircularColorView) v.findViewById(R.id.contact_display_color);
+            }
             mContainer = v.findViewById(R.id.custom_ring_vib_container);
             mRingtone = v.findViewById(R.id.contact_ringtone);
             mVib = v.findViewById(R.id.contact_vibrate);
         }
     }
 
-    public AbstractRecyclerViewBinder(Transformation t, ContactClickListener listener) {
+    private Transformation mTransformation;
+    private ContactClickListener mListener;
+    public AbstractContactViewBinder(Transformation t, ContactClickListener listener) {
         mTransformation = t;
         mListener = listener;
     }
@@ -71,15 +75,22 @@ public abstract class AbstractRecyclerViewBinder {
             viewHolder.mName.setText(str);
         }
 
+        SimpleLetterTileDrawable letterTileDrawable = new SimpleLetterTileDrawable(context.getResources());
+        letterTileDrawable.setIsCircular(true);
+        letterTileDrawable.setContactDetails(name, contactUri.toString());
+
         Picasso.with(context)
                .load(contactUri)
-               .placeholder(R.drawable.contact_picture_placeholder)
+               .placeholder(letterTileDrawable)
                .fit()
                .transform(mTransformation)
                .into(viewHolder.mPic);
 
-        int color = getColor(cursor, contactUri.toString());
-        viewHolder.mColor.setColor(color);
+        if (hasColorView()) {
+            int color = getColor(cursor, contactUri.toString());
+            viewHolder.mColor.setColor(color);
+        }
+
         String ringtoneUri = getRingtoneUri (cursor, contactUri.toString());
         if (!TextUtils.isEmpty(ringtoneUri) && !ColorVibrateDialog.GLOBAL.equals(ringtoneUri)){
             viewHolder.mRingtone.setVisibility(View.VISIBLE);

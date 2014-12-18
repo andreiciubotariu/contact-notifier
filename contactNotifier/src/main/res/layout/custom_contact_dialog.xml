@@ -24,7 +24,7 @@
 
             <include
                 android:id="@+id/contact_img_container"
-                layout="@layout/contact_image_container" />
+                layout="@layout/custom_contact_image_container" />
 
             <TextView
                 android:id="@+id/contact_name"

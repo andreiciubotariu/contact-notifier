@@ -1,8 +1,5 @@
 package com.ciubotariu_levy.lednotifier;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Service;
@@ -17,12 +14,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Telephony.Sms;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @TargetApi(19)
 public class ObserverService extends Service {
@@ -42,10 +40,9 @@ public class ObserverService extends Service {
 
 	private static final String [] CONTACT_PROJ = new String [] {
 		CONTACT_NAME, 
-		Phone.LOOKUP_KEY,
-		Phone.CONTACT_ID, 
-		Phone.NUMBER, 
-		Phone.TYPE};
+		Contacts.LOOKUP_KEY,
+		Contacts.HAS_PHONE_NUMBER,
+    };
 
 	private static final String [] LED_CONTACTS_PROJ = new String [] {
 		LedContacts._ID, 
@@ -103,7 +100,7 @@ public class ObserverService extends Service {
 	@Override
 	public void onCreate(){
 		super.onCreate();
-		getContentResolver().registerContentObserver(CommonDataKinds.Phone.CONTENT_URI, true, mContactContentObserver);
+		getContentResolver().registerContentObserver(Contacts.CONTENT_URI, true, mContactContentObserver);
 		try{
 			mUnread = getUnreadSms();
 			mUnseen = getUnseenSms();
@@ -166,7 +163,7 @@ public class ObserverService extends Service {
 
 					Uri lookupUri = Uri.parse(systemLookupUri);
 					Uri newLookupUri = ContactsContract.Contacts.getLookupUri(resolver, lookupUri);
-					if (newLookupUri== null){
+					if (newLookupUri == null){
 						toDelete.add(String.valueOf(id));
 					} else {
 						ContentValues values = new ContentValues();
@@ -177,8 +174,7 @@ public class ObserverService extends Service {
 							needsUpdating = true;
 						} 
 
-						String contactId = newLookupUri.getLastPathSegment();
-						Cursor contactNameCursor = getContentResolver().query(Phone.CONTENT_URI, CONTACT_PROJ,Phone.CONTACT_ID + "=?", new String[] {contactId} , null);
+						Cursor contactNameCursor = getContentResolver().query(newLookupUri, CONTACT_PROJ,null,null , null);
 						if (contactNameCursor != null && contactNameCursor.moveToFirst()){
 							String name = contactNameCursor.getString(contactNameCursor.getColumnIndex(CONTACT_NAME));
 							if (!name.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NAME)))){
@@ -186,16 +182,20 @@ public class ObserverService extends Service {
 								needsUpdating = true;
 							}
 
-							String phoneNumber = contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER));
-							if (!phoneNumber.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER)))){
-								values.put(LedContacts.LAST_KNOWN_NUMBER, phoneNumber);
-								needsUpdating = true;
-							}
+//							String phoneNumber = contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER));
+//							if (!phoneNumber.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER)))){
+//								values.put(LedContacts.LAST_KNOWN_NUMBER, phoneNumber);
+//								needsUpdating = true;
+//							}
+                            if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER)) == 0) {
+                                needsUpdating = false;
+                                toDelete.add(String.valueOf(id));
+                            }
 
-							if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Phone.TYPE)) != Phone.TYPE_MOBILE){
-								needsUpdating = false;
-								toDelete.add(String.valueOf(id));
-							}
+//							if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Phone.TYPE)) != Phone.TYPE_MOBILE){
+//								needsUpdating = false;
+//								toDelete.add(String.valueOf(id));
+//							}
 						}
 						if (contactNameCursor != null){
 							contactNameCursor.close();
