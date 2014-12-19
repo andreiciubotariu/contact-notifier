@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -52,6 +53,9 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
     private static final String KEY_CONSTRAINT = "KEY_FILTER";
     private RecyclerCursorAdapter mCursorAdapter;
+    private static final String LIST_STATE = "list_state";
+    private Parcelable mListState;
+    private RecyclerView.LayoutManager layoutManager;
 
     private Bundle mLoaderArgs = new Bundle();
 
@@ -95,27 +99,9 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        // Gets a CursorAdapter
-//        mCursorAdapter = new SectionedCursorAdapter(
-//                getActivity(),
-//                R.layout.contact_row,
-//                null,
-//                getFromColumns(),
-//                TO_IDS,
-//                0, CONTACT_NAME);
-//        mCursorAdapter.setViewBinder(getViewBinder(transformation));
-
-        //setListAdapter(mCursorAdapter);
-
-        //change space between list items
-//        ListView listView = getListView();
-//        listView.setItemsCanFocus(true);
-//        int dividerSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
-//        listView.setDividerHeight(dividerSize);
-//        listView.setCacheColorHint(Color.TRANSPARENT);
-
-
+        if (savedInstanceState != null) {
+            mListState = savedInstanceState.getParcelable(LIST_STATE);
+        }
     }
 
     @Override
@@ -147,6 +133,17 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
         if (child != null){
             child.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState (Bundle outState) {
+        if (layoutManager != null) {
+            mListState = layoutManager.onSaveInstanceState();
+        }
+        if (mListState != null) {
+            outState.putParcelable(LIST_STATE, mListState);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -187,8 +184,13 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
             }
         }
 
-//        getListView().setFastScrollEnabled(true);
-//        setEmptyText("Add custom contacts. Choose \'All Mobile\'");
+        RecyclerView r = (RecyclerView) getView().findViewById(R.id.contact_list);
+        layoutManager = r.getLayoutManager();
+        if (mListState != null) {
+            System.out.println (mListState);
+            layoutManager.onRestoreInstanceState(mListState);
+            mListState = null;
+        }
     }
 
     @Override
