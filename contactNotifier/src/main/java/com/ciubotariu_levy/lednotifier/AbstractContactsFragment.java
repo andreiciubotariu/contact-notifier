@@ -82,8 +82,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
                 // create a new view
-                View v = LayoutInflater.from(parent.getContext())
-                        .inflate(getRowResID(), parent, false);
+                View v = LayoutInflater.from(parent.getContext()).inflate(getRowResID(), parent, false);
 
                 AbstractContactViewBinder.ContactHolder vh = new AbstractContactViewBinder.ContactHolder(v,viewBinder.hasColorView());
                 return vh;

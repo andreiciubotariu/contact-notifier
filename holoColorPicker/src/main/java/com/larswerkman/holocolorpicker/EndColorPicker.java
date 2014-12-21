@@ -310,7 +310,7 @@ public class EndColorPicker extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		getParent().requestDisallowInterceptTouchEvent(true);
+
 
 		// Convert coordinates to our internal coordinate system
 		float dimen;
@@ -323,6 +323,7 @@ public class EndColorPicker extends View {
 
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
+            getParent().requestDisallowInterceptTouchEvent(true);
 			mIsMovingPointer = true;
 			// Check whether the user pressed on the pointer
 			if (dimen >= (mBarPointerHaloRadius)
@@ -356,6 +357,8 @@ public class EndColorPicker extends View {
 			}
 			break;
 		case MotionEvent.ACTION_UP:
+        case MotionEvent.ACTION_CANCEL:
+            getParent().requestDisallowInterceptTouchEvent(false);
 			mIsMovingPointer = false;
 			break;
 		}
