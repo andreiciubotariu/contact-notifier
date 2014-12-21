@@ -24,7 +24,7 @@ import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Transformation;
 
-public abstract class AbstractContactsFragment extends Fragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, LoaderManager.LoaderCallbacks<Cursor>, AbstractContactViewBinder.ContactClickListener{
+public abstract class AbstractContactsFragment extends Fragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, LoaderManager.LoaderCallbacks<Cursor>, AbstractContactViewBinder.ContactListener {
     //copied ListFragment Constants due to access issue.
     private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
     private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;

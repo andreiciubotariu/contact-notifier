@@ -38,8 +38,9 @@ public abstract class AbstractContactViewBinder {
     protected abstract String getRingtoneUri (Cursor cursor, String contactUri);
     protected abstract String getVibPattern (Cursor cursor, String contactUri);
 
-    public static interface ContactClickListener {
+    public static interface ContactListener {
         public void onContactSelected (int pos, long id);
+        public void startForResult (Intent intent, int requestCode);
     }
 
     public static class ContactHolder extends RecyclerView.ViewHolder {
@@ -50,8 +51,8 @@ public abstract class AbstractContactViewBinder {
         public View customControls, vibrateHint, vibrateInputContainer;
         public EndColorPicker colorPicker;
         public EditText vibrateInput;
-        public Button insertCommaButton, testVibrate, chooseRingtoneButton;
-        public CheckBox vibrateCheckbox, ringtoneButton;
+        public Button insertCommaButton, testVibrate, chooseRingtoneButton,ringtoneButton;
+        public CheckBox vibrateCheckbox, ringtoneCheckbox;
 
 
         public ContactHolder(View v, boolean hasColor) {
@@ -70,9 +71,13 @@ public abstract class AbstractContactViewBinder {
         }
     }
 
-    private Transformation mTransformation;
-    private ContactClickListener mListener;
+    public static final String SILENT = "silent_ringtone";
+    public static final String GLOBAL = "application_setting_ringtone";
+    private static final int VIB_NO_REPEAT = -1;
+    private static final int REQ_CODE = 1;
 
+    private Transformation mTransformation;
+    private ContactListener mListener;
 
     int expPos = -1;
     boolean isExpanded = false;
@@ -81,7 +86,7 @@ public abstract class AbstractContactViewBinder {
     String expVibPattern;
     ContactHolder expHolder;
 
-    public AbstractContactViewBinder(Transformation t, ContactClickListener listener) {
+    public AbstractContactViewBinder(Transformation t, ContactListener listener) {
         mTransformation = t;
         mListener = listener;
     }
@@ -96,106 +101,106 @@ public abstract class AbstractContactViewBinder {
         expHolder = null;
     }
 
-    private void setExpandedData(ContactHolder holder) {
-        mPicker = (EndColorPicker) view.findViewById(R.id.colorbar);
-        mPicker.setColor(mColor);
-        mPicker.setOnColorChangedListener(this);
-        final View vibrateHint = view.findViewById(R.id.vib_hint);
-        final View vibrateInputContainer = view.findViewById(R.id.vib_input_container);
-        final EditText vibrateInput = (EditText) view.findViewById(R.id.vib_input);
-        vibrateInput.setMaxHeight(vibrateInput.getHeight());
+    private void setExpandedData(final ContactHolder holder) {
+        holder.colorPicker.setColor(expColor);
+        //mPicker.setOnColorChangedListener(this);
+        holder.vibrateInput.setMaxHeight(holder.vibrateInput.getHeight());
 
-        Button insertCommaButton = (Button) view.findViewById(R.id.insert_comma);
-        insertCommaButton.setOnClickListener(new View.OnClickListener() {
+        holder.insertCommaButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                vibrateInput.append(",");
+                holder.vibrateInput.append(",");
             }
         });
 
-        vibratorService = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-        final Button testVibrate = (Button) view.findViewById(R.id.test_vibrate);
-        testVibrate.setOnClickListener(new View.OnClickListener() {
+        final Vibrator vibratorService = (Vibrator)holder.mName.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        holder.testVibrate.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                long [] pattern = LedContactInfo.getVibratePattern(vibrateInput.getText().toString());
+                long [] pattern = LedContactInfo.getVibratePattern(holder.vibrateInput.getText().toString());
                 vibratorService.vibrate(pattern, VIB_NO_REPEAT);
             }
         });
 
-        CheckBox vibrateCheckbox = (CheckBox) view.findViewById(R.id.vibrate_checkbox);
-        vibrateCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.vibrateCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
-                    vibrateHint.setVisibility(View.VISIBLE);
-                    vibrateInputContainer.setVisibility(View.VISIBLE);
-                    testVibrate.setVisibility(View.VISIBLE);
-                    if (!TextUtils.isEmpty(mVibratePattern)){
-                        vibrateInput.setText(mVibratePattern);
-                        vibrateInput.setSelection(mVibratePattern.length());
+                    holder.vibrateHint.setVisibility(View.VISIBLE);
+                    holder.vibrateInputContainer.setVisibility(View.VISIBLE);
+                    holder.testVibrate.setVisibility(View.VISIBLE);
+                    if (!TextUtils.isEmpty(expVibPattern)){
+                        holder.vibrateInput.setText(expVibPattern);
+                        holder.vibrateInput.setSelection(expVibPattern.length());
                     }
                 }
                 else{
-                    vibrateHint.setVisibility(View.GONE);
-                    vibrateInputContainer.setVisibility(View.GONE);
-                    testVibrate.setVisibility(View.GONE);
+                    holder.vibrateHint.setVisibility(View.GONE);
+                    holder.vibrateInputContainer.setVisibility(View.GONE);
+                    holder.testVibrate.setVisibility(View.GONE);
                 }
             }
         });
-        vibrateCheckbox.setChecked(!TextUtils.isEmpty(mVibratePattern));
+        holder.vibrateCheckbox.setChecked(!TextUtils.isEmpty(expVibPattern));
 
-        chooseRingtoneButton  = (Button) view.findViewById(R.id.choose_ringtone);
-        chooseRingtoneButton.setOnClickListener(new View.OnClickListener() {
+        holder.chooseRingtoneButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Uri existingUri = Settings.System.DEFAULT_NOTIFICATION_URI;
-                if (SILENT.equals(contactData.ringtoneUri)){
+                if (SILENT.equals(expRingtoneUri)){
                     Log.i("RingtonePicker", "silent picked");
                     existingUri = null;
-                } else if (!GLOBAL.equals(contactData.ringtoneUri)){
+                } else if (!GLOBAL.equals(expRingtoneUri)){
                     Log.i("RingtonePicker", "Custom ringtone. Updating Intent.");
-                    existingUri =  contactData.ringtoneUri == null ? existingUri : Uri.parse(contactData.ringtoneUri);
+                    existingUri =  expRingtoneUri == null ? existingUri : Uri.parse(expRingtoneUri);
                 }
+                Intent ringtonePickerIntent = new Intent (RingtoneManager.ACTION_RINGTONE_PICKER);
+                ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
+                ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+                ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
+                ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Contact ringtone");
                 ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, existingUri);
                 startActivityForResult(ringtonePickerIntent, REQ_CODE);
 
             }
         });
-        CheckBox ringtoneCheckbox = (CheckBox) view.findViewById(R.id.ringtone_checkbox);
-        ringtoneCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        holder.ringtoneCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                chooseRingtoneButton.setVisibility (isChecked ? View.VISIBLE : View.GONE);
+                holder.chooseRingtoneButton.setVisibility (isChecked ? View.VISIBLE : View.GONE);
             }
         });
 
-        boolean hasCustomRingtone =  !TextUtils.isEmpty(contactData.ringtoneUri) && !GLOBAL.equals(contactData.ringtoneUri);
-        ringtoneCheckbox.setChecked(hasCustomRingtone);
+        boolean hasCustomRingtone =  !TextUtils.isEmpty(expRingtoneUri) && !GLOBAL.equals(expRingtoneUri);
+        holder.ringtoneCheckbox.setChecked(hasCustomRingtone);
         if (!hasCustomRingtone){
             onRingtoneSelected(GLOBAL);
         } else {
-            onRingtoneSelected(contactData.ringtoneUri);
+            onRingtoneSelected(expRingtoneUri);
         }
 
     }
 
-    private void onRingtoneSelected (String uriString, Button chooseRingtoneButton){
-        contactData.ringtoneUri = uriString;
+    private void onRingtoneSelected (String uriString){
+        Button chooseRingtoneButton = expHolder.chooseRingtoneButton;
+        expRingtoneUri = uriString;
         String buttonText = "No custom ringtone";
         if (SILENT.equals(uriString)){
             buttonText = "Force silent";
         } else {
             try {
+
                 Uri uri = Uri.parse(uriString);
                 if (uri != null && !GLOBAL.equals(uriString)){
-                    Ringtone ringtone =  RingtoneManager.getRingtone(getActivity(), uri);
-                    buttonText = ringtone.getTitle(getActivity());
+                    Ringtone ringtone =  RingtoneManager.getRingtone(chooseRingtoneButton.getContext(), uri);
+                    buttonText = ringtone.getTitle(chooseRingtoneButton.getContext());
                     ringtone.stop();
                 }
             } catch (Exception e){
@@ -206,7 +211,6 @@ public abstract class AbstractContactViewBinder {
         chooseRingtoneButton.setText(buttonText);
     }
 
-    @Override
     public void onActivityResult (int requestCode, int resultCode, Intent data){
         if (requestCode == REQ_CODE){
             if (resultCode == Activity.RESULT_OK){
@@ -214,7 +218,6 @@ public abstract class AbstractContactViewBinder {
                 onRingtoneSelected(ringtoneUri == null ? SILENT : ringtoneUri.toString());
             }
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void bind(final RecyclerView.ViewHolder holder, Cursor cursor, Context context) {
