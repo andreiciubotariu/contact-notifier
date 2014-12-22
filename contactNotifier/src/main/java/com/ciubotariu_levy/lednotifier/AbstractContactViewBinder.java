@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.android.contacts.common.lettertiles.SimpleLetterTileDrawable;
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.larswerkman.holocolorpicker.EndColorPicker;
+import com.larswerkman.holocolorpicker.OnColorChangedListener;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -39,7 +40,7 @@ public abstract class AbstractContactViewBinder {
     protected abstract String getVibPattern (Cursor cursor, String contactUri);
 
     public static interface ContactListener {
-        public void onContactSelected (int pos, long id);
+        public LedContactInfo onContactSelected (int pos, long id);
         public void startForResult (Intent intent, int requestCode);
     }
 
@@ -51,7 +52,7 @@ public abstract class AbstractContactViewBinder {
         public View customControls, vibrateHint, vibrateInputContainer;
         public EndColorPicker colorPicker;
         public EditText vibrateInput;
-        public Button insertCommaButton, testVibrate, chooseRingtoneButton,ringtoneButton;
+        public Button insertCommaButton, testVibrate, chooseRingtoneButton;
         public CheckBox vibrateCheckbox, ringtoneCheckbox;
 
 
@@ -66,7 +67,21 @@ public abstract class AbstractContactViewBinder {
             mContainer = v.findViewById(R.id.custom_ring_vib_container);
             mRingtone = v.findViewById(R.id.contact_ringtone);
             mVib = v.findViewById(R.id.contact_vibrate);
+
             customControls = v.findViewById(R.id.test_view);
+            vibrateHint = v.findViewById(R.id.vib_hint);
+            vibrateInputContainer = v.findViewById(R.id.vib_input_container);
+
+            colorPicker = (EndColorPicker) v.findViewById(R.id.colorbar);
+
+            vibrateInput = (EditText) v.findViewById(R.id.vib_input);
+
+            insertCommaButton = (Button) v.findViewById(R.id.insert_comma);
+            testVibrate = (Button) v.findViewById(R.id.test_vibrate);
+            chooseRingtoneButton = (Button) v.findViewById(R.id.choose_ringtone);
+
+            vibrateCheckbox = (CheckBox) v.findViewById(R.id.vibrate_checkbox);
+            ringtoneCheckbox = (CheckBox) v.findViewById(R.id.ringtone_checkbox);
 
         }
     }
@@ -85,6 +100,7 @@ public abstract class AbstractContactViewBinder {
     String expRingtoneUri;
     String expVibPattern;
     ContactHolder expHolder;
+    LedContactInfo info;
 
     public AbstractContactViewBinder(Transformation t, ContactListener listener) {
         mTransformation = t;
@@ -93,20 +109,38 @@ public abstract class AbstractContactViewBinder {
 
 
     private void resetExpandedStatus() {
+        if (expHolder != null) {
+            ((Vibrator)expHolder.mName.getContext().getSystemService(Context.VIBRATOR_SERVICE)).cancel();
+        }
         expPos = -1;
         isExpanded = false;
         expColor = Color.GRAY;
         expRingtoneUri = null;
         expVibPattern = null;
+
+
+        expHolder.ringtoneCheckbox.setChecked(false);
+        expHolder.vibrateCheckbox.setChecked(false);
+        expHolder.vibrateInput.setText("");
+        expHolder.colorPicker.setColor(Color.GRAY);
+        expHolder.chooseRingtoneButton.setText("No custom ringtone");
+
         expHolder = null;
     }
 
     private void setExpandedData(final ContactHolder holder) {
         holder.colorPicker.setColor(expColor);
+        holder.colorPicker.setOnColorChangedListener(new OnColorChangedListener() {
+            @Override
+            public void onColorChanged(int color) {
+                expColor = color;
+            }
+        });
         //mPicker.setOnColorChangedListener(this);
         holder.vibrateInput.setMaxHeight(holder.vibrateInput.getHeight());
 
         holder.insertCommaButton.setOnClickListener(new View.OnClickListener() {
+
 
             @Override
             public void onClick(View v) {
@@ -165,7 +199,10 @@ public abstract class AbstractContactViewBinder {
                 ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
                 ringtonePickerIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Contact ringtone");
                 ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, existingUri);
-                startActivityForResult(ringtonePickerIntent, REQ_CODE);
+                if (mListener != null) {
+                    mListener.startForResult(ringtonePickerIntent, REQ_CODE);
+                }
+
 
             }
         });
@@ -211,13 +248,55 @@ public abstract class AbstractContactViewBinder {
         chooseRingtoneButton.setText(buttonText);
     }
 
-    public void onActivityResult (int requestCode, int resultCode, Intent data){
+    public void onResult (int requestCode, int resultCode, Intent data){
         if (requestCode == REQ_CODE){
             if (resultCode == Activity.RESULT_OK){
                 Uri ringtoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
                 onRingtoneSelected(ringtoneUri == null ? SILENT : ringtoneUri.toString());
             }
         }
+    }
+
+    private void onConfirm (){
+        expVibPattern = "";
+        if (expHolder.vibrateCheckbox.isChecked()){
+            expVibPattern = expHolder.vibrateInput.getText().toString().trim();
+        }
+        if (!expHolder.ringtoneCheckbox.isChecked()){
+            expRingtoneUri = GLOBAL;
+        }
+
+        //
+        expVibPattern = LedContactInfo.addZeroesWhereEmpty (expVibPattern);
+//        ContactDetailsUpdateListener listener = null;
+//        try{
+//            listener =(ContactDetailsUpdateListener) getParentFragment();
+//        }
+//        catch (ClassCastException e){
+//            e.printStackTrace();
+//        }
+//        if (listener == null){
+//            try{
+//                listener = (ContactDetailsUpdateListener) getActivity();
+//            }
+//            catch (ClassCastException e){
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        if (listener == null){
+//            return;
+//        }
+
+//       expColor = color;
+        if (TextUtils.isEmpty(expVibPattern)){
+            expVibPattern = "";
+        }
+
+        info.ringtoneUri = expRingtoneUri;
+        info.color = expColor;
+        info.vibratePattern = expVibPattern;
+        ((ColorVibrateDialog.ContactDetailsUpdateListener)mListener).onContactDetailsUpdated(info);
     }
 
     public void bind(final RecyclerView.ViewHolder holder, Cursor cursor, Context context) {
@@ -288,7 +367,7 @@ public abstract class AbstractContactViewBinder {
             public void onClick(View v) {
                 if (mListener != null) {
                     if  (currentPos == expPos && isExpanded) {
-                        expHolder.customControls.setVisibility(View.GONE);
+                        onConfirm();
                         resetExpandedStatus();
                     } else {
                         ((ContactHolder) holder).customControls.setVisibility(View.VISIBLE);
@@ -304,6 +383,14 @@ public abstract class AbstractContactViewBinder {
 
                         expVibPattern = vibratePattern;
                         isExpanded = true;
+
+
+                        info = mListener.onContactSelected(expPos, expHolder.getItemId());
+                        expColor = info.color;
+                        expRingtoneUri = info.ringtoneUri;
+                        expVibPattern = info.vibratePattern;
+
+                        setExpandedData(expHolder);
                     }
 
                     //mListener.onContactSelected(viewHolder.getPosition(), viewHolder.getItemId());

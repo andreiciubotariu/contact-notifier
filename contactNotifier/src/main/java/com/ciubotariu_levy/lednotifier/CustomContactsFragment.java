@@ -135,11 +135,11 @@ public class CustomContactsFragment extends AbstractContactsFragment {
     }
 
     @Override
-    public void onContactSelected(int position, long id) {
+    public LedContactInfo onContactSelected(int position, long id) {
         LedContactInfo data = new LedContactInfo();
         data.id = id;
         if (!getCursorAdapter().moveToPos(position)) {
-            return;
+            return data;
         }
         Cursor c = getCursorAdapter().getCursor();
         data.lastKnownName = c.getString(c.getColumnIndex(LedContacts.LAST_KNOWN_NAME));
@@ -150,10 +150,12 @@ public class CustomContactsFragment extends AbstractContactsFragment {
         data.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));       if (TextUtils.isEmpty(data.ringtoneUri)) {
             data.ringtoneUri = ColorVibrateDialog.GLOBAL;
         }
-        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null) {
-            ColorVibrateDialog.getInstance(data)
-                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
-        }
+//        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null) {
+//            ColorVibrateDialog.getInstance(data)
+//                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
+//        }
+
+        return data;
     }
 
     @Override

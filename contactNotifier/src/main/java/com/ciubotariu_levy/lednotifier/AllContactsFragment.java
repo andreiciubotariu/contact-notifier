@@ -182,10 +182,10 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     }
 
     @Override
-    public void onContactSelected(int position, long id) {
+    public LedContactInfo onContactSelected(int position, long id) {
         LedContactInfo data = null;
         if (!getCursorAdapter().moveToPos(position)) {
-            return;
+            return null;
         }
         Cursor c = getCursorAdapter().getCursor();
         long contactID = c.getLong(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
@@ -203,10 +203,12 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
         data.lastKnownName = c.getString(c.getColumnIndex(CONTACT_NAME));
         //data.lastKnownNumber = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
-            ColorVibrateDialog.getInstance(data)
-                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
-        }
+//        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
+//            ColorVibrateDialog.getInstance(data)
+//                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
+//        }
+
+        return data;
     }
 
     @Override

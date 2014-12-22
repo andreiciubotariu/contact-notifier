@@ -59,6 +59,8 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
     private Bundle mLoaderArgs = new Bundle();
 
+    private AbstractContactViewBinder viewBinder;
+
     protected RecyclerCursorAdapter getCursorAdapter(){
         return mCursorAdapter;
     }
@@ -74,7 +76,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
                 .cornerRadiusDp(30)
                 .oval(false)
                 .build();
-        final AbstractContactViewBinder viewBinder = getViewBinder(transformation);
+        viewBinder = getViewBinder(transformation);
 
         mCursorAdapter = new RecyclerCursorAdapter(null,"_id") {
 
@@ -126,12 +128,18 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     }
 
 
+
+    @Override
+    public void startForResult(Intent intent, int requestCode) {
+        startActivityForResult(intent,requestCode);
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Fragment child = getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG);
-        if (child != null){
-            child.onActivityResult(requestCode, resultCode, data);
-        }
+//        Fragment child = getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG);
+//        if (child != null){
+//            child.onActivityResult(requestCode, resultCode, data);
+//        }
+        viewBinder.onResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -225,7 +233,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     protected abstract int getRowResID();
 
     @Override
-    public abstract void onContactSelected(int position, long id);
+    public abstract LedContactInfo onContactSelected(int position, long id);
 
     @Override
     public abstract void onContactDetailsUpdated(LedContactInfo newData);

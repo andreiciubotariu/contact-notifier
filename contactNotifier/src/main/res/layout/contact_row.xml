@@ -62,7 +62,6 @@
         android:layout_below="@id/contact_row_container"
         android:layout_height = "wrap_content"
         android:layout_width = "match_parent"
-        android:background="@color/primary"
         android:visibility="gone">
 
         <com.larswerkman.holocolorpicker.EndColorPicker
@@ -192,5 +191,5 @@
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="numberDecimal" />
         </RelativeLayout>
-        </RelativeLayout>
+    </RelativeLayout>
 </RelativeLayout>
