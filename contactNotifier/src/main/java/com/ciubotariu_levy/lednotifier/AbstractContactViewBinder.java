@@ -109,6 +109,7 @@ public abstract class AbstractContactViewBinder {
 
 
     private void resetExpandedStatus() {
+        expHolder.customControls.setVisibility(View.GONE);
         if (expHolder != null) {
             ((Vibrator)expHolder.mName.getContext().getSystemService(Context.VIBRATOR_SERVICE)).cancel();
         }
@@ -124,7 +125,6 @@ public abstract class AbstractContactViewBinder {
         expHolder.vibrateInput.setText("");
         expHolder.colorPicker.setColor(Color.GRAY);
         expHolder.chooseRingtoneButton.setText("No custom ringtone");
-
         expHolder = null;
     }
 
@@ -308,6 +308,9 @@ public abstract class AbstractContactViewBinder {
         Uri contactUri = getContactUri(cursor);
 
         String name  = getName(cursor);
+
+        name =  holder.toString();
+
         if (name != null) {
             final SpannableStringBuilder str = new SpannableStringBuilder(name);
             str.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0,
@@ -360,6 +363,7 @@ public abstract class AbstractContactViewBinder {
         if (currentPos == expPos) {
             setExpandedData((ContactHolder)holder);
         }
+
         ((ContactHolder) holder).customControls.setVisibility(holder.getPosition() == expPos ? View.VISIBLE : View.GONE);
 
         viewHolder.mRowContainer.setOnClickListener(new View.OnClickListener() {
@@ -370,11 +374,11 @@ public abstract class AbstractContactViewBinder {
                         onConfirm();
                         resetExpandedStatus();
                     } else {
-                        ((ContactHolder) holder).customControls.setVisibility(View.VISIBLE);
-                        expPos = currentPos;
                         if (expHolder != null) {
-                            expHolder.customControls.setVisibility(View.GONE);
+                            //expHolder.customControls.setVisibility(View.GONE);
+                            resetExpandedStatus();
                         }
+                        expPos = currentPos;
                         expHolder = (ContactHolder) holder;
                         expRingtoneUri = ringtoneUri;
                         if (expHolder.mColor != null) {
@@ -391,6 +395,35 @@ public abstract class AbstractContactViewBinder {
                         expVibPattern = info.vibratePattern;
 
                         setExpandedData(expHolder);
+//                        AbstractContactsFragment.r.getLayoutManager().requestLayout();
+//                        AbstractContactsFragment.r.getAdapter().notifyItemChanged(holder.getPosition());
+//                        AbstractContactsFragment.r.getAdapter().notifyDataSetChanged();
+                        AbstractContactsFragment.r.getLayoutManager().requestLayout();
+                        ((ContactHolder) holder).mContainer.invalidate();
+
+                         ((ContactHolder) holder).customControls.setVisibility(View.VISIBLE);
+//
+//                        if (mOriginalHeight == 0) {
+//                            mOriginalHeight = ((ContactHolder) holder).mContainer.getHeight();
+//                        }
+//                        ValueAnimator valueAnimator;
+//                        if (!mIsViewExpanded) {
+//                            mIsViewExpanded = true;
+//                            valueAnimator = ValueAnimator.ofInt(mOriginalHeight, mOriginalHeight + (int) (mOriginalHeight * 1.5));
+//                        } else {
+//                            mIsViewExpanded = false;
+//                            valueAnimator = ValueAnimator.ofInt(mOriginalHeight + (int) (mOriginalHeight * 1.5), mOriginalHeight);
+//                        }
+//                        valueAnimator.setDuration(300);
+//                        valueAnimator.setInterpolator(new LinearInterpolator());
+//                        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//                            public void onAnimationUpdate(ValueAnimator animation) {
+//                                Integer value = (Integer) animation.getAnimatedValue();
+//                                ((ContactHolder) holder).mContainer.getLayoutParams().height = value.intValue();
+//                                ((ContactHolder) holder).mContainer.requestLayout();
+//                            }
+//                        });
+//                        valueAnimator.start();
                     }
 
                     //mListener.onContactSelected(viewHolder.getPosition(), viewHolder.getItemId());
@@ -399,5 +432,6 @@ public abstract class AbstractContactViewBinder {
         });
     }
 
-
+    int mOriginalHeight = 0;
+    boolean mIsViewExpanded;
 }

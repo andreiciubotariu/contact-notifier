@@ -65,7 +65,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
         return mCursorAdapter;
     }
 
-
+    public static RecyclerView r;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -114,9 +114,10 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     public void onViewCreated (View view, Bundle savedInstanceState) {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
 
+        r = recyclerView;
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(false);
 
         // use a linear layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
