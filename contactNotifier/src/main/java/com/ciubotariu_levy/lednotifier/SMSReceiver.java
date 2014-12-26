@@ -36,6 +36,9 @@ import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SMSReceiver extends BroadcastReceiver {
     public static final String TAG = SMSReceiver.class.getName();
@@ -45,26 +48,149 @@ public class SMSReceiver extends BroadcastReceiver {
     protected static final String SHOW_ALL_NOTIFS = "show_all_notifications";
     private static final String DEF_VIBRATE = "def_vibrate";
 
+    private static class MessageInfo {
+        String name, address, contactUri, ringtoneUri, vibPattern, text;
+        int color = Color.GRAY;
+
+        boolean isCustom() {
+            return contactUri != null && (ringtoneUri != null || vibPattern != null || color != Color.GRAY);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public static SmsMessage[] getSMSMessagesFromIntent(Intent intent) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            Object[] messages = (Object[]) intent.getSerializableExtra("pdus");
+            int pduCount = messages.length;
+            SmsMessage[] msgs = new SmsMessage[pduCount];
+            for (int i = 0; i < pduCount; i++) {
+                byte[] pdu = (byte[]) messages[i];
+                msgs[i] = SmsMessage.createFromPdu(pdu);
+            }
+            return msgs;
+        }
+
+        return Sms.Intents.getMessagesFromIntent(intent);
+    }
+
+    private void getNameAndUri(MessageInfo info, ContentResolver resolver){
+        String number = info.address;
+        Cursor contactCursor = null;
+        try{
+            Uri phoneNumberUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+            contactCursor = resolver.query(phoneNumberUri, new String [] {Contacts.LOOKUP_KEY,PhoneLookup._ID,PhoneLookup.DISPLAY_NAME}, null, null, null);
+            if (contactCursor != null && contactCursor.moveToFirst()){
+                Uri contactUri = Contacts.getLookupUri(contactCursor.getLong(contactCursor.getColumnIndex(PhoneLookup._ID)), contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
+
+                String contactUriString = contactUri == null ? null : contactUri.toString();
+
+                info.contactUri = contactUriString;
+                info.name = contactCursor.getString (contactCursor.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+            }
+            else {
+                Log.i(TAG,"Not a contact in phone's database");
+                info.name = null;
+                info.contactUri = null;
+            }
+        }
+        finally {
+            if (contactCursor != null){
+                contactCursor.close();
+            }
+        }
+    }
+
+    public MessageInfo getInfoForMessage(SmsMessage message, Context context) {
+        if (message  == null  || message.getOriginatingAddress() == null) {
+            return null;
+        }
+
+        MessageInfo info = new MessageInfo();
+        info.address = message.getOriginatingAddress();
+        info.text = message.getDisplayMessageBody();
+
+        getNameAndUri(info, context.getContentResolver());
+
+        String[] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.VIBRATE_PATTERN, LedContacts.RINGTONE_URI};
+        String selection = null;
+        String [] selectionArgs = null;
+        selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?" ;
+        if (info.contactUri != null){
+            selectionArgs = new String [] {	info.contactUri };
+
+            Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
+
+            if (c != null && c.moveToFirst()){
+                try {
+                    int customColor = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+
+                    if (customColor != Color.GRAY){
+                        info.color = customColor;
+                    }
+
+                    String customRingtone = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
+                    if (!ColorVibrateDialog.GLOBAL.equals(customRingtone)){
+                        info.ringtoneUri = customRingtone;
+                    }
+                    String customVib = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+
+                    if (!TextUtils.isEmpty(customVib)){
+                        info.vibPattern = customVib;
+                    }
+
+                } catch (Exception e){
+
+                    e.printStackTrace();
+                }
+            }
+            if (c != null){
+                c.close();
+            }
+        }
+        return info;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
-        if (bundle != null){
-            Object[] pdus = (Object[]) bundle.get("pdus");
-            SmsMessage sms = SmsMessage.createFromPdu((byte[])pdus[0]);
-            onMessageReceived (context, sms.getOriginatingAddress(), sms.getDisplayMessageBody());
+        if (bundle == null) {
+            return;
         }
+        SmsMessage[] sms = getSMSMessagesFromIntent(intent);
+
+        HashMap <String, MessageInfo> infoMap = new HashMap<String,MessageInfo>();
+        List<String> customMessages = new ArrayList<String>();
+        for (int x = 0; x < sms.length; x++) {
+            String address = sms[x].getOriginatingAddress();
+            if (address != null) {
+                if (infoMap.get(address) == null) {
+                    MessageInfo i = getInfoForMessage(sms[x], context);
+                    infoMap.put(address,i);
+                    if (i.isCustom()) {
+                        customMessages.add(address);
+                    }
+                }
+                else {
+                    String moreText = sms[x].getDisplayMessageBody();
+                    if (infoMap.get(address).text != null) {
+                        infoMap.get(address).text += moreText;
+                    }
+                    else {
+                        infoMap.get(address).text = moreText;
+                    }
+                }
+            }
+        }
+        onMessagesReceived(context, infoMap, customMessages);
     }
 
 
-    @TargetApi(19)
-    public void onMessageReceived (Context context, String number, String message){
-        if (TextUtils.isEmpty(number) || message == null){
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public void onMessagesReceived (Context context, HashMap<String,MessageInfo> infoMap, List<String> customMessages){
+        if (infoMap.isEmpty()) {
+            Log.i("INFO-MAP" , "Empty");
             return;
         }
-
-        String [] sender = getNameForNumber(number, context.getContentResolver());
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean showNotification = preferences.getBoolean(SHOW_ALL_NOTIFS, false);
 
@@ -76,43 +202,29 @@ public class SMSReceiver extends BroadcastReceiver {
             ringtone = preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString());
         }
 
-        String [] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.VIBRATE_PATTERN, LedContacts.RINGTONE_URI};
-        String selection = null;
-        String [] selectionArgs = null;
-        selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?" ;
-        if (sender [0] != null){
-            selectionArgs = new String [] {	sender [0] };
 
-            Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
+        boolean ringtoneSet = false, vibSet = false, colorSet = false;
+        for (int x = 0; x < customMessages.size(); x++) {
+            MessageInfo info = infoMap.get(customMessages.get(x));
 
-            if (c != null && c.moveToFirst()){
-                try {
-                    int customColor = c.getInt(c.getColumnIndex(LedContacts.COLOR));
-
-                    if (customColor != Color.GRAY){
-                        color = customColor;
-                        showNotification = true;
-                    }
-
-                    String customRingtone = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
-                    if (!ColorVibrateDialog.GLOBAL.equals(customRingtone)){
-                        showNotification = true;
-                        ringtone = customRingtone;
-                    }
-                    String customVib = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
-
-                    if (!TextUtils.isEmpty(customVib)){
-                        vibratePattern = customVib;
-                    }
-
-                } catch (Exception e){
-
-                    e.printStackTrace();
-                }
+            if (!ringtoneSet && !TextUtils.isEmpty(info.ringtoneUri)) {
+                ringtone = info.ringtoneUri;
+                ringtoneSet = true;
             }
-            if (c != null){
-                c.close();
+
+            if (!vibSet && !TextUtils.isEmpty(info.vibPattern)) {
+                vibratePattern = info.vibPattern;
+                vibSet = true;
             }
+
+            if (!colorSet && info.color != Color.GRAY) {
+                color = info.color;
+                colorSet = true;
+            }
+        }
+
+        if (colorSet || ringtoneSet) {
+            showNotification = true;
         }
 
         if (showNotification){
@@ -130,16 +242,32 @@ public class SMSReceiver extends BroadcastReceiver {
                 smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(this.getClass().getPackage().getName());
             }
             PendingIntent pendingIntent = PendingIntent.getActivity(context,ACTIVITY_REQUEST_CODE,smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            MessageInfo[] messages = infoMap.values().toArray(new MessageInfo[0]); //0 size is temp
+
+            MessageInfo firstMessage = messages[0];
+            String title = messages.length > 1 ? "Multiple senders" : firstMessage.name;
+            Log.i("FIRST MESSAGE", firstMessage.name + " " + firstMessage.address);
+            if (TextUtils.isEmpty(title)) {
+                title = !TextUtils.isEmpty(firstMessage.address) ? firstMessage.address : "Unknown Sender";
+            }
+
+
+            String body =  firstMessage.text;
+            if (body == null) {
+                body = "";
+            }
+
             NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context)
-                    .setContentTitle (sender [1])
-                    .setContentText (message)
+                    .setContentTitle (title)
+                    .setContentText (body)
                     .setContentIntent (pendingIntent)
                     .setSmallIcon(R.drawable.ic_stat_new_msg)
                     .setLights(color, 1000, 1000) //flash
                     .setAutoCancel(true);
 
-            if (sender [0] != null) {
-                Bitmap b = loadContactPhotoThumbnail(context, sender[0]);
+            if (firstMessage.contactUri != null) {
+                Log.i("TAG", firstMessage.contactUri);
+                Bitmap b = loadContactPhotoThumbnail(context, firstMessage.contactUri);
                 if (b != null) {
                     notifBuilder.setLargeIcon(b);
                     Log.i("TAG","set large icon");
@@ -147,10 +275,10 @@ public class SMSReceiver extends BroadcastReceiver {
                     Log.e("TAG", " b is null");
                 }
                 //notifBuilder.setLargeIcon(BitmapFactory.decodeStream(Contacts.openContactPhotoInputStream(context.getContentResolver(),Uri.parse(sender[0]),false)));
-                notifBuilder.addPerson(sender[0]);
+                notifBuilder.addPerson(firstMessage.contactUri);
             }
             if (preferences.getBoolean("status_bar_preview", false)){
-                notifBuilder.setTicker(sender[1]+": " + message);
+                notifBuilder.setTicker(title +": " + body);
             } else {
                 notifBuilder.setTicker("New message");
             }
@@ -160,8 +288,8 @@ public class SMSReceiver extends BroadcastReceiver {
             if (!TextUtils.isEmpty(vibratePattern) && !vibratePattern.equals(DEF_VIBRATE)){
                 notifBuilder.setVibrate(LedContactInfo.getVibratePattern(vibratePattern));
             }
-            NotificationUtils.title = sender[1];
-            NotificationUtils.message = message;
+            NotificationUtils.title = title;
+            NotificationUtils.message = body;
             NotificationUtils.contentIntent = pendingIntent;
 
             Intent delIntent = new Intent (context, AlarmDismissReceiver.class);
@@ -244,6 +372,9 @@ public class SMSReceiver extends BroadcastReceiver {
         Log.i("TAG","column: " + mThumbnailColumn);
 
         String photoData = mCursor.getString(mThumbnailColumn);
+        if (photoData == null) {
+            return null;
+        }
         Log.i("TAG", "photodata: " + photoData);
         InputStream is = null;
         try{
