@@ -35,6 +35,7 @@ import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 import com.google.android.mms.ContentType;
 import com.google.android.mms.pdu.GenericPdu;
 import com.google.android.mms.pdu.PduParser;
+import com.makeramen.RoundedTransformationBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -330,7 +331,11 @@ public class SMSReceiver extends BroadcastReceiver {
                 Log.i("TAG", firstMessage.contactUri);
                 Bitmap b = loadContactPhotoThumbnail(context, firstMessage.contactUri);
                 if (b != null) {
-                    notifBuilder.setLargeIcon(b);
+                    Bitmap large = b;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        large = new RoundedTransformationBuilder().oval(true).build().transform(b);
+                    }
+                    notifBuilder.setLargeIcon(large);
                     Log.i("TAG","set large icon");
                 } else {
                     Log.e("TAG", " b is null");
