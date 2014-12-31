@@ -32,6 +32,9 @@ import android.util.Log;
 
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
+import com.google.android.mms.ContentType;
+import com.google.android.mms.pdu.GenericPdu;
+import com.google.android.mms.pdu.PduParser;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -100,14 +103,19 @@ public class SMSReceiver extends BroadcastReceiver {
         }
     }
 
-    public MessageInfo getInfoForMessage(SmsMessage message, Context context) {
-        if (message  == null  || message.getOriginatingAddress() == null) {
+    private MessageInfo getInfoForMessage (SmsMessage message, Context context) {
+        if (message == null || message.getOriginatingAddress() == null) {
             return null;
         }
 
+        return getInfoForMessage(message.getOriginatingAddress(),message.getDisplayMessageBody(), context);
+    }
+
+    private MessageInfo getInfoForMessage(String address, String text, Context context) {
+
         MessageInfo info = new MessageInfo();
-        info.address = message.getOriginatingAddress();
-        info.text = message.getDisplayMessageBody();
+        info.address = address;
+        info.text = text;
 
         getNameAndUri(info, context.getContentResolver());
 
@@ -156,27 +164,80 @@ public class SMSReceiver extends BroadcastReceiver {
         if (bundle == null) {
             return;
         }
-        SmsMessage[] sms = getSMSMessagesFromIntent(intent);
 
-        HashMap <String, MessageInfo> infoMap = new HashMap<String,MessageInfo>();
+        HashMap<String, MessageInfo> infoMap = new HashMap<String, MessageInfo>();
         List<String> customMessages = new ArrayList<String>();
-        for (int x = 0; x < sms.length; x++) {
-            String address = sms[x].getOriginatingAddress();
-            if (address != null) {
-                if (infoMap.get(address) == null) {
-                    MessageInfo i = getInfoForMessage(sms[x], context);
-                    infoMap.put(address,i);
-                    if (i.isCustom()) {
-                        customMessages.add(address);
-                    }
-                }
-                else {
-                    String moreText = sms[x].getDisplayMessageBody();
-                    if (infoMap.get(address).text != null) {
-                        infoMap.get(address).text += moreText;
-                    }
-                    else {
-                        infoMap.get(address).text = moreText;
+
+        if (intent.getAction().equals(Sms.Intents.WAP_PUSH_RECEIVED_ACTION)
+                && ContentType.MMS_MESSAGE.equals(intent.getType())) {
+
+
+            Log.v(TAG, "Received PUSH Intent: " + intent);
+
+            // Get raw PDU push-data from the message and parse it
+            byte[] pushData = intent.getByteArrayExtra("data");
+            PduParser parser = new PduParser(pushData);
+            GenericPdu pdu = parser.parse();
+            if (null == pdu) {
+                Log.e(TAG, "Invalid PUSH data");
+                return;
+            }
+            int type = pdu.getMessageType();
+            long threadId = -1;
+            Log.v(TAG, "Sender: " + pdu.getFrom().getString());
+            Log.v(TAG, "Sender: " + pdu.getFrom().toString());
+            Log.v(TAG, "Sender: " + pdu.getFrom().getTextString().toString());
+            Log.v(TAG,"TYPE: " + pdu.getMessageType());
+
+            String address = pdu.getFrom().getString();
+            MessageInfo i = getInfoForMessage(address,"New MMS", context);
+            infoMap.put(address, i);
+            if (i.isCustom()) {
+                customMessages.add(address);
+            }
+            //TODO: determine which type corresponds to normal message MMS
+//            try {
+//                switch (type) {
+//                    case MESSAGE_TYPE_DELIVERY_IND:
+//                    case MESSAGE_TYPE_READ_ORIG_IND:
+//
+//                    //handle message
+//                    Log.v(TAG, "Received message");
+//                    break;
+//
+//
+//                    default:
+//                        Log.e(TAG, "Received but not processing PDU.");
+//                }
+//            } catch (RuntimeException e) {
+//                Log.e(TAG, "Unexpected RuntimeException.", e);
+//            }
+
+            Log.v(TAG, "PUSH Intent processed.");
+
+        }
+        else if  (intent.getAction().equals(Sms.Intents.SMS_RECEIVED_ACTION)) {
+
+
+            SmsMessage[] sms = getSMSMessagesFromIntent(intent);
+
+
+            for (int x = 0; x < sms.length; x++) {
+                String address = sms[x].getOriginatingAddress();
+                if (address != null) {
+                    if (infoMap.get(address) == null) {
+                        MessageInfo i = getInfoForMessage(sms[x], context);
+                        infoMap.put(address, i);
+                        if (i.isCustom()) {
+                            customMessages.add(address);
+                        }
+                    } else {
+                        String moreText = sms[x].getDisplayMessageBody();
+                        if (infoMap.get(address).text != null) {
+                            infoMap.get(address).text += moreText;
+                        } else {
+                            infoMap.get(address).text = moreText;
+                        }
                     }
                 }
             }
