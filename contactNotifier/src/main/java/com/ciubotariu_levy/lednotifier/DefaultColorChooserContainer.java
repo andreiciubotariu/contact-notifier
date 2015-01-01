@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 
 public class DefaultColorChooserContainer extends FragmentActivity implements ColorDialog.OnColorChosenListener{
@@ -17,6 +18,7 @@ public class DefaultColorChooserContainer extends FragmentActivity implements Co
 	protected void onCreate (Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (getSupportFragmentManager().findFragmentByTag(COLOR_CHOOSER_DIALOG_TAG) == null){
 			ColorDialog.getInstance(null, mPrefs.getInt(DEFAULT_COLOR, Color.GRAY))
                        .show(getSupportFragmentManager(), COLOR_CHOOSER_DIALOG_TAG);

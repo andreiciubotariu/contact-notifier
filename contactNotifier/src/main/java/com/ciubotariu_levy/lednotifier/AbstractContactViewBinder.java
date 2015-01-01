@@ -444,7 +444,7 @@ public abstract class AbstractContactViewBinder {
             setExpandedData((ContactHolder)holder);
         }
 
-        //((ContactHolder) holder).customControls.setVisibility(holder.getPosition() == expPos ? View.VISIBLE : View.GONE);
+        ((ContactHolder) holder).customControls.setVisibility(holder.getPosition() == expPos ? View.VISIBLE : View.GONE);
 
         viewHolder.mRowContainer.setOnClickListener(new View.OnClickListener() {
             @Override
