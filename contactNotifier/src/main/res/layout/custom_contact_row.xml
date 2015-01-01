@@ -2,67 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:animateLayoutChanges="true">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="15dp"
-        android:paddingLeft = "15dp"
-        android:paddingRight ="15dp"
-        android:paddingBottom = "15dp"
-        android:id = "@+id/contact_row_container"
-        android:background="?attr/selectableItemBackground" >
-
-        <include
-            android:id="@+id/contact_img_container"
-            layout="@layout/custom_contact_image_container" />
-
-        <RelativeLayout
-            android:id="@+id/custom_ring_vib_container"
-            android:layout_width="60dp"
-            android:layout_height="30dp"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" >
-
-            <View
-                android:id="@+id/contact_vibrate"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
-
-            <View
-                android:id="@+id/contact_ringtone"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@id/contact_vibrate" />
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/contact_name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_toLeftOf="@id/custom_ring_vib_container"
-            android:layout_toRightOf="@id/contact_image"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:textColor="@android:color/black"
-            android:textSize="20sp" />
-
-    </RelativeLayout>
+    android:background="@android:color/white" >
 
     <RelativeLayout
         xmlns:colorpicker="http://schemas.android.com/apk/res-auto"
         android:id = "@+id/test_view"
-        android:layout_below="@id/contact_row_container"
+        android:layout_marginTop="-100dp"
         android:layout_height = "wrap_content"
         android:layout_width = "match_parent"
-        android:visibility="gone">
+        android:layout_alignParentTop="true">
 
         <com.larswerkman.holocolorpicker.EndColorPicker
             android:id="@+id/colorbar"
@@ -192,4 +140,65 @@
                 android:inputType="numberDecimal" />
         </RelativeLayout>
     </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_alignParentTop = "true"
+        android:layout_height="80dp"
+        android:background="@android:color/white">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="15dp"
+            android:paddingLeft = "15dp"
+            android:paddingRight ="15dp"
+            android:paddingBottom = "15dp"
+            android:id = "@+id/contact_row_container"
+            android:background="?attr/selectableItemBackground" >
+
+            <include
+                android:id="@+id/contact_img_container"
+                layout="@layout/custom_contact_image_container" />
+
+            <RelativeLayout
+                android:id="@+id/custom_ring_vib_container"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true" >
+
+                <View
+                    android:id="@+id/contact_vibrate"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+
+                <View
+                    android:id="@+id/contact_ringtone"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignWithParentIfMissing="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@id/contact_vibrate" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/contact_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_toLeftOf="@id/custom_ring_vib_container"
+                android:layout_toRightOf="@id/contact_image"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
 </RelativeLayout>
