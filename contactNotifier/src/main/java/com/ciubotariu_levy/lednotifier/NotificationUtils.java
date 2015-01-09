@@ -16,7 +16,6 @@ public class NotificationUtils {
 	public static final int NOTIFICATION_ID = 1;
 	public static final int DELAY_TIME = 10*60*1000;
 
-	
 	public static String title;
 	public static String message;
 	public static PendingIntent contentIntent;

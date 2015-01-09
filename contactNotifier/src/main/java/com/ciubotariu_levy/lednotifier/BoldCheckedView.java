@@ -26,5 +26,4 @@ public class BoldCheckedView extends CheckedTextView {
 		}
 		super.setChecked(checked);
 	}
-
 }

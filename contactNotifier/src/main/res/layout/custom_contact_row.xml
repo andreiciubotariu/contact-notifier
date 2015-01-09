@@ -6,8 +6,8 @@
 
     <RelativeLayout
         xmlns:colorpicker="http://schemas.android.com/apk/res-auto"
-        android:id = "@+id/test_view"
-        android:layout_marginTop="-100dp"
+        android:id = "@+id/custom_controls"
+        android:layout_marginTop="-200dp"
         android:layout_height = "wrap_content"
         android:layout_width = "match_parent"
         android:layout_alignParentTop="true">

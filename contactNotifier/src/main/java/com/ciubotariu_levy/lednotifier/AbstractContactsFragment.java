@@ -25,10 +25,6 @@ import com.makeramen.RoundedTransformationBuilder;
 import com.squareup.picasso.Transformation;
 
 public abstract class AbstractContactsFragment extends Fragment implements MainActivity.SearchReceiver, ColorVibrateDialog.ContactDetailsUpdateListener, LoaderManager.LoaderCallbacks<Cursor>, AbstractContactViewBinder.ContactListener {
-    //copied ListFragment Constants due to access issue.
-    private static final int INTERNAL_EMPTY_ID = 0x00ff0001;
-    private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
-    private static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
     @SuppressLint("InlinedApi")
     public static final String CONTACT_NAME = Build.VERSION.SDK_INT
@@ -36,36 +32,32 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
             ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
             ContactsContract.Contacts.DISPLAY_NAME;
 
-    protected abstract String[] getFromColumns();
     protected abstract String[] getProjection();
-    protected static final String CONTACT_DIALOG_TAG = "color_vibrate_dialog";
 
     private static final int[] TO_IDS = {
             R.id.contact_name, R.id.contact_number,R.id.contact_ringtone,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
     };
 
-    private String TAG = "AbsContactsFrag";
-
-    protected abstract String getBareQuery();
     protected abstract String getQuery();
-
     protected abstract int getLoaderId();
 
+    private final String TAG = "AbsContactsFrag";
     private static final String KEY_CONSTRAINT = "KEY_FILTER";
-    private RecyclerCursorAdapter mCursorAdapter;
     private static final String LIST_STATE = "list_state";
+
+    private RecyclerCursorAdapter mCursorAdapter;
     private Parcelable mListState;
-    private RecyclerView.LayoutManager layoutManager;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     private Bundle mLoaderArgs = new Bundle();
 
-    private AbstractContactViewBinder viewBinder;
+    private AbstractContactViewBinder mViewBinder;
 
     protected RecyclerCursorAdapter getCursorAdapter(){
         return mCursorAdapter;
     }
 
-    public static RecyclerView r;
+    public static RecyclerView mRecyclerView;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -76,7 +68,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
                 .cornerRadiusDp(30)
                 .oval(false)
                 .build();
-        viewBinder = getViewBinder(transformation);
+        mViewBinder = getViewBinder(transformation);
 
         mCursorAdapter = new RecyclerCursorAdapter(null,"_id") {
 
@@ -86,13 +78,13 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
                 // create a new view
                 View v = LayoutInflater.from(parent.getContext()).inflate(getRowResID(), parent, false);
 
-                AbstractContactViewBinder.ContactHolder vh = new AbstractContactViewBinder.ContactHolder(v,viewBinder.hasColorView());
+                AbstractContactViewBinder.ContactHolder vh = new AbstractContactViewBinder.ContactHolder(v, mViewBinder.hasColorView());
                 return vh;
             }
 
             @Override
             public void onBind(RecyclerView.ViewHolder holder, int pos, Cursor cursor) {
-                viewBinder.bind(holder, cursor, getActivity());
+                mViewBinder.bind(holder, cursor, getActivity());
             }
         };
     }
@@ -114,12 +106,9 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     public void onViewCreated (View view, Bundle savedInstanceState) {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
 
-        r = recyclerView;
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
+        mRecyclerView = recyclerView;
         recyclerView.setHasFixedSize(false);
 
-        // use a linear layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
 
@@ -128,25 +117,19 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
         listSetupComplete();
     }
 
-
-
     @Override
     public void startForResult(Intent intent, int requestCode) {
         startActivityForResult(intent,requestCode);
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        Fragment child = getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG);
-//        if (child != null){
-//            child.onActivityResult(requestCode, resultCode, data);
-//        }
-        viewBinder.onResult(requestCode, resultCode, data);
+        mViewBinder.onResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onSaveInstanceState (Bundle outState) {
-        if (layoutManager != null) {
-            mListState = layoutManager.onSaveInstanceState();
+        if (mLayoutManager != null) {
+            mListState = mLayoutManager.onSaveInstanceState();
         }
         if (mListState != null) {
             outState.putParcelable(LIST_STATE, mListState);
@@ -193,10 +176,10 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
         }
 
         RecyclerView r = (RecyclerView) getView().findViewById(R.id.contact_list);
-        layoutManager = r.getLayoutManager();
+        mLayoutManager = r.getLayoutManager();
         if (mListState != null) {
             System.out.println (mListState);
-            layoutManager.onRestoreInstanceState(mListState);
+            mLayoutManager.onRestoreInstanceState(mListState);
             mListState = null;
         }
     }
@@ -210,7 +193,6 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     @Override //TODO: figure out if this needs to be subimplemented
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
         Log.d (TAG,"Creating Loader");
-//        getListView().setFastScrollEnabled(false);
         String constraint = "";
         if (args != null && args.getString(KEY_CONSTRAINT) != null){
             constraint = args.getString(KEY_CONSTRAINT);

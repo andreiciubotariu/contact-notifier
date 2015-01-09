@@ -39,19 +39,8 @@ public class CustomContactsFragment extends AbstractContactsFragment {
     private static final int LOADER_ID = 1;
 
     @Override
-    protected String[] getFromColumns() {
-        return FROM_COLUMNS;
-    }
-
-    @Override
     protected String[] getProjection() {
         return PROJECTION;
-    }
-
-    //not used
-    @Override
-    protected String getBareQuery() {
-        return null;
     }
 
     @Override
@@ -150,11 +139,6 @@ public class CustomContactsFragment extends AbstractContactsFragment {
         data.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));       if (TextUtils.isEmpty(data.ringtoneUri)) {
             data.ringtoneUri = ColorVibrateDialog.GLOBAL;
         }
-//        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null) {
-//            ColorVibrateDialog.getInstance(data)
-//                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
-//        }
-
         return data;
     }
 

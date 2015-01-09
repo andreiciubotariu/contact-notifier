@@ -25,7 +25,6 @@ public class NotificationService extends NotificationListenerService {
 	private static final int DELAY_MILLIS = 5000;
 
 	protected static boolean isNotificationListenerServiceOn = false;
-	private Notification mCurrentNotification = null;
 	private boolean mTieNotification = false;
 	private boolean mDelayDismissal = false;
 
@@ -34,7 +33,6 @@ public class NotificationService extends NotificationListenerService {
 		@Override
 		public void run(){
 			NotificationUtils.cancel(NotificationService.this);
-			mCurrentNotification = null;
 		}
 	};
 
@@ -57,8 +55,7 @@ public class NotificationService extends NotificationListenerService {
 
 		@Override
 		public void onNotificationReady(Context context, Notification notif, boolean ledTimeout){
-			mCurrentNotification = notif;
-			if (notif != null && context != null){
+            if (notif != null && context != null){
 				NotificationUtils.notify (context, notif,ledTimeout);
 			}
 		}
@@ -97,9 +94,6 @@ public class NotificationService extends NotificationListenerService {
 	@Override
 	public void onNotificationPosted(StatusBarNotification sbn) {
 		Log.v(TAG, "Notification received by system");
-		if (sbn.getPackageName().equals(getPackageName())){
-			mCurrentNotification = sbn.getNotification();
-		}
 		if (isMessagingApp(sbn.getPackageName())){
 			mHandler.removeCallbacks(mDismissNotification);
 		}
@@ -109,12 +103,9 @@ public class NotificationService extends NotificationListenerService {
 //		}
 	}
 
-
 	@Override
 	public void onNotificationRemoved(StatusBarNotification sbn) {
 		if (mTieNotification && isMessagingApp(sbn.getPackageName())){
-			/*((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(SMSReceiver.NOTIFICATION_ID);
-			mCurrentNotification = null;*/
 			if (mDelayDismissal){
 				mHandler.postAtTime(mDismissNotification, SystemClock.uptimeMillis()+DELAY_MILLIS);
 			}

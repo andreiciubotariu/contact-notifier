@@ -10,6 +10,22 @@ import android.support.v4.app.FragmentActivity;
 
 public class TipContainer extends FragmentActivity {
 
+    private static final String DIALOG_TAG = "tips_dialog";
+    private static final String KEY_TIP = "tip";
+
+    public enum Tip {
+        SET_SMS_APP (0,0),
+        DUPLICATE_NOTIFS (0,0);
+
+        public final int title;
+        public final int message;
+
+        Tip(int t, int m) {
+            title = t;
+            message = m;
+        }
+    }
+
     public static class TipDialog extends DialogFragment {
 
 
@@ -33,22 +49,6 @@ public class TipContainer extends FragmentActivity {
                         }
                     })
                     .create();
-        }
-    }
-
-    private static final String DIALOG_TAG = "tips_dialog";
-    private static final String KEY_TIP = "tip";
-
-    public enum Tip {
-        SET_SMS_APP (0,0),
-        DUPLICATE_NOTIFS (0,0);
-
-        public final int title;
-        public final int message;
-
-        Tip(int t, int m) {
-          title = t;
-          message = m;
         }
     }
 

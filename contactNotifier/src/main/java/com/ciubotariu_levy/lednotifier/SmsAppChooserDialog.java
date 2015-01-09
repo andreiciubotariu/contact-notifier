@@ -40,8 +40,7 @@ public class SmsAppChooserDialog extends DialogFragment {
 			userList [x] = pair;
 		}
 
-
-		Context context = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ? 
+		Context context = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ?
 				new ContextThemeWrapper(getActivity(), R.style.Theme_ContactNotifierBase):
 					getActivity();
 

@@ -6,11 +6,11 @@
 
     <RelativeLayout
         xmlns:colorpicker="http://schemas.android.com/apk/res-auto"
-        android:id = "@+id/test_view"
+        android:id = "@+id/custom_controls"
         android:layout_height = "wrap_content"
         android:layout_width = "match_parent"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="-100dp">
+        android:layout_marginTop="-200dp">
 
         <com.larswerkman.holocolorpicker.EndColorPicker
             android:id="@+id/colorbar"

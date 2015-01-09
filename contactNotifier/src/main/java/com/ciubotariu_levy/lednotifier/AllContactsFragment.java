@@ -16,31 +16,19 @@ import java.util.HashMap;
 
 public class AllContactsFragment extends AbstractContactsFragment implements DataFetcher.OnDataFetchedListener {
 
-    private static final String[] FROM_COLUMNS = {
-            CONTACT_NAME, /*ContactsContract.CommonDataKinds.Phone.NUMBER,*/ ContactsContract.Contacts._ID, ContactsContract.Contacts._ID, ContactsContract.Contacts.LOOKUP_KEY, ContactsContract.Contacts._ID
-    };
-
     private static final String[] PROJECTION = {
-           /* ContactsContract.Contacts._ID,*/
             ContactsContract.Contacts.LOOKUP_KEY,
             CONTACT_NAME,
-            //ContactsContract.CommonDataKinds.Phone.NUMBER,
-            //ContactsContract.CommonDataKinds.Phone.TYPE,
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID
     };
 
     private static final String BARE_QUERY = ContactsContract.Contacts.HAS_PHONE_NUMBER + "=?";
     private static final String QUERY = "(" + CONTACT_NAME + " LIKE ? OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?)";
-    private String modQuery = QUERY;
     private static final int LOADER_ID = 0;
 
     private HashMap <String, LedContactInfo> mLedData;
+    private String mModifiedQuery = QUERY;
     private DataFetcher mFetcher;
-
-    @Override
-    protected String[] getFromColumns() {
-        return FROM_COLUMNS;
-    }
 
     @Override
     protected String[] getProjection() {
@@ -48,13 +36,8 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     }
 
     @Override
-    protected String getBareQuery() {
-        return BARE_QUERY;
-    }
-
-    @Override
     protected String getQuery() {
-        return modQuery;
+        return mModifiedQuery;
     }
 
     @Override
@@ -72,7 +55,10 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
 
             @Override
             protected Uri getContactUri(Cursor cursor) {
-                return ContactsContract.Contacts.getLookupUri(cursor.getLong(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)), cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
+                return ContactsContract.Contacts.getLookupUri(
+                     cursor.getLong(cursor.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID)),
+                     cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
             }
 
             @Override
@@ -138,7 +124,6 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {newData.systemLookupUri});
             if (info != null){
                 mLedData.remove(newData.systemLookupUri);
-               // mLedData.put(newData.systemLookupUri, null);
             }
         } else {
             ContentValues values = new ContentValues();
@@ -157,7 +142,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
                 getActivity().getContentResolver().update(uri, values, null, null);
             }
 
-            StringBuilder addExcludeQuery = new StringBuilder(modQuery);
+            StringBuilder addExcludeQuery = new StringBuilder(mModifiedQuery);
             Cursor contactUriCursor = getActivity().getContentResolver().query(Uri.parse(newData.systemLookupUri),new String[]{ContactsContract.Contacts.LOOKUP_KEY},null,null,null);
             if (contactUriCursor != null && contactUriCursor.moveToFirst()){
                 addExcludeQuery.append(" AND ")
@@ -167,8 +152,8 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
                         .append("\"");
             }
 
-            Log.e("TAG",modQuery);
-            modQuery = addExcludeQuery.toString();
+            Log.e("TAG", mModifiedQuery);
+            mModifiedQuery = addExcludeQuery.toString();
 
             if (contactUriCursor != null) {
                 contactUriCursor.close();
@@ -189,7 +174,6 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
         }
         Cursor c = getCursorAdapter().getCursor();
         long contactID = c.getLong(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-        //Log.i("CONTACT_INFO", position + " " + contactID + " " + c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
         String lookupValue = ContactsContract.Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY))).toString();
         if (mLedData.get(lookupValue) != null){
             data = new LedContactInfo (mLedData.get(lookupValue));
@@ -201,13 +185,6 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             data.ringtoneUri = ColorVibrateDialog.GLOBAL;
         }
         data.lastKnownName = c.getString(c.getColumnIndex(CONTACT_NAME));
-        //data.lastKnownNumber = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-
-//        if (getChildFragmentManager().findFragmentByTag(CONTACT_DIALOG_TAG) == null){
-//            ColorVibrateDialog.getInstance(data)
-//                    .show(getChildFragmentManager(), CONTACT_DIALOG_TAG);
-//        }
-
         return data;
     }
 
@@ -216,13 +193,10 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
         Log.d("AllContacts", "Data Fetched");
         mFetcher = null;
         mLedData = fetchedData;
-        //Initializes the loader
         if (getActivity() != null){
-                modQuery = QUERY + excludeQuery;
-                System.out.println(modQuery);
+                mModifiedQuery = QUERY + excludeQuery;
+                System.out.println(mModifiedQuery);
                 getLoaderManager().initLoader(LOADER_ID, null, this);
         }
-
-
     }
 }

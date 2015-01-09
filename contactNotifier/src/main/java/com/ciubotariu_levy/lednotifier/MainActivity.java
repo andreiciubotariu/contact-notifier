@@ -17,10 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
-	private static final String KEY_FIRST_RUN = "first_run";
-	private static final String KEY_FIRST_TIME_DRAWER = "first_time_drawer";
 	private static final String KEY_SEARCH_TEXT = "KEY_SEARCH_TEXT";
-	public static final String KEY_DELAY_DISMISS = "delay_dismissal";
 
 	public interface SearchReceiver{
 		public void onSearchClosed();
@@ -33,6 +30,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 	private SearchReceiver mSearchReceiver;
 	private MenuItem mSearchItem;
 	private String mSearchText="";
+    private int mBackStackCount = 0;
 
 
 	@TargetApi(19)
@@ -41,7 +39,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		startService (new Intent (this, ObserverService.class));
-//        startActivity(new Intent (this, MainActivity2.class));
 
 		mFragmentTitles = new String[] {"Custom contacts", "Select contact"};
 
@@ -157,7 +154,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 		return super.onKeyDown(keyCode, event);
 	}
 
-    int mBackStackCount = 0;
     @Override
     public void onBackStackChanged() {
         int count = getSupportFragmentManager().getBackStackEntryCount();

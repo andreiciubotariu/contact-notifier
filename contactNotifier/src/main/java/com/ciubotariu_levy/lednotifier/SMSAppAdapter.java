@@ -42,7 +42,6 @@ public class SMSAppAdapter extends ArrayAdapter<IconPackagePair> {
 		appIcon.setScaleType(ScaleType.FIT_CENTER);
 		appIcon.setImageDrawable(pair.icon);
 
-
 		TextView appName = (TextView) view.findViewById(TEXTVIEW_RESOURCE);
 		appName.setText (pair.appName);
 

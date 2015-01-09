@@ -340,7 +340,6 @@ public class SMSReceiver extends BroadcastReceiver {
                 } else {
                     Log.e("TAG", " b is null");
                 }
-                //notifBuilder.setLargeIcon(BitmapFactory.decodeStream(Contacts.openContactPhotoInputStream(context.getContentResolver(),Uri.parse(sender[0]),false)));
                 notifBuilder.addPerson(firstMessage.contactUri);
             }
             if (preferences.getBoolean("status_bar_preview", false)){
@@ -382,36 +381,6 @@ public class SMSReceiver extends BroadcastReceiver {
                 NotificationService.isNotificationListenerServiceOn : false;
         if (!isServiceOn && context != null && notif != null){
             NotificationUtils.notify (context, notif,ledTimeout);
-        }
-    }
-
-    /**
-     *
-     * @param number
-     * @param resolver
-     * @return [Contact's lookup key or null, Display name or number]
-     */
-    private String [] getNameForNumber (String number, ContentResolver resolver){
-        Cursor contactCursor = null;
-        try{
-            Uri phoneNumberUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
-            contactCursor = resolver.query(phoneNumberUri, new String [] {Contacts.LOOKUP_KEY,PhoneLookup._ID,PhoneLookup.DISPLAY_NAME}, null, null, null);
-            if (contactCursor != null && contactCursor.moveToFirst()){
-                Uri contactUri = Contacts.getLookupUri(contactCursor.getLong(contactCursor.getColumnIndex(PhoneLookup._ID)), contactCursor.getString (contactCursor.getColumnIndex(Contacts.LOOKUP_KEY)));
-
-                String contactUriString = contactUri == null ? null : contactUri.toString();
-                return new String [] {contactUriString,
-                        contactCursor.getString (contactCursor.getColumnIndex(PhoneLookup.DISPLAY_NAME))};
-            }
-            else {
-                Log.i(TAG,"Not a contact in phone's database");
-                return new String [] {null,number};
-            }
-        }
-        finally {
-            if (contactCursor != null){
-                contactCursor.close();
-            }
         }
     }
 
@@ -477,5 +446,4 @@ public class SMSReceiver extends BroadcastReceiver {
         }
         return null;
     }
-
 }

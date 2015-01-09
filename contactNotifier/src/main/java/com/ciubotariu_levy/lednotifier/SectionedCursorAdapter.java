@@ -11,6 +11,7 @@ public class SectionedCursorAdapter extends SimpleCursorAdapter implements Secti
 	
 	private AlphabetIndexer mIndexer;
 	private String mAlphabetColumn;
+
 	public SectionedCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags, String alphabetColumn){
 		super(context,layout,c,from, to, flags);
 		

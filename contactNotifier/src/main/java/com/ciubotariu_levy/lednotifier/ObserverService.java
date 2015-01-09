@@ -181,26 +181,14 @@ public class ObserverService extends Service {
 								values.put(LedContacts.LAST_KNOWN_NAME, name);	
 								needsUpdating = true;
 							}
-
-//							String phoneNumber = contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER));
-//							if (!phoneNumber.equals(customContactsCursor.getString(customContactsCursor.getColumnIndex(LedContacts.LAST_KNOWN_NUMBER)))){
-//								values.put(LedContacts.LAST_KNOWN_NUMBER, phoneNumber);
-//								needsUpdating = true;
-//							}
                             if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER)) == 0) {
                                 needsUpdating = false;
                                 toDelete.add(String.valueOf(id));
                             }
-
-//							if (contactNameCursor.getInt(contactNameCursor.getColumnIndex(Phone.TYPE)) != Phone.TYPE_MOBILE){
-//								needsUpdating = false;
-//								toDelete.add(String.valueOf(id));
-//							}
 						}
 						if (contactNameCursor != null){
 							contactNameCursor.close();
 						}
-
 						if (needsUpdating){
 							Uri updateUri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(id));
 							resolver.update(updateUri, values, null, null);
