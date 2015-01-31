@@ -24,10 +24,3 @@ Thumbs.db
 # Eclipse project files
 .classpath
 .project
-
-# Android Studio
-.idea/
-.gradle/
-build/
-contactNotifier/build/
-holoColorPicker/build/
