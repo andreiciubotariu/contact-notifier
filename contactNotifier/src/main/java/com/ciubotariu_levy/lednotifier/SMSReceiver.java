@@ -166,8 +166,8 @@ public class SMSReceiver extends BroadcastReceiver {
             return;
         }
 
-        HashMap<String, MessageInfo> infoMap = new HashMap<String, MessageInfo>();
-        List<String> customMessages = new ArrayList<String>();
+        HashMap<String, MessageInfo> infoMap = new HashMap<>();
+        List<String> customMessages = new ArrayList<>();
 
         if (intent.getAction().equals(Sms.Intents.WAP_PUSH_RECEIVED_ACTION)
                 && ContentType.MMS_MESSAGE.equals(intent.getType())) {
@@ -218,10 +218,7 @@ public class SMSReceiver extends BroadcastReceiver {
 
         }
         else if  (intent.getAction().equals(Sms.Intents.SMS_RECEIVED_ACTION)) {
-
-
             SmsMessage[] sms = getSMSMessagesFromIntent(intent);
-
 
             for (int x = 0; x < sms.length; x++) {
                 String address = sms[x].getOriginatingAddress();
