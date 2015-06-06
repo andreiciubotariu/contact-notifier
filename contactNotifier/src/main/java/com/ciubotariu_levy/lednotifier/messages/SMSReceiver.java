@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.ciubotariu_levy.lednotifier;
+package com.ciubotariu_levy.lednotifier.messages;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -30,6 +30,14 @@ import android.telephony.SmsMessage;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.ciubotariu_levy.lednotifier.AlarmDismissReceiver;
+import com.ciubotariu_levy.lednotifier.ColorVibrateDialog;
+import com.ciubotariu_levy.lednotifier.DefaultColorChooserContainer;
+import com.ciubotariu_levy.lednotifier.MainActivity;
+import com.ciubotariu_levy.lednotifier.NotificationService;
+import com.ciubotariu_levy.lednotifier.NotificationUtils;
+import com.ciubotariu_levy.lednotifier.R;
+import com.ciubotariu_levy.lednotifier.SmsAppChooserDialog;
 import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
 import com.google.android.mms.ContentType;
@@ -52,12 +60,24 @@ public class SMSReceiver extends BroadcastReceiver {
     protected static final String SHOW_ALL_NOTIFS = "show_all_notifications";
     private static final String DEF_VIBRATE = "def_vibrate";
 
-    private static class MessageInfo {
+    public static class MessageInfo {
         String name, address, contactUri, ringtoneUri, vibPattern, text;
         int color = Color.GRAY;
 
         boolean isCustom() {
             return contactUri != null && (ringtoneUri != null || vibPattern != null || color != Color.GRAY);
+        }
+
+        boolean customColor() {
+            return color != Color.GRAY;
+        }
+
+        boolean customRing() {
+            return ringtoneUri != null;
+        }
+
+        boolean customVib() {
+            return vibPattern != null;
         }
     }
 
@@ -260,7 +280,6 @@ public class SMSReceiver extends BroadcastReceiver {
         if (preferences.getBoolean("notif_and_sound", false)){
             ringtone = preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString());
         }
-
 
         boolean ringtoneSet = false, vibSet = false, colorSet = false;
         for (int x = 0; x < customMessages.size(); x++) {
