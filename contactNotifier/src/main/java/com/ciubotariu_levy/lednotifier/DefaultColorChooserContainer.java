@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentActivity;
 
 public class DefaultColorChooserContainer extends FragmentActivity implements ColorDialog.OnColorChosenListener{
 	private static final String COLOR_CHOOSER_DIALOG_TAG = "color_chooser";
-	protected static final String DEFAULT_COLOR = "default_notification_color";
+	public static final String DEFAULT_COLOR = "default_notification_color";
 	private SharedPreferences mPrefs;
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)

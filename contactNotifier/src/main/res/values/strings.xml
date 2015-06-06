@@ -16,5 +16,5 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="title_activity_tip_container">Tips</string>
     <string name="hello_world">Hello world!</string>
-
+    <string name="choose_sms_app">Choose your SMS app</string>
 </resources>

@@ -25,11 +25,16 @@ import android.preference.RingtonePreference;
 import android.provider.Settings;
 import android.provider.Telephony.Sms;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AppCompatCallback;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import com.samples.android.supportv7.app.AppCompatPreferenceActivity;
 
 import java.util.List;
 
@@ -44,7 +49,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends AppCompatPreferenceActivity {
 	/**
 	 * Determines whether to always show the simplified settings UI, where
 	 * settings are presented in a single list. When false, settings are shown
@@ -56,36 +61,19 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.title_activity_settings);
-        toolbar.setTitleTextColor(Color.WHITE);
-        final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        upArrow.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
-        toolbar.setNavigationIcon(upArrow);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
     }
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
 		setupSimplePreferencesScreen();
 		setupNewApiPhoneSizePreferences();
-//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && getActionBar() != null){
-//			getActionBar().setDisplayHomeAsUpEnabled(true);
-//		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupNewApiPhoneSizePreferences() {
 		if (!isXLargeTablet(this) && Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB){
-			getFragmentManager().beginTransaction().replace(R.id.content, new AllPreferencesFragment()).commit();
+			getFragmentManager().beginTransaction().replace(android.R.id.content, new AllPreferencesFragment()).commit();
 		}
 	}
 
@@ -302,7 +290,7 @@ public class SettingsActivity extends PreferenceActivity {
 				|| AllPreferencesFragment.class.getName().equals(fragmentName);
 	}
 
-	/**
+    /**
 	 * This fragment shows general preferences only. It is used when the
 	 * activity is showing a two-pane settings UI.
 	 */

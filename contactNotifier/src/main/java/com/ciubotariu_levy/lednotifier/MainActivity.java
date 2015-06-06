@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
@@ -16,7 +17,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
 	private static final String KEY_SEARCH_TEXT = "KEY_SEARCH_TEXT";
 
 	public interface SearchReceiver{

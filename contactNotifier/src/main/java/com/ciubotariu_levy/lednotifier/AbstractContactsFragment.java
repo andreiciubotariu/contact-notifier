@@ -57,7 +57,6 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
         return mCursorAdapter;
     }
 
-    public static RecyclerView mRecyclerView;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -106,7 +105,6 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     public void onViewCreated (View view, Bundle savedInstanceState) {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
 
-        mRecyclerView = recyclerView;
         recyclerView.setHasFixedSize(false);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());

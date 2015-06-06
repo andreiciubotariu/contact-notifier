@@ -17,6 +17,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import com.ciubotariu_levy.lednotifier.messages.SMSReceiver;
+
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
 	private static final String TAG = NotificationService.class.getName();
@@ -24,7 +26,7 @@ public class NotificationService extends NotificationListenerService {
 	private static final String KEY_DELAY_DISMISS = "delay_dismissal";
 	private static final int DELAY_MILLIS = 5000;
 
-	protected static boolean isNotificationListenerServiceOn = false;
+	public static boolean isNotificationListenerServiceOn = false;
 	private boolean mTieNotification = false;
 	private boolean mDelayDismissal = false;
 

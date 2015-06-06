@@ -1,7 +1,6 @@
 package com.ciubotariu_levy.lednotifier;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.ContextThemeWrapper;
 
 import com.ciubotariu_levy.lednotifier.SMSAppAdapter.IconPackagePair;
@@ -46,7 +46,7 @@ public class SmsAppChooserDialog extends DialogFragment {
 
 				SMSAppAdapter adapter = new SMSAppAdapter(getActivity(), userList);
 				return new AlertDialog.Builder(context)
-				.setTitle("Choose your current SMS app")
+				.setTitle(R.string.choose_sms_app)
 				.setAdapter(adapter, new OnClickListener(){
 
 					@Override

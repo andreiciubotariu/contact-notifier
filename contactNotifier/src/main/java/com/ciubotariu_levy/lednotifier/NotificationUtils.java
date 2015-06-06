@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Message;
+
+import com.ciubotariu_levy.lednotifier.messages.MessageHistory;
 
 public class NotificationUtils {
 	public static final String TAG = NotificationUtils.class.getName();
@@ -16,6 +19,7 @@ public class NotificationUtils {
 	public static final int NOTIFICATION_ID = 1;
 	public static final int DELAY_TIME = 10*60*1000;
 
+    public static Notification sNotification;
 	public static String title;
 	public static String message;
 	public static PendingIntent contentIntent;
@@ -46,6 +50,7 @@ public class NotificationUtils {
 	
 	public static void notify (Context context, Notification notif){
 		((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notif);
+        sNotification = notif;
 	}
 	
 	public static void dismissAlarm (Context context){
@@ -61,5 +66,7 @@ public class NotificationUtils {
 		title = null;
 		message = null;
 		contentIntent = null;
+        MessageHistory.clear();
+        sNotification = null;
 	}
 }

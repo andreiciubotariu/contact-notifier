@@ -7,11 +7,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-public class AboutActivity extends ActionBarActivity {
+public class AboutActivity extends AppCompatActivity {
 	private static String GH_URL = "http://www.github.com/";
 	private String mVersionName = "";
 	private CharSequence mAppName = "";
