@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Message;
 
 import com.ciubotariu_levy.lednotifier.messages.MessageHistory;
@@ -19,14 +20,16 @@ public class NotificationUtils {
 	public static final int NOTIFICATION_ID = 1;
 	public static final int DELAY_TIME = 10*60*1000;
 
+    public static Runnable sPostNotificationRunnable;
     public static Notification sNotification;
 	public static String title;
 	public static String message;
 	public static PendingIntent contentIntent;
-	
+
+	private static Handler sHandler = new Handler();
 	@TargetApi(19)
 	public static void notify (Context context, Notification notif, boolean timeoutLED){
-		dismissAlarm (context);
+		dismissAlarm(context);
 		if (notif.ledARGB == Color.GRAY){ //ensure LED is turned off
 			notif.ledARGB = 0;
 			notif.ledOnMS = 0;
@@ -45,12 +48,27 @@ public class NotificationUtils {
 				a.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DELAY_TIME, p);
 			}
 		}
-		notify (context,notif);
+		notify(context,notif);
 	}
 	
-	public static void notify (Context context, Notification notif){
-		((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notif);
-        sNotification = notif;
+	public static void notify (final Context context, final Notification notif){
+        Runnable postNotificationTask = new Runnable() {
+            @Override
+            public void run() {
+                ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notif);
+                sNotification = notif;
+            }
+        };
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            if (NotificationService.isNotificationListenerServiceOn) {
+                sPostNotificationRunnable = postNotificationTask;
+            } else {
+                sHandler.postDelayed(postNotificationTask, 5000);
+            }
+        } else {
+            postNotificationTask.run();
+        }
 	}
 	
 	public static void dismissAlarm (Context context){

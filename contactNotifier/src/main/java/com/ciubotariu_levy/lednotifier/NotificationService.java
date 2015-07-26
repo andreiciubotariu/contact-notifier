@@ -99,10 +99,9 @@ public class NotificationService extends NotificationListenerService {
 		if (isMessagingApp(sbn.getPackageName())){
 			mHandler.removeCallbacks(mDismissNotification);
 		}
-//		if (mCurrentNotification != null && isMessagingApp(sbn.getPackageName())){
-//			boolean ledTimeout = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SMSReceiver.KEY_TIMEOUT_LED, false);
-//			NotificationUtils.notify (this, mCurrentNotification, ledTimeout);//TODO check if this is needed
-//		}
+		if (isMessagingApp(sbn.getPackageName()) && NotificationUtils.sPostNotificationRunnable != null) {
+			NotificationUtils.sPostNotificationRunnable.run();
+		}
 	}
 
 	@Override

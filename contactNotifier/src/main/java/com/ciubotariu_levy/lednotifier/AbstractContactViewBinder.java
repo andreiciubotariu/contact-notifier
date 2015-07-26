@@ -2,6 +2,7 @@ package com.ciubotariu_levy.lednotifier;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -58,6 +59,7 @@ public abstract class AbstractContactViewBinder {
         public EditText mVibrateInput;
         public Button mInsertCommaButton, mTestVibrate, mChooseRingtoneButton;
         public CheckBox mVibrateCheckbox, mRingtoneCheckbox;
+        public Button mSaveButton;
 
         public ContactHolder(View v, boolean hasColor) {
             super(v);
@@ -85,6 +87,8 @@ public abstract class AbstractContactViewBinder {
 
             mVibrateCheckbox = (CheckBox) v.findViewById(R.id.vibrate_checkbox);
             mRingtoneCheckbox = (CheckBox) v.findViewById(R.id.ringtone_checkbox);
+
+            mSaveButton = (Button) v.findViewById(R.id.save_button);
         }
     }
 
@@ -317,7 +321,7 @@ public abstract class AbstractContactViewBinder {
         chooseRingtoneButton.setText(buttonText);
     }
 
-    public void onResult (int requestCode, int resultCode, Intent data){
+    public void onResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQ_CODE){
             if (resultCode == Activity.RESULT_OK){
                 Uri ringtoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
@@ -326,7 +330,7 @@ public abstract class AbstractContactViewBinder {
         }
     }
 
-    private void onConfirm (){
+    private void onConfirm() {
         mExpVibPattern = "";
         if (mExpHolder.mVibrateCheckbox.isChecked()){
             mExpVibPattern = mExpHolder.mVibrateInput.getText().toString().trim();
@@ -413,7 +417,7 @@ public abstract class AbstractContactViewBinder {
         ((ContactHolder) holder).customControls.setVisibility(
                 holder.getPosition() == expPos ? View.VISIBLE : View.GONE);
 
-        viewHolder.mRowContainer.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mCurrentAnimator != null && mCurrentAnimator.isStarted()) {
@@ -438,6 +442,9 @@ public abstract class AbstractContactViewBinder {
                     }
                 }
             }
-        });
+        };
+        viewHolder.mRowContainer.setOnClickListener(clickListener);
+
+        viewHolder.mSaveButton.setOnClickListener(clickListener);
     }
 }

@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
@@ -94,16 +94,16 @@
             android:exported="false" >
         </provider>
 
-        <activity
-            android:name=".TipContainer"
-            android:label="@string/title_activity_tip_container"
-            android:theme="@style/Theme.ContactNotifierTranslucent">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <!--<activity-->
+            <!--android:name=".TipContainer"-->
+            <!--android:label="@string/title_activity_tip_container"-->
+            <!--android:theme="@style/Theme.ContactNotifierTranslucent">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
     </application>
 
 </manifest>

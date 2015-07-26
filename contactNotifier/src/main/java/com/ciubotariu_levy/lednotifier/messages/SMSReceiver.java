@@ -233,8 +233,7 @@ public class SMSReceiver extends BroadcastReceiver {
     }
 
     public void onNotificationReady (Context context, Notification notif, boolean ledTimeout){
-        boolean isServiceOn = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ?
-                NotificationService.isNotificationListenerServiceOn : false;
+        boolean isServiceOn = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && NotificationService.isNotificationListenerServiceOn;
         if (!isServiceOn && context != null && notif != null){
             NotificationUtils.notify (context, notif,ledTimeout);
         }

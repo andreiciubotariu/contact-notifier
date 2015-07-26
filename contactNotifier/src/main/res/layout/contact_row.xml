@@ -10,6 +10,7 @@
         android:layout_height = "wrap_content"
         android:layout_width = "match_parent"
         android:layout_alignParentTop="true"
+        android:paddingLeft = "15dp"
         android:layout_marginTop="-200dp">
 
         <com.larswerkman.holocolorpicker.EndColorPicker
@@ -139,6 +140,15 @@
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="numberDecimal" />
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="15dp"
+            android:text = "Save"
+            android:layout_below="@id/vib_input_container"/>
     </RelativeLayout>
 
     <FrameLayout
