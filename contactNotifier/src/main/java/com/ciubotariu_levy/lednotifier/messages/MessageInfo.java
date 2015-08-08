@@ -8,7 +8,7 @@ public class MessageInfo {
     public int color = Color.GRAY;
 
     public boolean isCustom() {
-        return contactUri != null && (customColor()|| customRing() || customVib());
+        return contactUri != null && (customColor() || customRing() || customVib());
     }
 
     public String name() {

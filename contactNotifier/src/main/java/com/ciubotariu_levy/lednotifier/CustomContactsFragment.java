@@ -19,9 +19,9 @@ import com.squareup.picasso.Transformation;
 
 
 public class CustomContactsFragment extends AbstractContactsFragment {
-
     public static final String SELECT_CONTACTS_TAG = "select_contacts";
     public static final String SELECT_CONTACTS_TRANSACTION = "transaction_select_contacts";
+
     private static final String[] FROM_COLUMNS = {
             LedContacts.LAST_KNOWN_NAME, LedContacts.LAST_KNOWN_NUMBER, LedContacts.RINGTONE_URI, LedContacts.VIBRATE_PATTERN, LedContacts.COLOR, LedContacts.SYSTEM_CONTACT_LOOKUP_URI
     };
@@ -136,7 +136,8 @@ public class CustomContactsFragment extends AbstractContactsFragment {
         data.systemLookupUri = c.getString(c.getColumnIndex(LedContacts.SYSTEM_CONTACT_LOOKUP_URI));
         data.color = c.getInt(c.getColumnIndex(LedContacts.COLOR));
         data.vibratePattern = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
-        data.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));       if (TextUtils.isEmpty(data.ringtoneUri)) {
+        data.ringtoneUri = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
+        if (TextUtils.isEmpty(data.ringtoneUri)) {
             data.ringtoneUri = ColorVibrateDialog.GLOBAL;
         }
         return data;
@@ -173,9 +174,9 @@ public class CustomContactsFragment extends AbstractContactsFragment {
             @Override
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                             .replace(R.id.content_frame, new AllContactsFragment(), SELECT_CONTACTS_TAG)
-                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                             .addToBackStack(SELECT_CONTACTS_TRANSACTION).commit();
+                        .replace(R.id.content_frame, new AllContactsFragment(), SELECT_CONTACTS_TAG)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .addToBackStack(SELECT_CONTACTS_TRANSACTION).commit();
             }
         });
     }

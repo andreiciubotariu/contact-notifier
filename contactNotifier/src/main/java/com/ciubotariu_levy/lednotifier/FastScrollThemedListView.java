@@ -7,16 +7,16 @@ import android.widget.ListView;
 
 public class FastScrollThemedListView extends ListView {
 
-	public FastScrollThemedListView(Context context) {
-		super(new ContextThemeWrapper(context, R.style.FastscrollThemedListView));
-	}
-	
-	public FastScrollThemedListView(Context context, AttributeSet attrs) {
-		super(new ContextThemeWrapper(context, R.style.FastscrollThemedListView), attrs);
-	}
+    public FastScrollThemedListView(Context context) {
+        super(new ContextThemeWrapper(context, R.style.FastscrollThemedListView));
+    }
 
-	public FastScrollThemedListView(Context context, AttributeSet attrs, int defStyle) {
-		super(new ContextThemeWrapper(context, R.style.FastscrollThemedListView), attrs, defStyle);
-	}
+    public FastScrollThemedListView(Context context, AttributeSet attrs) {
+        super(new ContextThemeWrapper(context, R.style.FastscrollThemedListView), attrs);
+    }
+
+    public FastScrollThemedListView(Context context, AttributeSet attrs, int defStyle) {
+        super(new ContextThemeWrapper(context, R.style.FastscrollThemedListView), attrs, defStyle);
+    }
 
 }

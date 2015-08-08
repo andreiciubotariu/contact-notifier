@@ -8,9 +8,9 @@ import com.ciubotariu_levy.lednotifier.messages.MessageHistory;
 
 public class AlarmDismissReceiver extends BroadcastReceiver {
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		NotificationUtils.dismissAlarm(context);
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        NotificationUtils.dismissAlarm(context);
         MessageHistory.clear();
-	}
+    }
 }

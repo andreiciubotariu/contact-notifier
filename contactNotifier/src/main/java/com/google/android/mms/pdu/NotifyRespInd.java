@@ -26,12 +26,12 @@ public class NotifyRespInd extends GenericPdu {
     /**
      * Constructor, used when composing a M-NotifyResp.ind pdu.
      *
-     * @param mmsVersion current version of mms
+     * @param mmsVersion    current version of mms
      * @param transactionId the transaction-id value
-     * @param status the status value
+     * @param status        the status value
      * @throws InvalidHeaderValueException if parameters are invalid.
-     *         NullPointerException if transactionId is null.
-     *         RuntimeException if an undeclared error occurs.
+     *                                     NullPointerException if transactionId is null.
+     *                                     RuntimeException if an undeclared error occurs.
      */
     public NotifyRespInd(int mmsVersion,
                          byte[] transactionId,
@@ -66,21 +66,10 @@ public class NotifyRespInd extends GenericPdu {
      *
      * @param value the value
      * @throws InvalidHeaderValueException if the value is invalid.
-     *         RuntimeException if an undeclared error occurs.
+     *                                     RuntimeException if an undeclared error occurs.
      */
     public void setReportAllowed(int value) throws InvalidHeaderValueException {
         mPduHeaders.setOctet(value, PduHeaders.REPORT_ALLOWED);
-    }
-
-    /**
-     * Set X-Mms-Status field value.
-     *
-     * @param value the value
-     * @throws InvalidHeaderValueException if the value is invalid.
-     *         RuntimeException if an undeclared error occurs.
-     */
-    public void setStatus(int value) throws InvalidHeaderValueException {
-        mPduHeaders.setOctet(value, PduHeaders.STATUS);
     }
 
     /**
@@ -90,6 +79,17 @@ public class NotifyRespInd extends GenericPdu {
      */
     public int getStatus() {
         return mPduHeaders.getOctet(PduHeaders.STATUS);
+    }
+
+    /**
+     * Set X-Mms-Status field value.
+     *
+     * @param value the value
+     * @throws InvalidHeaderValueException if the value is invalid.
+     *                                     RuntimeException if an undeclared error occurs.
+     */
+    public void setStatus(int value) throws InvalidHeaderValueException {
+        mPduHeaders.setOctet(value, PduHeaders.STATUS);
     }
 
     /**
@@ -106,9 +106,9 @@ public class NotifyRespInd extends GenericPdu {
      *
      * @param value the value
      * @throws NullPointerException if the value is null.
-     *         RuntimeException if an undeclared error occurs.
+     *                              RuntimeException if an undeclared error occurs.
      */
     public void setTransactionId(byte[] value) {
-            mPduHeaders.setTextString(value, PduHeaders.TRANSACTION_ID);
+        mPduHeaders.setTextString(value, PduHeaders.TRANSACTION_ID);
     }
 }

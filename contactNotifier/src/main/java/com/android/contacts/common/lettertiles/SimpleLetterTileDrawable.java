@@ -31,31 +31,39 @@ import android.text.TextUtils;
 import com.ciubotariu_levy.lednotifier.R;
 
 import junit.framework.Assert;
+
 /**
  * A drawable that encapsulates all the functionality needed to display a letter tile to
  * represent a contact image.
  */
 public class SimpleLetterTileDrawable extends Drawable {
-    private final String TAG = SimpleLetterTileDrawable.class.getSimpleName();
-    private final Paint mPaint;
-    /** Letter tile */
+    /**
+     * Contact type constants
+     */
+    public static final int TYPE_DEFAULT = 1;
+    /**
+     * Reusable components to avoid new allocations
+     */
+    private static final Paint sPaint = new Paint();
+    private static final Rect sRect = new Rect();
+    private static final char[] sFirstChar = new char[1];
+    /**
+     * Letter tile
+     */
     private static TypedArray sColors;
     private static int sDefaultColor;
     private static int sTileFontColor;
     private static float sLetterToTileRatio;
     private static Bitmap DEFAULT_PERSON_AVATAR;
-    /** Reusable components to avoid new allocations */
-    private static final Paint sPaint = new Paint();
-    private static final Rect sRect = new Rect();
-    private static final char[] sFirstChar = new char[1];
-    /** Contact type constants */
-    public static final int TYPE_DEFAULT = 1;
+    private final String TAG = SimpleLetterTileDrawable.class.getSimpleName();
+    private final Paint mPaint;
     private String mDisplayName;
     private String mIdentifier;
     private int mContactType = TYPE_DEFAULT;
     private float mScale = 1.0f;
     private float mOffset = 0.0f;
     private boolean mIsCircle = false;
+
     public SimpleLetterTileDrawable(final Resources res) {
         mPaint = new Paint();
         mPaint.setFilterBitmap(true);
@@ -73,6 +81,15 @@ public class SimpleLetterTileDrawable extends Drawable {
             sPaint.setAntiAlias(true);
         }
     }
+
+    private static Bitmap getBitmapForContactType(int contactType) {
+        return DEFAULT_PERSON_AVATAR;
+    }
+
+    private static boolean isEnglishLetter(final char c) {
+        return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
+    }
+
     @Override
     public void draw(final Canvas canvas) {
         final Rect bounds = getBounds();
@@ -82,6 +99,7 @@ public class SimpleLetterTileDrawable extends Drawable {
         // Draw letter tile.
         drawLetterTile(canvas);
     }
+
     /**
      * Draw the bitmap onto the canvas at the current bounds taking into account the current scale.
      */
@@ -100,6 +118,7 @@ public class SimpleLetterTileDrawable extends Drawable {
         sRect.set(0, 0, width, height);
         canvas.drawBitmap(bitmap, sRect, destRect, mPaint);
     }
+
     private void drawLetterTile(final Canvas canvas) {
         // Draw background color.
         sPaint.setColor(pickColor(mIdentifier));
@@ -132,9 +151,11 @@ public class SimpleLetterTileDrawable extends Drawable {
                     canvas);
         }
     }
+
     public int getColor() {
         return pickColor(mIdentifier);
     }
+
     /**
      * Returns a deterministic color based on the provided contact identifier string.
      */
@@ -148,56 +169,58 @@ public class SimpleLetterTileDrawable extends Drawable {
         final int color = Math.abs(identifier.hashCode()) % sColors.length();
         return sColors.getColor(color, sDefaultColor);
     }
-    private static Bitmap getBitmapForContactType(int contactType) {
-                return DEFAULT_PERSON_AVATAR;
-    }
-    private static boolean isEnglishLetter(final char c) {
-        return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
-    }
+
     @Override
     public void setAlpha(final int alpha) {
         mPaint.setAlpha(alpha);
     }
+
     @Override
     public void setColorFilter(final ColorFilter cf) {
         mPaint.setColorFilter(cf);
     }
+
     @Override
     public int getOpacity() {
         return android.graphics.PixelFormat.OPAQUE;
     }
+
     /**
      * Scale the drawn letter tile to a ratio of its default size
      *
      * @param scale The ratio the letter tile should be scaled to as a percentage of its default
-     * size, from a scale of 0 to 2.0f. The default is 1.0f.
+     *              size, from a scale of 0 to 2.0f. The default is 1.0f.
      */
     public void setScale(float scale) {
         mScale = scale;
     }
+
     /**
      * Assigns the vertical offset of the position of the letter tile to the ContactDrawable
      *
      * @param offset The provided offset must be within the range of -0.5f to 0.5f.
-     * If set to -0.5f, the letter will be shifted upwards by 0.5 times the height of the canvas
-     * it is being drawn on, which means it will be drawn with the center of the letter starting
-     * at the top edge of the canvas.
-     * If set to 0.5f, the letter will be shifted downwards by 0.5 times the height of the canvas
-     * it is being drawn on, which means it will be drawn with the center of the letter starting
-     * at the bottom edge of the canvas.
-     * The default is 0.0f.
+     *               If set to -0.5f, the letter will be shifted upwards by 0.5 times the height of the canvas
+     *               it is being drawn on, which means it will be drawn with the center of the letter starting
+     *               at the top edge of the canvas.
+     *               If set to 0.5f, the letter will be shifted downwards by 0.5 times the height of the canvas
+     *               it is being drawn on, which means it will be drawn with the center of the letter starting
+     *               at the bottom edge of the canvas.
+     *               The default is 0.0f.
      */
     public void setOffset(float offset) {
         Assert.assertTrue(offset >= -0.5f && offset <= 0.5f);
         mOffset = offset;
     }
+
     public void setContactDetails(final String displayName, final String identifier) {
         mDisplayName = displayName;
         mIdentifier = identifier;
     }
+
     public void setContactType(int contactType) {
         mContactType = contactType;
     }
+
     public void setIsCircular(boolean isCircle) {
         mIsCircle = isCircle;
     }

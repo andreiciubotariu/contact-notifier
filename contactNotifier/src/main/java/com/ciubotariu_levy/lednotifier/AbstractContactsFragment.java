@@ -32,33 +32,24 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
             ContactsContract.Contacts.DISPLAY_NAME_PRIMARY :
             ContactsContract.Contacts.DISPLAY_NAME;
 
-    protected abstract String[] getProjection();
-
     private static final int[] TO_IDS = {
-            R.id.contact_name, R.id.contact_number,R.id.contact_ringtone,R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
+            R.id.contact_name, R.id.contact_number, R.id.contact_ringtone, R.id.contact_vibrate, R.id.contact_display_color, R.id.contact_image
     };
-
-    protected abstract String getQuery();
-    protected abstract int getLoaderId();
-
-    private final String TAG = "AbsContactsFrag";
     private static final String KEY_CONSTRAINT = "KEY_FILTER";
     private static final String LIST_STATE = "list_state";
-
+    private final String TAG = "AbsContactsFrag";
     private RecyclerCursorAdapter mCursorAdapter;
     private Parcelable mListState;
     private RecyclerView.LayoutManager mLayoutManager;
-
     private Bundle mLoaderArgs = new Bundle();
-
     private AbstractContactViewBinder mViewBinder;
 
-    protected RecyclerCursorAdapter getCursorAdapter(){
+    protected RecyclerCursorAdapter getCursorAdapter() {
         return mCursorAdapter;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(false);
         final Transformation transformation = new RoundedTransformationBuilder()
@@ -69,7 +60,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
                 .build();
         mViewBinder = getViewBinder(transformation);
 
-        mCursorAdapter = new RecyclerCursorAdapter(null,"_id") {
+        mCursorAdapter = new RecyclerCursorAdapter(null, "_id") {
 
             @Override
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -100,7 +91,7 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     }
 
     @Override
-    public void onViewCreated (View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
 
         recyclerView.setHasFixedSize(false);
@@ -115,15 +106,16 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
     @Override
     public void startForResult(Intent intent, int requestCode) {
-        startActivityForResult(intent,requestCode);
+        startActivityForResult(intent, requestCode);
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mViewBinder.onResult(requestCode, resultCode, data);
     }
 
     @Override
-    public void onSaveInstanceState (Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         if (mLayoutManager != null) {
             mListState = mLayoutManager.onSaveInstanceState();
         }
@@ -163,18 +155,18 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
         View list = getView().findViewById(R.id.contact_list);
         if (emptyText != null && list != null) {
             if (mCursorAdapter.getItemCount() <= 0) {
-                 emptyText.setVisibility(View.VISIBLE);
-                 list.setVisibility(View.GONE);
+                emptyText.setVisibility(View.VISIBLE);
+                list.setVisibility(View.GONE);
             } else {
-                 emptyText.setVisibility(View.GONE);
-                 list.setVisibility(View.VISIBLE);
+                emptyText.setVisibility(View.GONE);
+                list.setVisibility(View.VISIBLE);
             }
         }
 
         RecyclerView r = (RecyclerView) getView().findViewById(R.id.contact_list);
         mLayoutManager = r.getLayoutManager();
         if (mListState != null) {
-            System.out.println (mListState);
+            System.out.println(mListState);
             mLayoutManager.onRestoreInstanceState(mListState);
             mListState = null;
         }
@@ -188,9 +180,9 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
     @Override //TODO: figure out if this needs to be subimplemented
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-        Log.i(TAG,"onCreateLoader:");
+        Log.i(TAG, "onCreateLoader:");
         String constraint = "";
-        if (args != null && args.getString(KEY_CONSTRAINT) != null){
+        if (args != null && args.getString(KEY_CONSTRAINT) != null) {
             constraint = args.getString(KEY_CONSTRAINT);
         }
 
@@ -204,12 +196,24 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
     }
 
     protected abstract AbstractContactViewBinder getViewBinder(Transformation transformation);
+
     protected abstract void listSetupComplete();
+
     protected abstract String[] filteredSelectionArgs(String constraint);
+
     protected abstract Uri getContentUri();
+
     protected abstract String getSortColumn();
+
     protected abstract String getRowIDColumn();
+
     protected abstract int getRowResID();
+
+    protected abstract String[] getProjection();
+
+    protected abstract String getQuery();
+
+    protected abstract int getLoaderId();
 
     @Override
     public abstract LedContactInfo onContactSelected(int position, long id);

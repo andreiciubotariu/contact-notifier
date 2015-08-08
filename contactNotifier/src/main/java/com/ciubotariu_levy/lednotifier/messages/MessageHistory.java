@@ -1,68 +1,62 @@
 package com.ciubotariu_levy.lednotifier.messages;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 public class MessageHistory {
-    private static LinkedHashMap<String, MessageInfo> messages;
-    private static List<String> customMessageList;
-    protected static MessageInfo customLEDMessage, customVibMessage, customRingMessage;
+    protected static MessageInfo sCustomLedMessage, sCustomVibMessage, sCustomRingMessage;
+    private static LinkedHashMap<String, MessageInfo> sMessages;
+    private static List<String> sCustomMessageList;
 
     private static void ensureMap() {
-        if (messages == null) {
-            messages = new LinkedHashMap<>();
+        if (sMessages == null) {
+            sMessages = new LinkedHashMap<>();
         }
     }
 
     private static void ensureList() {
-        if (customMessageList == null) {
-            customMessageList = new ArrayList<>();
+        if (sCustomMessageList == null) {
+            sCustomMessageList = new ArrayList<>();
         }
     }
 
-
     public static LinkedHashMap<String, MessageInfo> getMessages() {
         ensureMap();
-        return messages;
+        return sMessages;
     }
 
     public static List<String> getCustomMessages() {
         ensureList();
-        return customMessageList;
+        return sCustomMessageList;
     }
-
 
     public static void clear() {
         ensureMap();
         ensureList();
 
-        messages.clear();
-        customMessageList.clear();
+        sMessages.clear();
+        sCustomMessageList.clear();
 
-        customLEDMessage = customRingMessage = customVibMessage = null;
+        sCustomLedMessage = sCustomRingMessage = sCustomVibMessage = null;
     }
 
-    public static void add(LinkedHashMap<String,MessageInfo> newMessages, List<String> customMessages){
+    public static void add(LinkedHashMap<String, MessageInfo> newMessages, List<String> customMessages) {
         ensureMap();
         ensureList();
 
-
-        for (String key:newMessages.keySet()) {
-            MessageInfo m = messages.get(key);
+        for (String key : newMessages.keySet()) {
+            MessageInfo m = sMessages.get(key);
             MessageInfo newMessage = newMessages.get(key);
             if (m != null) {
                 String additionalText = newMessage.text;
                 if (m.text == null) {
                     m.text = additionalText;
-                }
-                else {
+                } else {
                     m.text += "\n" + additionalText;
                 }
-            }
-            else {
-                messages.put(key, newMessage);
+            } else {
+                sMessages.put(key, newMessage);
             }
         }
 
@@ -71,17 +65,17 @@ public class MessageHistory {
 
     private static void updateNotifMessages() {
         ensureMap();
-        for (String key: messages.keySet()) {
-            MessageInfo message = messages.get(key);
+        for (String key : sMessages.keySet()) {
+            MessageInfo message = sMessages.get(key);
             if (message.isCustom()) {
-                if (message.customColor() && customLEDMessage == null) {
-                   customLEDMessage = message;
+                if (message.customColor() && sCustomLedMessage == null) {
+                    sCustomLedMessage = message;
                 }
                 if (message.customRing()) { //continually replace with most recent custom ring
-                    customRingMessage = message;
+                    sCustomRingMessage = message;
                 }
                 if (message.customVib()) { //and vib, since these are one-time alerts
-                    customVibMessage = message;
+                    sCustomVibMessage = message;
                 }
             }
         }

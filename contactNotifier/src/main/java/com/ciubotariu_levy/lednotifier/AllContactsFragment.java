@@ -27,7 +27,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     private static final String QUERY = "(" + CONTACT_NAME + " LIKE ? OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?)";
     private static final int LOADER_ID = 0;
 
-    private HashMap <String, LedContactInfo> mLedData;
+    private HashMap<String, LedContactInfo> mLedData;
     private String mModifiedQuery = QUERY;
     private DataFetcher mFetcher;
 
@@ -57,9 +57,9 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             @Override
             protected Uri getContactUri(Cursor cursor) {
                 return ContactsContract.Contacts.getLookupUri(
-                     cursor.getLong(cursor.getColumnIndex(
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID)),
-                     cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
+                        cursor.getLong(cursor.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID)),
+                        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
             }
 
             @Override
@@ -76,13 +76,13 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             @Override
             protected String getRingtoneUri(Cursor cursor, String contactUri) {
                 LedContactInfo info = mLedData.get(contactUri);
-                return info == null ?  null : info.ringtoneUri;
+                return info == null ? null : info.ringtoneUri;
             }
 
             @Override
             protected String getVibPattern(Cursor cursor, String contactUri) {
                 LedContactInfo info = mLedData.get(contactUri);
-                return info == null ?  null : info.vibratePattern;
+                return info == null ? null : info.vibratePattern;
             }
         };
     }
@@ -95,7 +95,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
 
     @Override
     protected String[] filteredSelectionArgs(String constraint) {
-        return new String [] { "%"+constraint+"%", "%"+constraint+"%"};
+        return new String[]{"%" + constraint + "%", "%" + constraint + "%"};
     }
 
     @Override
@@ -121,9 +121,9 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
     @Override
     public void onContactDetailsUpdated(LedContactInfo newData) {
         LedContactInfo info = mLedData.get(newData.systemLookupUri);
-        if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern)  && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))){
-            getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String [] {newData.systemLookupUri});
-            if (info != null){
+        if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern) && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))) {
+            getActivity().getContentResolver().delete(LedContacts.CONTENT_URI, LedContacts.SYSTEM_CONTACT_LOOKUP_URI + "=?", new String[]{newData.systemLookupUri});
+            if (info != null) {
                 mLedData.remove(newData.systemLookupUri);
             }
         } else {
@@ -134,18 +134,18 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             values.put(LedContacts.VIBRATE_PATTERN, newData.vibratePattern);
             values.put(LedContacts.RINGTONE_URI, newData.ringtoneUri);
 
-            if (newData.id == -1){
+            if (newData.id == -1) {
                 values.put(LedContacts.SYSTEM_CONTACT_LOOKUP_URI, newData.systemLookupUri);
                 Uri uri = getActivity().getContentResolver().insert(LedContacts.CONTENT_URI, values);
-                newData.id = Long.parseLong (uri.getLastPathSegment());
+                newData.id = Long.parseLong(uri.getLastPathSegment());
             } else {
                 Uri uri = Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id));
                 getActivity().getContentResolver().update(uri, values, null, null);
             }
 
             StringBuilder addExcludeQuery = new StringBuilder(mModifiedQuery);
-            Cursor contactUriCursor = getActivity().getContentResolver().query(Uri.parse(newData.systemLookupUri),new String[]{ContactsContract.Contacts.LOOKUP_KEY},null,null,null);
-            if (contactUriCursor != null && contactUriCursor.moveToFirst()){
+            Cursor contactUriCursor = getActivity().getContentResolver().query(Uri.parse(newData.systemLookupUri), new String[]{ContactsContract.Contacts.LOOKUP_KEY}, null, null, null);
+            if (contactUriCursor != null && contactUriCursor.moveToFirst()) {
                 addExcludeQuery.append(" AND ")
                         .append(ContactsContract.Contacts.LOOKUP_KEY)
                         .append(" != \"")
@@ -174,8 +174,8 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
         Cursor c = getCursorAdapter().getCursor();
         long contactID = c.getLong(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
         String lookupValue = ContactsContract.Contacts.getLookupUri(contactID, c.getString(c.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY))).toString();
-        if (mLedData.get(lookupValue) != null){
-            data = new LedContactInfo (mLedData.get(lookupValue));
+        if (mLedData.get(lookupValue) != null) {
+            data = new LedContactInfo(mLedData.get(lookupValue));
         } else {
             data = new LedContactInfo();
             data.systemLookupUri = lookupValue;
@@ -192,10 +192,10 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
         Log.d(TAG, "onDataFetched: data fetched = " + fetchedData);
         mFetcher = null;
         mLedData = fetchedData;
-        if (getActivity() != null){
-                mModifiedQuery = QUERY + excludeQuery;
-                System.out.println(mModifiedQuery);
-                getLoaderManager().initLoader(LOADER_ID, null, this);
+        if (getActivity() != null) {
+            mModifiedQuery = QUERY + excludeQuery;
+            System.out.println(mModifiedQuery);
+            getLoaderManager().initLoader(LOADER_ID, null, this);
         }
     }
 }

@@ -4,25 +4,19 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
 
-/**
- * Created by Andrei on 12/11/2014.
- */
 public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private boolean mDataValid;
-
-    private Cursor mCursor;
-
-    private int mRowIDColumn;
-
     private static final String TAG = RecyclerCursorAdapter.class.getName();
 
+    private boolean mDataValid;
+    private Cursor mCursor;
+    private int mRowIDColumn;
     private DataSetObserver mDataSetObserver;
 
     //private CursorFilter mCursorFilter; //future-op
     //private FilterQueryProvider mFilterQueryProvider
 
-    public RecyclerCursorAdapter(Cursor c, String idCol){
-        init (c, idCol);
+    public RecyclerCursorAdapter(Cursor c, String idCol) {
+        init(c, idCol);
         setHasStableIds(true);
     }
 
@@ -41,7 +35,7 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
     }
 
     @Override
-    public long getItemId (int pos) {
+    public long getItemId(int pos) {
         if (moveToPos(pos) && mRowIDColumn != -1) {
             return mCursor.getLong(mRowIDColumn);
         }
@@ -49,7 +43,7 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
         return RecyclerView.NO_ID;
     }
 
-    public boolean moveToPos (int position) {
+    public boolean moveToPos(int position) {
         if (mDataValid && mCursor != null) {
             mCursor.moveToPosition(position);
             return true;
@@ -65,6 +59,7 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
     }
 
     public abstract void onBind(RecyclerView.ViewHolder holder, int pos, Cursor cursor);
+
     /**
      * Change the underlying cursor to a new cursor. If there is an existing cursor it will be
      * closed.
@@ -82,22 +77,21 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
         return mCursor;
     }
 
-    private Cursor swapCursor (Cursor newCursor, String rowIdColumnName) {
+    private Cursor swapCursor(Cursor newCursor, String rowIdColumnName) {
         if (newCursor == mCursor) {
             return null;
         }
         Cursor old = mCursor;
         if (old != null) {
-            if (mDataSetObserver != null) old.unregisterDataSetObserver (mDataSetObserver);
+            if (mDataSetObserver != null) old.unregisterDataSetObserver(mDataSetObserver);
         }
         mCursor = newCursor;
         if (newCursor != null) {
-            if (mDataSetObserver != null) newCursor.registerDataSetObserver (mDataSetObserver);
-            mRowIDColumn = newCursor.getColumnIndexOrThrow (rowIdColumnName);
+            if (mDataSetObserver != null) newCursor.registerDataSetObserver(mDataSetObserver);
+            mRowIDColumn = newCursor.getColumnIndexOrThrow(rowIdColumnName);
             mDataValid = true;
             notifyDataSetChanged();
-        }
-        else {
+        } else {
             mRowIDColumn = -1;
             mDataValid = false;
             notifyDataSetChanged();
@@ -116,6 +110,7 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
             mDataValid = true;
             notifyDataSetChanged();
         }
+
         @Override
         public void onInvalidated() {
             mDataValid = false;

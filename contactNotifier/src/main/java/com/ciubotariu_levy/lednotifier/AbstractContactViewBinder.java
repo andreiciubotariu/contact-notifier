@@ -2,7 +2,6 @@ package com.ciubotariu_levy.lednotifier;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -37,68 +36,11 @@ import com.squareup.picasso.Transformation;
 
 public abstract class AbstractContactViewBinder {
 
-    protected abstract boolean hasColorView();
-    protected abstract Uri getContactUri (Cursor cursor);
-    protected abstract String getName(Cursor cursor);
-    protected abstract int getColor (Cursor cursor, String contactUri);
-    protected abstract String getRingtoneUri (Cursor cursor, String contactUri);
-    protected abstract String getVibPattern (Cursor cursor, String contactUri);
-
-    public static interface ContactListener {
-        public LedContactInfo onContactSelected (int pos, long id);
-        public void startForResult (Intent intent, int requestCode);
-    }
-
-    public static class ContactHolder extends RecyclerView.ViewHolder {
-        public TextView mName;
-        public ImageView mPic;
-        public View mRowContainer,mVib, mRingtone,mContainer;
-        public BorderedCircularColorView mColor;
-        public View customControls, vibrateHint, vibrateInputContainer;
-        public EndColorPicker mColorPicker;
-        public EditText mVibrateInput;
-        public Button mInsertCommaButton, mTestVibrate, mChooseRingtoneButton;
-        public CheckBox mVibrateCheckbox, mRingtoneCheckbox;
-        public Button mSaveButton;
-
-        public ContactHolder(View v, boolean hasColor) {
-            super(v);
-            mRowContainer = v.findViewById(R.id.contact_row_container);
-            mName = (TextView) v.findViewById(R.id.contact_name);
-            mPic = (ImageView)v.findViewById(R.id.contact_image);
-            if (hasColor) {
-                mColor = (BorderedCircularColorView) v.findViewById(R.id.contact_display_color);
-            }
-            mContainer = v.findViewById(R.id.custom_ring_vib_container);
-            mRingtone = v.findViewById(R.id.contact_ringtone);
-            mVib = v.findViewById(R.id.contact_vibrate);
-
-            customControls = v.findViewById(R.id.custom_controls);
-            vibrateHint = v.findViewById(R.id.vib_hint);
-            vibrateInputContainer = v.findViewById(R.id.vib_input_container);
-
-            mColorPicker = (EndColorPicker) v.findViewById(R.id.colorbar);
-
-            mVibrateInput = (EditText) v.findViewById(R.id.vib_input);
-
-            mInsertCommaButton = (Button) v.findViewById(R.id.insert_comma);
-            mTestVibrate = (Button) v.findViewById(R.id.test_vibrate);
-            mChooseRingtoneButton = (Button) v.findViewById(R.id.choose_ringtone);
-
-            mVibrateCheckbox = (CheckBox) v.findViewById(R.id.vibrate_checkbox);
-            mRingtoneCheckbox = (CheckBox) v.findViewById(R.id.ringtone_checkbox);
-
-            mSaveButton = (Button) v.findViewById(R.id.save_button);
-        }
-    }
-
+    public static final String SILENT = "silent_ringtone";
+    public static final String GLOBAL = "application_setting_ringtone";
     private static final String TAG = AbstractContactViewBinder.class.getName();
     private static final int VIB_NO_REPEAT = -1;
     private static final int REQ_CODE = 1;
-
-    public static final String SILENT = "silent_ringtone";
-    public static final String GLOBAL = "application_setting_ringtone";
-
     private Transformation mTransformation;
     private ContactListener mListener;
     private int expPos = -1, mExpColor = Color.GRAY;
@@ -113,9 +55,21 @@ public abstract class AbstractContactViewBinder {
         mListener = listener;
     }
 
+    protected abstract boolean hasColorView();
+
+    protected abstract Uri getContactUri(Cursor cursor);
+
+    protected abstract String getName(Cursor cursor);
+
+    protected abstract int getColor(Cursor cursor, String contactUri);
+
+    protected abstract String getRingtoneUri(Cursor cursor, String contactUri);
+
+    protected abstract String getVibPattern(Cursor cursor, String contactUri);
+
     private Animator createRowAnimator(int originalValue, int finalValue, final View toModify, Animator.AnimatorListener listener) {
         ValueAnimator valueAnimator = ValueAnimator.ofInt(originalValue, finalValue);
-        if(listener != null) {
+        if (listener != null) {
             valueAnimator.addListener(listener);
         }
         valueAnimator.setDuration(300);
@@ -137,8 +91,8 @@ public abstract class AbstractContactViewBinder {
         expPos = currentPos;
         mExpHolder = holder;
         mExpRingtoneUri = ringtoneUri;
-        if (mExpHolder.mColor != null) {
-            mExpColor = mExpHolder.mColor.getColor();
+        if (mExpHolder.color != null) {
+            mExpColor = mExpHolder.color.getColor();
         }
 
         mExpVibPattern = vibratePattern;
@@ -155,116 +109,115 @@ public abstract class AbstractContactViewBinder {
         if (height <= 0) {
             height = -500; //TODO: change to use dip
         }
-        createRowAnimator(height, holder.mRowContainer.getHeight(), holder.customControls, null).start();
+        createRowAnimator(height, holder.rowContainer.getHeight(), holder.customControls, null).start();
     }
 
     private void resetExpandedStatus(final Runnable onceFinished) {
-        Animator animator = createRowAnimator((mExpHolder).mRowContainer.getHeight(),
+        Animator animator = createRowAnimator((mExpHolder).rowContainer.getHeight(),
                 -(mExpHolder).customControls.getHeight(),
                 (mExpHolder).customControls,
                 new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-            }
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mExpHolder.customControls.setVisibility(View.GONE);
-                if (mExpHolder != null) {
-                    ((Vibrator) mExpHolder.mName.getContext().getSystemService(Context.VIBRATOR_SERVICE)).cancel();
-                }
-                expPos = -1;
-                mIsExpanded = false;
-                mExpColor = Color.GRAY;
-                mExpRingtoneUri = null;
-                mExpVibPattern = null;
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mExpHolder.customControls.setVisibility(View.GONE);
+                        if (mExpHolder != null) {
+                            ((Vibrator) mExpHolder.name.getContext().getSystemService(Context.VIBRATOR_SERVICE)).cancel();
+                        }
+                        expPos = -1;
+                        mIsExpanded = false;
+                        mExpColor = Color.GRAY;
+                        mExpRingtoneUri = null;
+                        mExpVibPattern = null;
 
-                mExpHolder.mRingtoneCheckbox.setChecked(false);
-                mExpHolder.mVibrateCheckbox.setChecked(false);
-                mExpHolder.mVibrateInput.setText("");
-                mExpHolder.mColorPicker.setColor(Color.GRAY);
-                mExpHolder.mChooseRingtoneButton.setText("No custom ringtone");
-                mExpHolder = null;
+                        mExpHolder.ringtoneCheckbox.setChecked(false);
+                        mExpHolder.vibrateCheckbox.setChecked(false);
+                        mExpHolder.vibrateInput.setText("");
+                        mExpHolder.colorPicker.setColor(Color.GRAY);
+                        mExpHolder.chooseRingtoneButton.setText("No custom ringtone");
+                        mExpHolder = null;
 
-                if (onceFinished != null) {
-                    onceFinished.run();
-                }
-            }
+                        if (onceFinished != null) {
+                            onceFinished.run();
+                        }
+                    }
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
-            }
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-            }
-        });
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+                });
 
         animator.start();
     }
 
     private void setExpandedData(final ContactHolder holder) {
-        holder.mColorPicker.setColor(mExpColor);
-        holder.mColorPicker.setOnColorChangedListener(new OnColorChangedListener() {
+        holder.colorPicker.setColor(mExpColor);
+        holder.colorPicker.setOnColorChangedListener(new OnColorChangedListener() {
             @Override
             public void onColorChanged(int color) {
                 mExpColor = color;
             }
         });
         //mPicker.setOnColorChangedListener(this);
-        holder.mVibrateInput.setMaxHeight(holder.mVibrateInput.getHeight());
+        holder.vibrateInput.setMaxHeight(holder.vibrateInput.getHeight());
 
-        holder.mInsertCommaButton.setOnClickListener(new View.OnClickListener() {
+        holder.insertCommaButton.setOnClickListener(new View.OnClickListener() {
 
 
             @Override
             public void onClick(View v) {
-                holder.mVibrateInput.append(",");
+                holder.vibrateInput.append(",");
             }
         });
 
-        final Vibrator vibratorService = (Vibrator)holder.mName.getContext().getSystemService(Context.VIBRATOR_SERVICE);
-        holder.mTestVibrate.setOnClickListener(new View.OnClickListener() {
+        final Vibrator vibratorService = (Vibrator) holder.name.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        holder.testVibrate.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                long[] pattern = LedContactInfo.getVibratePattern(holder.mVibrateInput.getText().toString());
+                long[] pattern = LedContactInfo.getVibratePattern(holder.vibrateInput.getText().toString());
                 vibratorService.vibrate(pattern, VIB_NO_REPEAT);
             }
         });
 
-        holder.mVibrateCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.vibrateCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
+                if (isChecked) {
                     holder.vibrateHint.setVisibility(View.VISIBLE);
                     holder.vibrateInputContainer.setVisibility(View.VISIBLE);
-                    holder.mTestVibrate.setVisibility(View.VISIBLE);
-                    if (!TextUtils.isEmpty(mExpVibPattern)){
-                        holder.mVibrateInput.setText(mExpVibPattern);
-                        holder.mVibrateInput.setSelection(mExpVibPattern.length());
+                    holder.testVibrate.setVisibility(View.VISIBLE);
+                    if (!TextUtils.isEmpty(mExpVibPattern)) {
+                        holder.vibrateInput.setText(mExpVibPattern);
+                        holder.vibrateInput.setSelection(mExpVibPattern.length());
                     }
-                }
-                else{
+                } else {
                     holder.vibrateHint.setVisibility(View.GONE);
                     holder.vibrateInputContainer.setVisibility(View.GONE);
-                    holder.mTestVibrate.setVisibility(View.GONE);
+                    holder.testVibrate.setVisibility(View.GONE);
                 }
             }
         });
-        holder.mVibrateCheckbox.setChecked(!TextUtils.isEmpty(mExpVibPattern));
+        holder.vibrateCheckbox.setChecked(!TextUtils.isEmpty(mExpVibPattern));
 
-        holder.mChooseRingtoneButton.setOnClickListener(new View.OnClickListener() {
+        holder.chooseRingtoneButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Uri existingUri = Settings.System.DEFAULT_NOTIFICATION_URI;
                 if (SILENT.equals(mExpRingtoneUri)) {
-                    Log.v(TAG, "mChooseRingtoneButton: onClick: silent picked");
+                    Log.v(TAG, "chooseRingtoneButton: onClick: silent picked");
                     existingUri = null;
                 } else if (!GLOBAL.equals(mExpRingtoneUri)) {
-                    Log.v(TAG, "mChooseRingtoneButton: onClick: custom ringtone, updating Intent");
+                    Log.v(TAG, "chooseRingtoneButton: onClick: custom ringtone, updating Intent");
                     existingUri = mExpRingtoneUri == null ? existingUri : Uri.parse(mExpRingtoneUri);
                 }
                 Intent ringtonePickerIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
@@ -284,38 +237,38 @@ public abstract class AbstractContactViewBinder {
             }
         });
 
-        holder.mRingtoneCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.ringtoneCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                holder.mChooseRingtoneButton.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                holder.chooseRingtoneButton.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
         });
 
-        boolean hasCustomRingtone =  !TextUtils.isEmpty(mExpRingtoneUri) && !GLOBAL.equals(mExpRingtoneUri);
-        holder.mRingtoneCheckbox.setChecked(hasCustomRingtone);
-        if (!hasCustomRingtone){
+        boolean hasCustomRingtone = !TextUtils.isEmpty(mExpRingtoneUri) && !GLOBAL.equals(mExpRingtoneUri);
+        holder.ringtoneCheckbox.setChecked(hasCustomRingtone);
+        if (!hasCustomRingtone) {
             onRingtoneSelected(GLOBAL);
         } else {
             onRingtoneSelected(mExpRingtoneUri);
         }
     }
 
-    private void onRingtoneSelected (String uriString){
-        Button chooseRingtoneButton = mExpHolder.mChooseRingtoneButton;
+    private void onRingtoneSelected(String uriString) {
+        Button chooseRingtoneButton = mExpHolder.chooseRingtoneButton;
         mExpRingtoneUri = uriString;
         String buttonText = "No custom ringtone";
-        if (SILENT.equals(uriString)){
+        if (SILENT.equals(uriString)) {
             buttonText = "Force silent";
         } else {
             try {
                 Uri uri = Uri.parse(uriString);
-                if (uri != null && !GLOBAL.equals(uriString)){
-                    Ringtone ringtone =  RingtoneManager.getRingtone(chooseRingtoneButton.getContext(), uri);
+                if (uri != null && !GLOBAL.equals(uriString)) {
+                    Ringtone ringtone = RingtoneManager.getRingtone(chooseRingtoneButton.getContext(), uri);
                     buttonText = ringtone.getTitle(chooseRingtoneButton.getContext());
                     ringtone.stop();
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, "onRingtoneSelected: error", e);
             }
         }
@@ -323,8 +276,8 @@ public abstract class AbstractContactViewBinder {
     }
 
     public void onResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQ_CODE){
-            if (resultCode == Activity.RESULT_OK){
+        if (requestCode == REQ_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
                 Uri ringtoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
                 onRingtoneSelected(ringtoneUri == null ? SILENT : ringtoneUri.toString());
             }
@@ -333,23 +286,23 @@ public abstract class AbstractContactViewBinder {
 
     private void onConfirm() {
         mExpVibPattern = "";
-        if (mExpHolder.mVibrateCheckbox.isChecked()){
-            mExpVibPattern = mExpHolder.mVibrateInput.getText().toString().trim();
+        if (mExpHolder.vibrateCheckbox.isChecked()) {
+            mExpVibPattern = mExpHolder.vibrateInput.getText().toString().trim();
         }
-        if (!mExpHolder.mRingtoneCheckbox.isChecked()){
+        if (!mExpHolder.ringtoneCheckbox.isChecked()) {
             mExpRingtoneUri = GLOBAL;
         }
 
         //
-        mExpVibPattern = LedContactInfo.addZeroesWhereEmpty (mExpVibPattern);
-        if (TextUtils.isEmpty(mExpVibPattern)){
+        mExpVibPattern = LedContactInfo.addZeroesWhereEmpty(mExpVibPattern);
+        if (TextUtils.isEmpty(mExpVibPattern)) {
             mExpVibPattern = "";
         }
 
         mInfo.ringtoneUri = mExpRingtoneUri;
         mInfo.color = mExpColor;
         mInfo.vibratePattern = mExpVibPattern;
-        ((ColorVibrateDialog.ContactDetailsUpdateListener)mListener).onContactDetailsUpdated(mInfo);
+        ((ColorVibrateDialog.ContactDetailsUpdateListener) mListener).onContactDetailsUpdated(mInfo);
     }
 
     public void bind(final RecyclerView.ViewHolder holder, Cursor cursor, Context context) {
@@ -360,14 +313,14 @@ public abstract class AbstractContactViewBinder {
         int numberGone = 0;
         Uri contactUri = getContactUri(cursor);
 
-        String name  = getName(cursor);
+        String name = getName(cursor);
 
         if (name != null) {
             final SpannableStringBuilder str = new SpannableStringBuilder(name);
             str.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0,
                     name.indexOf(' ') != -1 ? name.indexOf(' ') : name.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            viewHolder.mName.setText(str);
+            viewHolder.name.setText(str);
         }
 
         SimpleLetterTileDrawable letterTileDrawable = new SimpleLetterTileDrawable(context.getResources());
@@ -379,40 +332,38 @@ public abstract class AbstractContactViewBinder {
                 .placeholder(letterTileDrawable)
                 .fit()
                 .transform(mTransformation)
-                .into(viewHolder.mPic);
+                .into(viewHolder.pic);
 
         if (hasColorView()) {
             int color = getColor(cursor, contactUri.toString());
-            viewHolder.mColor.setColor(color);
+            viewHolder.color.setColor(color);
         }
 
-        final String ringtoneUri = getRingtoneUri (cursor, contactUri.toString());
-        if (!TextUtils.isEmpty(ringtoneUri) && !ColorVibrateDialog.GLOBAL.equals(ringtoneUri)){
-            viewHolder.mRingtone.setVisibility(View.VISIBLE);
-            viewHolder.mRingtone.setBackgroundResource(R.drawable.ic_custom_ringtone);
-            viewHolder.mContainer.setVisibility(View.VISIBLE);
-        }
-        else {
-            viewHolder.mRingtone.setVisibility(View.GONE);
+        final String ringtoneUri = getRingtoneUri(cursor, contactUri.toString());
+        if (!TextUtils.isEmpty(ringtoneUri) && !ColorVibrateDialog.GLOBAL.equals(ringtoneUri)) {
+            viewHolder.ringtone.setVisibility(View.VISIBLE);
+            viewHolder.ringtone.setBackgroundResource(R.drawable.ic_custom_ringtone);
+            viewHolder.container.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.ringtone.setVisibility(View.GONE);
             numberGone++;
         }
-        final String vibratePattern = getVibPattern (cursor, contactUri.toString());
-        if (!TextUtils.isEmpty(vibratePattern)){
-            viewHolder.mVib.setVisibility(View.VISIBLE);
-            viewHolder.mVib.setBackgroundResource(R.drawable.ic_contact_vibrate);
-            viewHolder.mContainer.setVisibility(View.VISIBLE);
-        }
-        else {
-            viewHolder.mVib.setVisibility(View.GONE);
+        final String vibratePattern = getVibPattern(cursor, contactUri.toString());
+        if (!TextUtils.isEmpty(vibratePattern)) {
+            viewHolder.vib.setVisibility(View.VISIBLE);
+            viewHolder.vib.setBackgroundResource(R.drawable.ic_contact_vibrate);
+            viewHolder.container.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.vib.setVisibility(View.GONE);
             numberGone++;
         }
 
-        if (numberGone == 2){
-            viewHolder.mContainer.setVisibility(View.GONE);
+        if (numberGone == 2) {
+            viewHolder.container.setVisibility(View.GONE);
         }
 
         if (currentPos == expPos) {
-            setExpandedData((ContactHolder)holder);
+            setExpandedData((ContactHolder) holder);
         }
 
         ((ContactHolder) holder).customControls.setVisibility(
@@ -425,27 +376,75 @@ public abstract class AbstractContactViewBinder {
                     return;
                 }
                 if (mListener != null) {
-                    if  (currentPos == expPos && mIsExpanded) {
+                    if (currentPos == expPos && mIsExpanded) {
                         onConfirm();
                         resetExpandedStatus(null);
                     } else {
                         if (mExpHolder != null) {
-                            resetExpandedStatus(new Runnable(){
+                            resetExpandedStatus(new Runnable() {
 
                                 @Override
                                 public void run() {
-                                    openRow(currentPos, (ContactHolder)holder, ringtoneUri,vibratePattern);
+                                    openRow(currentPos, (ContactHolder) holder, ringtoneUri, vibratePattern);
                                 }
                             });
                         } else {
-                            openRow(currentPos, (ContactHolder)holder, ringtoneUri,vibratePattern);
+                            openRow(currentPos, (ContactHolder) holder, ringtoneUri, vibratePattern);
                         }
                     }
                 }
             }
         };
-        viewHolder.mRowContainer.setOnClickListener(clickListener);
+        viewHolder.rowContainer.setOnClickListener(clickListener);
+        viewHolder.saveButton.setOnClickListener(clickListener);
+    }
 
-        viewHolder.mSaveButton.setOnClickListener(clickListener);
+    public interface ContactListener {
+        LedContactInfo onContactSelected(int pos, long id);
+
+        void startForResult(Intent intent, int requestCode);
+    }
+
+    public static class ContactHolder extends RecyclerView.ViewHolder {
+        public TextView name;
+        public ImageView pic;
+        public View rowContainer, vib, ringtone, container;
+        public BorderedCircularColorView color;
+        public View customControls, vibrateHint, vibrateInputContainer;
+        public EndColorPicker colorPicker;
+        public EditText vibrateInput;
+        public Button insertCommaButton, testVibrate, chooseRingtoneButton;
+        public CheckBox vibrateCheckbox, ringtoneCheckbox;
+        public Button saveButton;
+
+        public ContactHolder(View v, boolean hasColor) {
+            super(v);
+            rowContainer = v.findViewById(R.id.contact_row_container);
+            name = (TextView) v.findViewById(R.id.contact_name);
+            pic = (ImageView) v.findViewById(R.id.contact_image);
+            if (hasColor) {
+                color = (BorderedCircularColorView) v.findViewById(R.id.contact_display_color);
+            }
+            container = v.findViewById(R.id.custom_ring_vib_container);
+            ringtone = v.findViewById(R.id.contact_ringtone);
+            vib = v.findViewById(R.id.contact_vibrate);
+
+            customControls = v.findViewById(R.id.custom_controls);
+            vibrateHint = v.findViewById(R.id.vib_hint);
+            vibrateInputContainer = v.findViewById(R.id.vib_input_container);
+
+            colorPicker = (EndColorPicker) v.findViewById(R.id.colorbar);
+
+            vibrateInput = (EditText) v.findViewById(R.id.vib_input);
+
+            insertCommaButton = (Button) v.findViewById(R.id.insert_comma);
+            testVibrate = (Button) v.findViewById(R.id.test_vibrate);
+            chooseRingtoneButton = (Button) v.findViewById(R.id.choose_ringtone);
+
+            vibrateCheckbox = (CheckBox) v.findViewById(R.id.vibrate_checkbox);
+            ringtoneCheckbox = (CheckBox) v.findViewById(R.id.ringtone_checkbox);
+
+            saveButton = (Button) v.findViewById(R.id.save_button);
+        }
     }
 }

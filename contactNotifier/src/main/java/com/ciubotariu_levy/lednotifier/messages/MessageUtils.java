@@ -22,7 +22,7 @@ import com.google.android.mms.pdu.PduParser;
 import java.util.LinkedHashMap;
 
 public class MessageUtils {
-public static final String TAG = MessageUtils.class.getName();
+    private static final String TAG = MessageUtils.class.getName();
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static SmsMessage[] getSMSMessagesFromIntent(Intent intent) {
@@ -40,27 +40,24 @@ public static final String TAG = MessageUtils.class.getName();
         return Telephony.Sms.Intents.getMessagesFromIntent(intent);
     }
 
-
-    private static void setNameAndUri(MessageInfo info, ContentResolver resolver){
+    private static void setNameAndUri(MessageInfo info, ContentResolver resolver) {
         String number = info.address;
         Cursor contactCursor = null;
-        try{
+        try {
             Uri phoneNumberUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
-            contactCursor = resolver.query(phoneNumberUri, new String [] {ContactsContract.Contacts.LOOKUP_KEY, ContactsContract.PhoneLookup._ID, ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
-            if (contactCursor != null && contactCursor.moveToFirst()){
+            contactCursor = resolver.query(phoneNumberUri, new String[]{ContactsContract.Contacts.LOOKUP_KEY, ContactsContract.PhoneLookup._ID, ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
+            if (contactCursor != null && contactCursor.moveToFirst()) {
                 Uri contactUri = ContactsContract.Contacts.getLookupUri(contactCursor.getLong(contactCursor.getColumnIndex(ContactsContract.PhoneLookup._ID)), contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
                 String contactUriString = contactUri == null ? null : contactUri.toString();
                 info.contactUri = contactUriString;
-                info.name = contactCursor.getString (contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
-            }
-            else {
+                info.name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
+            } else {
                 Log.i(TAG, "setNameAndUri: " + info.address + " is not a contact in phone db");
                 info.name = null;
                 info.contactUri = null;
             }
-        }
-        finally {
-            if (contactCursor != null){
+        } finally {
+            if (contactCursor != null) {
                 contactCursor.close();
             }
         }
@@ -80,46 +77,45 @@ public static final String TAG = MessageUtils.class.getName();
 
         setNameAndUri(info, context.getContentResolver());
 
-        String[] projection = new String [] {LedContacts.COLOR,LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.VIBRATE_PATTERN, LedContacts.RINGTONE_URI};
+        String[] projection = new String[]{LedContacts.COLOR, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.VIBRATE_PATTERN, LedContacts.RINGTONE_URI};
         String selection = null;
-        String [] selectionArgs = null;
-        selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?" ;
-        if (info.contactUri != null){
-            selectionArgs = new String [] {	info.contactUri };
+        String[] selectionArgs = null;
+        selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?";
+        if (info.contactUri != null) {
+            selectionArgs = new String[]{info.contactUri};
 
-            Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs,null);
+            Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs, null);
 
-            if (c != null && c.moveToFirst()){
+            if (c != null && c.moveToFirst()) {
                 try {
                     int customColor = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 
-                    if (customColor != Color.GRAY){
+                    if (customColor != Color.GRAY) {
                         info.color = customColor;
                     }
                     String customRingtone = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
-                    if (!ColorVibrateDialog.GLOBAL.equals(customRingtone)){
+                    if (!ColorVibrateDialog.GLOBAL.equals(customRingtone)) {
                         info.ringtoneUri = customRingtone;
                     }
                     String customVib = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
 
-                    if (!TextUtils.isEmpty(customVib)){
+                    if (!TextUtils.isEmpty(customVib)) {
                         info.vibPattern = customVib;
                     }
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            if (c != null){
+            if (c != null) {
                 c.close();
             }
         }
         return info;
     }
 
-
     public static LinkedHashMap<String, MessageInfo> getMessages(Intent intent, Context context) {
         SmsMessage[] sms = getSMSMessagesFromIntent(intent);
-        LinkedHashMap <String, MessageInfo> infoMap = new LinkedHashMap<>();
+        LinkedHashMap<String, MessageInfo> infoMap = new LinkedHashMap<>();
         for (int x = 0; x < sms.length; x++) {
             String address = sms[x].getOriginatingAddress();
             if (address != null) {
@@ -142,8 +138,8 @@ public static final String TAG = MessageUtils.class.getName();
         return infoMap;
     }
 
-    public static LinkedHashMap<String, MessageInfo> getPushMessages(Intent intent, Context context){
-        LinkedHashMap <String, MessageInfo> infoMap = new LinkedHashMap<>();
+    public static LinkedHashMap<String, MessageInfo> getPushMessages(Intent intent, Context context) {
+        LinkedHashMap<String, MessageInfo> infoMap = new LinkedHashMap<>();
 
         // Get raw PDU push-data from the message and parse it
         byte[] pushData = intent.getByteArrayExtra("data");
@@ -157,9 +153,9 @@ public static final String TAG = MessageUtils.class.getName();
         long threadId = -1;
         String address = pdu.getFrom().getString();
         Log.v(TAG, "getPushMessages: pdu address is " + address);
-        Log.v(TAG,"getPushMessages: pdu message type is " + pdu.getMessageType());
+        Log.v(TAG, "getPushMessages: pdu message type is " + pdu.getMessageType());
 
-        MessageInfo i = getInfo(address,"New MMS", context);
+        MessageInfo i = getInfo(address, "New MMS", context);
         infoMap.put(address, i);
 //        if (i.isCustom()) {
 //            customMessages.add(address);
