@@ -73,10 +73,8 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
             @Override
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
                 // create a new view
                 View v = LayoutInflater.from(parent.getContext()).inflate(getRowResID(), parent, false);
-
                 AbstractContactViewBinder.ContactHolder vh = new AbstractContactViewBinder.ContactHolder(v, mViewBinder.hasColorView());
                 return vh;
             }
@@ -184,13 +182,13 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.i(TAG, "Loader reset");
+        Log.i(TAG, "onLoaderReset:");
         mCursorAdapter.changeCursor(null, getRowIDColumn());
     }
 
     @Override //TODO: figure out if this needs to be subimplemented
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-        Log.d (TAG,"Creating Loader");
+        Log.i(TAG,"onCreateLoader:");
         String constraint = "";
         if (args != null && args.getString(KEY_CONSTRAINT) != null){
             constraint = args.getString(KEY_CONSTRAINT);

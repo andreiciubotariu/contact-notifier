@@ -92,10 +92,12 @@ public abstract class AbstractContactViewBinder {
         }
     }
 
-    public static final String SILENT = "silent_ringtone";
-    public static final String GLOBAL = "application_setting_ringtone";
+    private static final String TAG = AbstractContactViewBinder.class.getName();
     private static final int VIB_NO_REPEAT = -1;
     private static final int REQ_CODE = 1;
+
+    public static final String SILENT = "silent_ringtone";
+    public static final String GLOBAL = "application_setting_ringtone";
 
     private Transformation mTransformation;
     private ContactListener mListener;
@@ -131,7 +133,7 @@ public abstract class AbstractContactViewBinder {
     }
 
     private void openRow(int currentPos, ContactHolder holder, String ringtoneUri, String vibratePattern) {
-        Log.v("ROW", "opening row");
+        Log.v(TAG, "openRow: currentPos = " + currentPos);
         expPos = currentPos;
         mExpHolder = holder;
         mExpRingtoneUri = ringtoneUri;
@@ -259,10 +261,10 @@ public abstract class AbstractContactViewBinder {
             public void onClick(View v) {
                 Uri existingUri = Settings.System.DEFAULT_NOTIFICATION_URI;
                 if (SILENT.equals(mExpRingtoneUri)) {
-                    Log.i("RingtonePicker", "silent picked");
+                    Log.v(TAG, "mChooseRingtoneButton: onClick: silent picked");
                     existingUri = null;
                 } else if (!GLOBAL.equals(mExpRingtoneUri)) {
-                    Log.i("RingtonePicker", "Custom ringtone. Updating Intent.");
+                    Log.v(TAG, "mChooseRingtoneButton: onClick: custom ringtone, updating Intent");
                     existingUri = mExpRingtoneUri == null ? existingUri : Uri.parse(mExpRingtoneUri);
                 }
                 Intent ringtonePickerIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
@@ -314,8 +316,7 @@ public abstract class AbstractContactViewBinder {
                     ringtone.stop();
                 }
             } catch (Exception e){
-                Log.e("RingtoneTitle", "Error");
-                e.printStackTrace();
+                Log.e(TAG, "onRingtoneSelected: error", e);
             }
         }
         chooseRingtoneButton.setText(buttonText);

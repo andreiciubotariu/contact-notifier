@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
+    private static final String TAG = MainActivity.class.getName();
 	private static final String KEY_SEARCH_TEXT = "KEY_SEARCH_TEXT";
 
 	public interface SearchReceiver{
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 			@Override
 			public boolean onClose() {
 				mSearchText = "";
-				Log.i("SEARCH-RELATED","closed");
+				Log.i(TAG,"onCreateOptionsMenu: closed search view");
 				if (mSearchReceiver != null){
 					mSearchReceiver.onSearchClosed();
 				}

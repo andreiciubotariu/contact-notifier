@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 public class AboutActivity extends AppCompatActivity {
-	private static String GH_URL = "http://www.github.com/";
+    private static final String TAG = AboutActivity.class.getName();
+    private static final String GH_URL = "http://www.github.com/";
 	private String mVersionName = "";
 	private CharSequence mAppName = "";
 	
@@ -29,7 +31,7 @@ public class AboutActivity extends AppCompatActivity {
 			mVersionName = getPackageManager().getPackageInfo(this.getPackageName(), 0).versionName;
 			mAppName = getPackageManager().getApplicationLabel(getApplicationInfo())+ " ";
 		} catch (NameNotFoundException e) {
-			//should not happen
+			Log.e(TAG, "onCreate: could not get app info", e);
 		}
 
 		appNameTextView.setText (mAppName);
@@ -51,8 +53,7 @@ public class AboutActivity extends AppCompatActivity {
 		try{
 			startActivity (new Intent (Intent.ACTION_VIEW,Uri.parse(GH_URL+fragment)));
 		} catch (ActivityNotFoundException e){
-			//usually won't happen.
-			e.printStackTrace();
+			Log.e(TAG, "viewSite: could not find activity to handle url", e);
 		}
 	}
 

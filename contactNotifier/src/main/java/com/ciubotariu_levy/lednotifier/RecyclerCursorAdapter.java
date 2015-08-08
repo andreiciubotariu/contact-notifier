@@ -18,7 +18,7 @@ public abstract class RecyclerCursorAdapter extends RecyclerView.Adapter<Recycle
 
     private DataSetObserver mDataSetObserver;
 
-    //private CusrorFilter mCursorFilter; //future-op
+    //private CursorFilter mCursorFilter; //future-op
     //private FilterQueryProvider mFilterQueryProvider
 
     public RecyclerCursorAdapter(Cursor c, String idCol){

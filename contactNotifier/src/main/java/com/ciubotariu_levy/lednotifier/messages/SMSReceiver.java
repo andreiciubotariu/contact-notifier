@@ -75,25 +75,21 @@ public class SMSReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals(Sms.Intents.WAP_PUSH_RECEIVED_ACTION)
                 && ContentType.MMS_MESSAGE.equals(intent.getType())) {
-
-
-            Log.v(TAG, "Received PUSH Intent: " + intent);
+            Log.v(TAG, "onReceive: received PUSH Intent: " + intent);
             infoMap = MessageUtils.getPushMessages(intent, context);
-            Log.v(TAG, "PUSH Intent processed.");
-
         }
         else if  (intent.getAction().equals(Sms.Intents.SMS_RECEIVED_ACTION)) {
+            Log.v(TAG, "onReceive: received SMS: " + intent);
             infoMap = MessageUtils.getMessages(intent, context);
         }
         onMessagesReceived(context, infoMap, customMessages);
     }
 
-
     @TargetApi(Build.VERSION_CODES.KITKAT) //needs changin
-    public void onMessagesReceived (Context context, LinkedHashMap<String,MessageInfo> infoMap, List<String> customMessages){
-        Log.e(TAG, "Messages received");
+    public void onMessagesReceived(Context context, LinkedHashMap<String,MessageInfo> infoMap, List<String> customMessages) {
+        Log.v(TAG, "onMessagesReceived:");
         if (infoMap.isEmpty()) {
-            Log.i("INFO-MAP" , "Empty");
+            Log.w(TAG , "onMessagesReceived: infoMap is empty");
             return;
         }
 
@@ -126,7 +122,7 @@ public class SMSReceiver extends BroadcastReceiver {
         }
 
         if (showNotification){
-            Intent i=new Intent(context, MainActivity.class);
+            Intent i = new Intent(context, MainActivity.class);
 
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -150,7 +146,6 @@ public class SMSReceiver extends BroadcastReceiver {
             int numMessages = allMessages.size();
             StringBuilder body = new StringBuilder(), summaryText = new StringBuilder();
             MessageInfo firstMessage = null;
-            Log.e(TAG,"Starting loop");
             for (MessageInfo message: allMessages.values()) {
                 if (message.isCustom() || (showAllNotifs && message.address != null)) {
                     if (counter == 0) {
@@ -180,7 +175,7 @@ public class SMSReceiver extends BroadcastReceiver {
             }
 
             if (counter == 0) {
-                Log.d(TAG,"No notifications created");
+                Log.d(TAG,"onMessagesReceived: No notifications created");
                 return;
             }
 
@@ -247,7 +242,7 @@ public class SMSReceiver extends BroadcastReceiver {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? Contacts.PHOTO_THUMBNAIL_URI : Contacts._ID},null,null,null);
 
         if (mCursor == null || !mCursor.moveToFirst()) {
-            Log.e("TAG","Cursor error");
+            Log.e(TAG, "loadContactPhotoThumbnail: cursor error | " + mCursor);
             return null;
         }
 
@@ -261,13 +256,11 @@ public class SMSReceiver extends BroadcastReceiver {
             mThumbnailColumn = mIdColumn;
         }
 
-        Log.i("TAG","column: " + mThumbnailColumn);
-
         String photoData = mCursor.getString(mThumbnailColumn);
         if (photoData == null) {
             return null;
         }
-        Log.i("TAG", "photodata: " + photoData);
+        Log.v(TAG, "loadContactPhotoThumbnail: photoData is " + photoData);
         InputStream is = null;
         try{
 
@@ -289,13 +282,15 @@ public class SMSReceiver extends BroadcastReceiver {
                     return Bitmap.createScaledBitmap(bm, width, height, false);
                 }
             } catch (FileNotFoundException e) {
-                Log.e("TAG", "filenotfound");
+                Log.e(TAG, "loadContactPhotoThumbnail: could not find file", e);
             }
         } finally {
             if (is != null) {
                 try {
                     is.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                    Log.e(TAG, "loadContactPhotoThumbnail: ould not close input stream", e);
+                }
             }
             if (mCursor != null) {
                 mCursor.close();

@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 public class LedContactProvider extends ContentProvider {
 
-	private static final String TAG = "LedContactProvider";
+	private static final String TAG = LedContactProvider.class.getName();
 	private static final String DATABASE_NAME  = "ledcontacts.db";
 	private static final int DATABASE_VERSION  = 2;
 	public static final String LEDCONTACTS_TABLE_NAME = "led_contacts";
@@ -35,8 +35,8 @@ public class LedContactProvider extends ContentProvider {
 	private static final int LEDCONTACTS_ID = 2;
 
 	private static HashMap <String, String> ledContactsProjectionMap;
+    private DatabaseHelper mDbHelper;
 
-	//store our table
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		private Context mContext; 
 		DatabaseHelper (Context context){
@@ -58,23 +58,16 @@ public class LedContactProvider extends ContentProvider {
 			db.execSQL(CREATE_PROFILES_TABLE);
 		}
 
-		private void upgradeLog (String text){
-			if (text == null){
-				text = "";
-			}
-			Log.i ("DB-Upgrade", text);
-		}
-		
 		@Override
-		public void onUpgrade (SQLiteDatabase db, int oldVersion, int newVersion){
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
 			String tempTableName =  "TEMP_" + LEDCONTACTS_TABLE_NAME;
 			if (newVersion == 2){
 				ContentResolver resolver = mContext.getContentResolver();
 				db.execSQL("ALTER TABLE "  + LEDCONTACTS_TABLE_NAME +  " RENAME TO " + tempTableName);
-				upgradeLog ("Altered table to temp");
+				Log.v(TAG, "onUpgrade: renamed table to " + tempTableName);
 				onCreate(db);
-				upgradeLog ("Created new table");
+				Log.v(TAG, "onUpgrade: created new table");
 				Cursor cursor = db.query(tempTableName, null, null, null, null, null, null);
 				if (cursor != null && cursor.moveToFirst()){
 					do {
@@ -95,7 +88,7 @@ public class LedContactProvider extends ContentProvider {
 								values.put(LedContacts.LAST_KNOWN_NUMBER, contactNameCursor.getString(contactNameCursor.getColumnIndex(Phone.NUMBER)));
 							} else {
 								canInsert = false;
-								Log.e("DB-Upgrade", "Contact details not found!");
+								Log.w(TAG, "onUpgrade: Contact details not found for contact id " + contactId);
 							}
 
 							if (contactNameCursor != null){
@@ -103,10 +96,10 @@ public class LedContactProvider extends ContentProvider {
 							}
 							if (canInsert){
 								db.insert(LEDCONTACTS_TABLE_NAME, null, values);
-								upgradeLog("Inserted a contact");
+								Log.v(TAG, "onUpgrade: inserted " + contactId + " into table");
 							}
 						} else {
-							Log.e("DB-Upgrade","Skipping over contact. DNE");
+							Log.w(TAG,"onUpgrade: contact DNE, skipping");
 						}
 					} while (cursor.moveToNext());
 				}
@@ -115,18 +108,12 @@ public class LedContactProvider extends ContentProvider {
 				}
 
 				db.execSQL("DROP TABLE IF EXISTS " + tempTableName);
-				upgradeLog("Dropped temp table");
+				Log.v(TAG, "onUpgrade: dropped temp table");
 				return;
-			} 
-
+			}
 			onCreate(db);
 		}
 	}
-	
-	
-
-	//instance of our table
-	private DatabaseHelper mDbHelper;
 
 	@Override
 	public int delete (Uri uri, String selection, String [] selectionArgs){ 

@@ -54,7 +54,7 @@ public static final String TAG = MessageUtils.class.getName();
                 info.name = contactCursor.getString (contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
             }
             else {
-                Log.i(TAG, "Not a contact in phone's database");
+                Log.i(TAG, "setNameAndUri: " + info.address + " is not a contact in phone db");
                 info.name = null;
                 info.contactUri = null;
             }
@@ -150,17 +150,15 @@ public static final String TAG = MessageUtils.class.getName();
         PduParser parser = new PduParser(pushData);
         GenericPdu pdu = parser.parse();
         if (null == pdu) {
-            Log.e(TAG, "Invalid PUSH data");
+            Log.e(TAG, "getPushMessages: pdu is null");
             return infoMap;
         }
         int type = pdu.getMessageType();
         long threadId = -1;
-        Log.v(TAG, "Sender: " + pdu.getFrom().getString());
-        Log.v(TAG, "Sender: " + pdu.getFrom().toString());
-        Log.v(TAG, "Sender: " + pdu.getFrom().getTextString().toString());
-        Log.v(TAG,"TYPE: " + pdu.getMessageType());
-
         String address = pdu.getFrom().getString();
+        Log.v(TAG, "getPushMessages: pdu address is " + address);
+        Log.v(TAG,"getPushMessages: pdu message type is " + pdu.getMessageType());
+
         MessageInfo i = getInfo(address,"New MMS", context);
         infoMap.put(address, i);
 //        if (i.isCustom()) {

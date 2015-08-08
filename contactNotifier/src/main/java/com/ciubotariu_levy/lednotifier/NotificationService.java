@@ -95,7 +95,7 @@ public class NotificationService extends NotificationListenerService {
 
 	@Override
 	public void onNotificationPosted(StatusBarNotification sbn) {
-		Log.v(TAG, "Notification received by system");
+		Log.v(TAG, "onNotificationPosted: " + sbn);
 		if (isMessagingApp(sbn.getPackageName())){
 			mHandler.removeCallbacks(mDismissNotification);
 		}

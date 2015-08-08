@@ -22,6 +22,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID
     };
 
+    private static final String TAG = AllContactsFragment.class.getName();
     private static final String BARE_QUERY = ContactsContract.Contacts.HAS_PHONE_NUMBER + "=?";
     private static final String QUERY = "(" + CONTACT_NAME + " LIKE ? OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?)";
     private static final int LOADER_ID = 0;
@@ -151,8 +152,6 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
                         .append(contactUriCursor.getString(contactUriCursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)))
                         .append("\"");
             }
-
-            Log.e("TAG", mModifiedQuery);
             mModifiedQuery = addExcludeQuery.toString();
 
             if (contactUriCursor != null) {
@@ -190,7 +189,7 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
 
     @Override
     public void onDataFetched(String excludeQuery, HashMap<String, LedContactInfo> fetchedData) {
-        Log.d("AllContacts", "Data Fetched");
+        Log.d(TAG, "onDataFetched: data fetched = " + fetchedData);
         mFetcher = null;
         mLedData = fetchedData;
         if (getActivity() != null){

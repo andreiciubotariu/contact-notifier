@@ -241,10 +241,10 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 			public void onClick(View v) {
 				Uri existingUri = Settings.System.DEFAULT_NOTIFICATION_URI;
 				if (SILENT.equals(contactData.ringtoneUri)){
-					Log.i("RingtonePicker", "silent picked");
+					Log.v(TAG, "chooseRingtoneButton: onClick: silent picked");
 					existingUri = null;
 				} else if (!GLOBAL.equals(contactData.ringtoneUri)){
-					Log.i("RingtonePicker", "Custom ringtone. Updating Intent.");
+                    Log.v(TAG, "chooseRingtoneButton: onClick: custom ringtone, updating Intent");
 					existingUri =  contactData.ringtoneUri == null ? existingUri : Uri.parse(contactData.ringtoneUri);
 				}
 				ringtonePickerIntent.putExtra (RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, existingUri);
@@ -285,8 +285,7 @@ public class ColorVibrateDialog extends DialogFragment implements OnColorChanged
 					ringtone.stop();
 				}
 			} catch (Exception e){
-				Log.e("RingtoneTitle", "Error");
-				e.printStackTrace();
+				Log.e(TAG, "onRingtoneSelected: error", e);
 			}
 		}
 		chooseRingtoneButton.setText(buttonText);
