@@ -166,7 +166,6 @@ public abstract class AbstractContactsFragment extends Fragment implements MainA
         RecyclerView r = (RecyclerView) getView().findViewById(R.id.contact_list);
         mLayoutManager = r.getLayoutManager();
         if (mListState != null) {
-            System.out.println(mListState);
             mLayoutManager.onRestoreInstanceState(mListState);
             mListState = null;
         }

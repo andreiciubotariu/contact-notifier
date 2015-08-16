@@ -147,7 +147,6 @@ public class CustomContactsFragment extends AbstractContactsFragment {
     public void onContactDetailsUpdated(LedContactInfo newData) {
         if (newData.color == Color.GRAY && TextUtils.isEmpty(newData.vibratePattern) && (TextUtils.isEmpty(newData.ringtoneUri) || ColorVibrateDialog.GLOBAL.equals(newData.ringtoneUri))) {
             getActivity().getContentResolver().delete(Uri.withAppendedPath(LedContacts.CONTENT_URI, String.valueOf(newData.id)), null, null);
-            System.out.println("deleting");
         } else {
             ContentValues values = new ContentValues();
             values.put(LedContacts.COLOR, newData.color);

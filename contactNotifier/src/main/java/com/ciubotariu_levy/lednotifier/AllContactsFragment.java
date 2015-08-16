@@ -194,7 +194,6 @@ public class AllContactsFragment extends AbstractContactsFragment implements Dat
         mLedData = fetchedData;
         if (getActivity() != null) {
             mModifiedQuery = QUERY + excludeQuery;
-            System.out.println(mModifiedQuery);
             getLoaderManager().initLoader(LOADER_ID, null, this);
         }
     }
