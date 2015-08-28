@@ -1,83 +1,90 @@
 package com.ciubotariu_levy.lednotifier.messages;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MessageHistory {
-    protected static MessageInfo sCustomLedMessage, sCustomVibMessage, sCustomRingMessage;
-    private static LinkedHashMap<String, MessageInfo> sMessages;
-    private static List<String> sCustomMessageList;
+    private static MessageHistory sInstance;
 
-    private static void ensureMap() {
-        if (sMessages == null) {
-            sMessages = new LinkedHashMap<>();
+    private MessageInfo mCustomLedMessage, mCustomVibMessage, mCustomRingMessage;
+    private LinkedHashMap<String, MessageInfo> mMessages;
+
+    private MessageHistory() {
+        mMessages = new LinkedHashMap<>();
+    }
+
+    private void reset() {
+        mMessages.clear();
+        mCustomLedMessage = null;
+        mCustomRingMessage = null;
+        mCustomVibMessage = null;
+    }
+
+    private void addNewMessages(LinkedHashMap<String, MessageInfo> newMessages) {
+        for (Map.Entry<String, MessageInfo> messageInfoEntry : newMessages.entrySet()) {
+            MessageInfo existingMessage = mMessages.get(messageInfoEntry.getKey());
+            MessageInfo newMessage = messageInfoEntry.getValue();
+            if (existingMessage != null) {
+                existingMessage.addContentString(newMessage.getContentString());
+            } else {
+                mMessages.put(messageInfoEntry.getKey(), newMessage);
+            }
         }
     }
 
-    private static void ensureList() {
-        if (sCustomMessageList == null) {
-            sCustomMessageList = new ArrayList<>();
+    private void setNotificationMessages() {
+        for (MessageInfo message : mMessages.values()) {
+            if (message.isCustom()) {
+                if (message.hasCustomColor() && mCustomLedMessage == null) { // use the first found led color
+                    mCustomLedMessage = message;
+                }
+                if (message.hasCustomRing()) { //continually replace with most recent custom ring
+                    mCustomRingMessage = message;
+                }
+                if (message.hasCustomVib()) { //and vib, since these are one-time alerts
+                    mCustomVibMessage = message;
+                }
+            }
         }
+    }
+
+    private static MessageHistory getInstance() {
+        if (sInstance == null) {
+            sInstance = new MessageHistory();
+        }
+        return sInstance;
     }
 
     public static LinkedHashMap<String, MessageInfo> getMessages() {
-        ensureMap();
-        return sMessages;
+        return getInstance().mMessages;
     }
 
-    public static List<String> getCustomMessages() {
-        ensureList();
-        return sCustomMessageList;
+    public static int getCustomColor() {
+        return getInstance().mCustomLedMessage == null ? Color.GRAY : getInstance().mCustomLedMessage.color;
+    }
+
+    public static String getCustomRingtone() {
+        return getInstance().mCustomRingMessage == null ? null : getInstance().mCustomRingMessage.ringtoneUri;
+    }
+
+    public static String getCustomVibPattern() {
+        return getInstance().mCustomRingMessage == null ? null : getInstance().mCustomVibMessage.vibPattern;
     }
 
     public static void clear() {
-        ensureMap();
-        ensureList();
-
-        sMessages.clear();
-        sCustomMessageList.clear();
-
-        sCustomLedMessage = sCustomRingMessage = sCustomVibMessage = null;
+        getInstance().reset();
     }
 
-    public static void add(LinkedHashMap<String, MessageInfo> newMessages, List<String> customMessages) {
-        ensureMap();
-        ensureList();
-
-        for (String key : newMessages.keySet()) {
-            MessageInfo m = sMessages.get(key);
-            MessageInfo newMessage = newMessages.get(key);
-            if (m != null) {
-                String additionalText = newMessage.text;
-                if (m.text == null) {
-                    m.text = additionalText;
-                } else {
-                    m.text += "\n" + additionalText;
-                }
-            } else {
-                sMessages.put(key, newMessage);
-            }
-        }
-
+    public static void addMessages(LinkedHashMap<String, MessageInfo> messages) {
+        getInstance().addNewMessages(messages);
         updateNotifMessages();
     }
 
     private static void updateNotifMessages() {
-        ensureMap();
-        for (String key : sMessages.keySet()) {
-            MessageInfo message = sMessages.get(key);
-            if (message.isCustom()) {
-                if (message.customColor() && sCustomLedMessage == null) {
-                    sCustomLedMessage = message;
-                }
-                if (message.customRing()) { //continually replace with most recent custom ring
-                    sCustomRingMessage = message;
-                }
-                if (message.customVib()) { //and vib, since these are one-time alerts
-                    sCustomVibMessage = message;
-                }
-            }
-        }
+        getInstance().setNotificationMessages();
     }
 }

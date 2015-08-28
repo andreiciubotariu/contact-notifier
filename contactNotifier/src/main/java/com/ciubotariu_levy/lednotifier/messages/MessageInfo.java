@@ -3,15 +3,16 @@ package com.ciubotariu_levy.lednotifier.messages;
 import android.graphics.Color;
 import android.text.TextUtils;
 
+/** Class that contains information about SMS/MMS messages + Contact Notifier specific data */
 public class MessageInfo {
-    public String name, address, contactUri, ringtoneUri, vibPattern, text;
+    public String name, address, ringtoneUri, contactUri, vibPattern, contentString;
     public int color = Color.GRAY;
 
     public boolean isCustom() {
-        return contactUri != null && (customColor() || customRing() || customVib());
+        return contactUri != null && (hasCustomColor() || hasCustomRing() || hasCustomVib());
     }
 
-    public String name() {
+    public String getNameOrAddress() {
         if (name != null) {
             return name;
         }
@@ -22,19 +23,27 @@ public class MessageInfo {
         return "Unknown Sender";
     }
 
-    public String text() {
-        return text != null ? text : "";
+    public void addContentString(String content) {
+        if (TextUtils.isEmpty(contentString)) {
+            contentString = content;
+        } else {
+            contentString += "\n" + content;
+        }
     }
 
-    public boolean customColor() {
+    public String getContentString() {
+        return contentString != null ? contentString : "";
+    }
+
+    public boolean hasCustomColor() {
         return color != Color.GRAY;
     }
 
-    public boolean customRing() {
+    public boolean hasCustomRing() {
         return ringtoneUri != null && !TextUtils.isEmpty(ringtoneUri);
     }
 
-    public boolean customVib() {
+    public boolean hasCustomVib() {
         return vibPattern != null && !TextUtils.isEmpty(vibPattern);
     }
 }

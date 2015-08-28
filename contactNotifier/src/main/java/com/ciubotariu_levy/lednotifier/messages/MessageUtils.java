@@ -25,7 +25,7 @@ public class MessageUtils {
     private static final String TAG = MessageUtils.class.getName();
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public static SmsMessage[] getSMSMessagesFromIntent(Intent intent) {
+    private static SmsMessage[] getSMSMessagesFromIntent(Intent intent) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             Object[] messages = (Object[]) intent.getSerializableExtra("pdus");
             int pduCount = messages.length;
@@ -64,16 +64,13 @@ public class MessageUtils {
     }
 
     private static MessageInfo getInfo(SmsMessage message, Context context) {
-        if (message == null || message.getOriginatingAddress() == null) {
-            return null;
-        }
         return getInfo(message.getOriginatingAddress(), message.getDisplayMessageBody(), context);
     }
 
     private static MessageInfo getInfo(String address, String text, Context context) {
         MessageInfo info = new MessageInfo();
         info.address = address;
-        info.text = text;
+        info.contentString = text;
 
         setNameAndUri(info, context.getContentResolver());
 
@@ -113,7 +110,7 @@ public class MessageUtils {
         return info;
     }
 
-    public static LinkedHashMap<String, MessageInfo> getMessages(Intent intent, Context context) {
+    public static LinkedHashMap<String, MessageInfo> createMessageInfosFromSmsIntent(Intent intent, Context context) {
         SmsMessage[] sms = getSMSMessagesFromIntent(intent);
         LinkedHashMap<String, MessageInfo> infoMap = new LinkedHashMap<>();
         for (int x = 0; x < sms.length; x++) {
@@ -122,15 +119,12 @@ public class MessageUtils {
                 if (infoMap.get(address) == null) {
                     MessageInfo i = getInfo(sms[x], context);
                     infoMap.put(address, i);
-//                    if (i.isCustom()) {
-//                        customMessages.add(address);
-//                    }
                 } else {
                     String moreText = sms[x].getDisplayMessageBody();
-                    if (infoMap.get(address).text != null) {
-                        infoMap.get(address).text += moreText;
+                    if (infoMap.get(address).contentString != null) {
+                        infoMap.get(address).contentString += moreText;
                     } else {
-                        infoMap.get(address).text = moreText;
+                        infoMap.get(address).contentString = moreText;
                     }
                 }
             }
@@ -138,7 +132,7 @@ public class MessageUtils {
         return infoMap;
     }
 
-    public static LinkedHashMap<String, MessageInfo> getPushMessages(Intent intent, Context context) {
+    public static LinkedHashMap<String, MessageInfo> createMessageInfosFromPushIntent(Intent intent, Context context) {
         LinkedHashMap<String, MessageInfo> infoMap = new LinkedHashMap<>();
 
         // Get raw PDU push-data from the message and parse it
@@ -146,20 +140,17 @@ public class MessageUtils {
         PduParser parser = new PduParser(pushData);
         GenericPdu pdu = parser.parse();
         if (null == pdu) {
-            Log.e(TAG, "getPushMessages: pdu is null");
+            Log.e(TAG, "createMessageInfosFromPushIntent: pdu is null");
             return infoMap;
         }
         int type = pdu.getMessageType();
         long threadId = -1;
         String address = pdu.getFrom().getString();
-        Log.v(TAG, "getPushMessages: pdu address is " + address);
-        Log.v(TAG, "getPushMessages: pdu message type is " + pdu.getMessageType());
+        Log.v(TAG, "createMessageInfosFromPushIntent: pdu address is " + address);
+        Log.v(TAG, "createMessageInfosFromPushIntent: pdu message type is " + pdu.getMessageType());
 
         MessageInfo i = getInfo(address, "New MMS", context);
         infoMap.put(address, i);
-//        if (i.isCustom()) {
-//            customMessages.add(address);
-//        }
         return infoMap;
     }
 }

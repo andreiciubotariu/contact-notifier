@@ -62,10 +62,10 @@ public class SMSReceiver extends BroadcastReceiver {
         if (intent.getAction().equals(Sms.Intents.WAP_PUSH_RECEIVED_ACTION)
                 && ContentType.MMS_MESSAGE.equals(intent.getType())) {
             Log.v(TAG, "onReceive: received PUSH Intent: " + intent);
-            infoMap = MessageUtils.getPushMessages(intent, context);
+            infoMap = MessageUtils.createMessageInfosFromPushIntent(intent, context);
         } else if (intent.getAction().equals(Sms.Intents.SMS_RECEIVED_ACTION)) {
             Log.v(TAG, "onReceive: received SMS: " + intent);
-            infoMap = MessageUtils.getMessages(intent, context);
+            infoMap = MessageUtils.createMessageInfosFromSmsIntent(intent, context);
         }
         onMessagesReceived(context, infoMap, customMessages);
     }
@@ -78,7 +78,7 @@ public class SMSReceiver extends BroadcastReceiver {
             return;
         }
 
-        MessageHistory.add(infoMap, customMessages);
+        MessageHistory.addMessages(infoMap);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean showAllNotifs = preferences.getBoolean(SHOW_ALL_NOTIFS, false);
@@ -92,19 +92,19 @@ public class SMSReceiver extends BroadcastReceiver {
             ringtone = preferences.getString("notifications_new_message_ringtone", Settings.System.DEFAULT_NOTIFICATION_URI.toString());
         }
 
-        if (MessageHistory.sCustomLedMessage != null) {
-            color = MessageHistory.sCustomLedMessage.color;
-        }
-        if (MessageHistory.sCustomRingMessage != null) {
-            ringtone = MessageHistory.sCustomRingMessage.ringtoneUri;
-        }
-        if (MessageHistory.sCustomVibMessage != null) {
-            vibratePattern = MessageHistory.sCustomVibMessage.vibPattern;
-        }
-
-        if (MessageHistory.sCustomLedMessage != null || MessageHistory.sCustomRingMessage != null || MessageHistory.sCustomVibMessage != null) {
+        if (MessageHistory.getCustomColor() != Color.GRAY) {
+            color = MessageHistory.getCustomColor();
             showNotification = true;
         }
+        if (MessageHistory.getCustomRingtone() != null) {
+            ringtone = MessageHistory.getCustomRingtone();
+            showNotification = true;
+        }
+        if (MessageHistory.getCustomRingtone() != null) {
+            vibratePattern = MessageHistory.getCustomRingtone();
+            showNotification = true;
+        }
+
 
         if (showNotification) {
             Intent i = new Intent(context, MainActivity.class);
@@ -140,9 +140,9 @@ public class SMSReceiver extends BroadcastReceiver {
                         notifBuilder.addPerson(message.contactUri);
                     }
 
-                    body.append(message.name()).append(": ").append(message.text).append(" ");
-                    summaryText.append(message.name()).append(" "); //TODO formatting, comma maybe?
-                    inboxStyle.addLine(message.name() + ": " + message.text());
+                    body.append(message.getNameOrAddress()).append(": ").append(message.getContentString()).append(" ");
+                    summaryText.append(message.getNameOrAddress()).append(" "); //TODO formatting, comma maybe?
+                    inboxStyle.addLine(message.getNameOrAddress() + ": " + message.getContentString());
 
                     if (!foundNotifPhoto) {
                         Bitmap b = loadContactPhotoThumbnail(context, message.contactUri);
@@ -166,8 +166,8 @@ public class SMSReceiver extends BroadcastReceiver {
 
             String title = "";
             if (counter == 1) {
-                body = new StringBuilder(firstMessage.text());
-                title = firstMessage.name();
+                body = new StringBuilder(firstMessage.getContentString());
+                title = firstMessage.getNameOrAddress();
             } else if (counter >= 1) {
                 title = "Multiple Senders";
                 inboxStyle.setBigContentTitle(title);
@@ -271,7 +271,7 @@ public class SMSReceiver extends BroadcastReceiver {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    Log.e(TAG, "loadContactPhotoThumbnail: ould not close input stream", e);
+                    Log.e(TAG, "loadContactPhotoThumbnail: could not close input stream", e);
                 }
             }
             if (mCursor != null) {
