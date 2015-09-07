@@ -16,8 +16,8 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.util.Log;
 
-import com.ciubotariu_levy.lednotifier.AbstractContactsFragment;
-import com.ciubotariu_levy.lednotifier.ColorVibrateDialog;
+import com.ciubotariu_levy.lednotifier.ui.fragment.AbstractContactsFragment;
+import com.ciubotariu_levy.lednotifier.ui.fragment.ColorVibrateDialog;
 
 import java.util.HashMap;
 

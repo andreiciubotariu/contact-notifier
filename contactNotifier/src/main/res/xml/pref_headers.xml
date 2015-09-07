@@ -3,13 +3,13 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.ciubotariu_levy.lednotifier.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="com.ciubotariu_levy.lednotifier.ui.activity.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
     <header
-        android:fragment="com.ciubotariu_levy.lednotifier.SettingsActivity$NotifPreferenceFragment"
+        android:fragment="com.ciubotariu_levy.lednotifier.ui.activity.SettingsActivity$NotifPreferenceFragment"
         android:title="@string/pref_header_notifications" />
     <header
-        android:fragment="com.ciubotariu_levy.lednotifier.SettingsActivity$OtherPreferenceFragment"
+        android:fragment="com.ciubotariu_levy.lednotifier.ui.activity.SettingsActivity$OtherPreferenceFragment"
         android:title="@string/pref_header_other" />
 
 </preference-headers>

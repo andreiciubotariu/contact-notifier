@@ -19,7 +19,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.ContactNotifierBase" >
-        <receiver android:name=".messages.SMSReceiver" >
+        <receiver android:name=".messages.MessageReceiver" >
             <intent-filter android:priority="999" >
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
@@ -29,23 +29,23 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".BootBroadcastReceiver"
+            android:name=".receivers.BootBroadcastReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".LEDCancelReceiver"
+            android:name=".receivers.LedCancelReceiver"
             android:exported="false" >
         </receiver>
         <receiver
-            android:name=".AlarmDismissReceiver"
+            android:name=".receivers.NotificationDismissReceiver"
             android:exported="false" >
         </receiver>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,30 +54,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.activity.SettingsActivity"
             android:label="@string/title_activity_settings" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.ciubotariu_levy.lednotifier.MainActivity" />
+                android:value=".ui.activity.MainActivity" />
         </activity>
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.activity.AboutActivity"
             android:label="@string/title_activity_about" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.ciubotariu_levy.lednotifier.MainActivity" />
+                android:value=".ui.activity.MainActivity" />
         </activity>
         <activity
-            android:name=".SMSAppChooserContainer"
+            android:name=".ui.activity.SMSAppChooserContainer"
             android:theme="@style/Theme.ContactNotifierTranslucent" >
         </activity>
         <activity
-            android:name=".DefaultColorChooserContainer"
+            android:name=".ui.activity.DefaultColorChooserContainer"
             android:theme="@style/Theme.ContactNotifierTranslucent" >
         </activity>
 
         <service
-            android:name=".NotificationService"
+            android:name=".notifications.NotificationService"
             android:label="@string/service_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
             <intent-filter>
@@ -85,7 +85,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".ObserverService"
+            android:name=".dataobserver.ObserverService"
             android:label="@string/observer_service_name" />
 
         <provider

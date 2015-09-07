@@ -1,46 +1,6 @@
 package com.ciubotariu_levy.lednotifier.messages;
 
-import android.annotation.TargetApi;
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract.Contacts;
-import android.provider.Settings;
-import android.provider.Telephony.Sms;
-import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.ciubotariu_levy.lednotifier.AlarmDismissReceiver;
-import com.ciubotariu_levy.lednotifier.DefaultColorChooserContainer;
-import com.ciubotariu_levy.lednotifier.MainActivity;
-import com.ciubotariu_levy.lednotifier.NotificationService;
-import com.ciubotariu_levy.lednotifier.NotificationUtils;
-import com.ciubotariu_levy.lednotifier.R;
-import com.ciubotariu_levy.lednotifier.SmsAppChooserDialog;
-import com.ciubotariu_levy.lednotifier.providers.LedContactInfo;
-import com.google.android.mms.ContentType;
-import com.makeramen.RoundedTransformationBuilder;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-public class SMSReceiver extends BroadcastReceiver {
+public class SMSReceiver {/*extends BroadcastReceiver {
     public static final String TAG = SMSReceiver.class.getName();
     public static final int ACTIVITY_REQUEST_CODE = 0;
     public static final int DEL_REQUEST_CODE = 2;
@@ -136,8 +96,8 @@ public class SMSReceiver extends BroadcastReceiver {
                     if (counter == 0) {
                         firstMessage = message;
                     }
-                    if (message.contactUri != null) {
-                        notifBuilder.addPerson(message.contactUri);
+                    if (message.contactUriString != null) {
+                        notifBuilder.addPerson(message.contactUriString);
                     }
 
                     body.append(message.getNameOrAddress()).append(": ").append(message.getContentString()).append(" ");
@@ -145,7 +105,7 @@ public class SMSReceiver extends BroadcastReceiver {
                     inboxStyle.addLine(message.getNameOrAddress() + ": " + message.getContentString());
 
                     if (!foundNotifPhoto) {
-                        Bitmap b = loadContactPhotoThumbnail(context, message.contactUri);
+                        Bitmap b = loadContactPhotoThumbnail(context, message.contactUriString);
                         if (b != null) {
                             Bitmap large = b;
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -199,7 +159,7 @@ public class SMSReceiver extends BroadcastReceiver {
             NotificationUtils.message = body.toString();
             NotificationUtils.contentIntent = pendingIntent;
 
-            Intent delIntent = new Intent(context, AlarmDismissReceiver.class);
+            Intent delIntent = new Intent(context, NotificationDismissReceiver.class);
             PendingIntent deletePendIntent = PendingIntent.getBroadcast(context, DEL_REQUEST_CODE, delIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             notifBuilder.setDeleteIntent(deletePendIntent);
 
@@ -279,5 +239,5 @@ public class SMSReceiver extends BroadcastReceiver {
             }
         }
         return null;
-    }
+    } */
 }

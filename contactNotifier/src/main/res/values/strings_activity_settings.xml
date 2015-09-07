@@ -2,56 +2,48 @@
 
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Strings related to Settings -->
+    <!--Summaries-->
+    <string name="pref_summary_default_notification_color">Notification color for non-custom contacts</string>
+    <string name="pref_summary_notification_service">Required by some of the below preferences</string>
+    <string name="pref_summary_sms_app">SMS app used</string>
+
+    <!--On summaries-->
+    <string name="pref_summary_on_status_bar_preview">Showing full status bar preview</string>
+    <string name="pref_summary_on_led_timeout">Turning off LED after 10 minutes</string>
+    <string name="pref_summary_on_show_all_notifications">Showing notifications for all received messages</string>
+    <string name="pref_summary_on_notif_and_sound">Ringtone will accompany notification</string>
+    <string name="pref_summary_on_new_message_vibrate">Vibrating for every notification</string>
+    <string name="pref_summary_on_tie_to_sms_app">Dismissing notification when SMS app notification dismissed</string>
+    <string name="pref_summary_on_delay_dismissal">Dismissing our notification 5 seconds after SMS app notification dismissal. Does nothing if SMS app also modifies SMS seen or read status</string>
+
+    <!--Off summaries-->
+    <string name="pref_summary_off_status_bar_preview">Hiding sender and message from status bar preview</string>
+    <string name="pref_summary_off_led_timeout">LED flashing indefinitely</string>
+    <string name="pref_summary_off_show_all_notifications">Notifications shown only for contacts with a custom color or ringtone</string>
+    <string name="pref_summary_off_notif_and_sound">No ringtone</string>
+    <string name="pref_summary_off_new_message_vibrate">Vibrating only for custom contacts</string>
+    <string name="pref_summary_off_tie_to_sms_app">If SMS app dismissed, our notification may need manual dismissal</string>
+    <string name="pref_summary_off_delay_dismissal">Dismissing our notification as soon as SMS app notification is dismissed</string>
 
 
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact based on your message history</string>
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <!--Titles-->
+    <string name="pref_title_status_bar_preview">Status bar preview</string>
+    <string name="pref_title_led_timeout">LED timeout</string>
+    <string name="pref_title_show_all_notifications">Notification for every SMS</string>
+    <string name="pref_title_default_notification_color">Default notification color</string>
+    <string name="pref_title_notif_and_sound">Accompanying ringtone</string>
+    <string name="pref_title_system_notification_service_settings">System notification settings</string>
+    <string name="pref_title_tie_to_sms_app">Tie to SMS app</string>
+    <string name="pref_title_delay_dismissal">Delay dismissal</string>
+    <string name="pref_title_sms_app">SMS app</string>
 
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-    <string name="pref_header_other">Other</string>
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_ringtone_silent">Silent</string>
     <string name="pref_title_vibrate">Vibrate</string>
 
+    <!--Headers-->
+    <string name="pref_header_general">General</string>
+    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_header_other">Other</string>
 </resources>

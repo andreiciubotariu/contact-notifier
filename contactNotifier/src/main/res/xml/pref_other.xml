@@ -2,7 +2,7 @@
 
     <Preference android:title="About" >
         <intent
-            android:targetClass="com.ciubotariu_levy.lednotifier.AboutActivity"
+            android:targetClass="com.ciubotariu_levy.lednotifier.ui.activity.AboutActivity"
             android:targetPackage="com.ciubotariu_levy.lednotifier" />
     </Preference>
 

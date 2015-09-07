@@ -2,76 +2,76 @@
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="status_bar_preview"
-        android:summaryOff="Hiding sender and message from status bar preview"
-        android:summaryOn="Showing full status bar preview"
-        android:title="Status bar preview" />
+        android:key="@string/pref_key_status_bar_preview"
+        android:summaryOff="@string/pref_summary_off_status_bar_preview"
+        android:summaryOn="@string/pref_summary_on_status_bar_preview"
+        android:title="@string/pref_title_status_bar_preview" />
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="led_timeout"
-        android:summaryOff="LED flashing indefinitely"
-        android:summaryOn="Turning off LED after 10 minutes"
-        android:title="LED timeout" />
+        android:key="@string/pref_key_led_timeout"
+        android:summaryOff="@string/pref_summary_off_led_timeout"
+        android:summaryOn="@string/pref_summary_on_led_timeout"
+        android:title="@string/pref_title_led_timeout" />
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="show_all_notifications"
-        android:summaryOff="Notifications shown only for contacts with a custom color or ringtone"
-        android:summaryOn="Showing notifications for all received messages"
-        android:title="Notification for every SMS" />
+        android:key="@string/pref_key_show_all_notifications"
+        android:summaryOff="@string/pref_summary_off_show_all_notifications"
+        android:summaryOn="@string/pref_summary_on_show_all_notifications"
+        android:title="@string/pref_title_show_all_notifications" />
 
     <Preference
-        android:dependency="show_all_notifications"
-        android:key="default_notification_color"
-        android:summary="Notification color for non-custom contacts"
-        android:title="Default notification color" >
+        android:dependency="@string/pref_key_show_all_notifications"
+        android:key="@string/pref_key_default_notification_color"
+        android:summary="@string/pref_summary_default_notification_color"
+        android:title="@string/pref_title_default_notification_color" >
         <intent
-            android:targetClass="com.ciubotariu_levy.lednotifier.DefaultColorChooserContainer"
+            android:targetClass="com.ciubotariu_levy.lednotifier.ui.activity.DefaultColorChooserContainer"
             android:targetPackage="com.ciubotariu_levy.lednotifier" />
     </Preference>
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="notif_and_sound"
-        android:summaryOff="No ringtone"
-        android:summaryOn="Ringtone will accompany notification"
-        android:title="Accompanying ringtone" />
+        android:key="@string/pref_key_notif_and_sound"
+        android:summaryOff="@string/pref_summary_off_notif_and_sound"
+        android:summaryOn="@string/pref_summary_on_notif_and_sound"
+        android:title="@string/pref_title_notif_and_sound" />
 
     <RingtonePreference
         android:defaultValue="content://settings/system/notification_sound"
-        android:dependency="notif_and_sound"
-        android:key="notifications_new_message_ringtone"
+        android:dependency="@string/pref_key_notif_and_sound"
+        android:key="@string/pref_key_notifications_new_message_ringtone"
         android:ringtoneType="notification"
         android:title="@string/pref_title_ringtone" />
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="notifications_new_message_vibrate"
-        android:summaryOff="Vibrating only for custom contacts"
-        android:summaryOn="Vibrating for every notification"
+        android:key="@string/pref_key_notifications_new_message_vibrate"
+        android:summaryOff="@string/pref_summary_off_new_message_vibrate"
+        android:summaryOn="@string/pref_summary_on_new_message_vibrate"
         android:title="@string/pref_title_vibrate" />
 
     <Preference
         android:enabled="@bool/notification_service_enabled"
-        android:key = "system_notif_settings"
-        android:summary="Required by some of the below preferences"
-        android:title="System notification settings" >
+        android:key = "@string/pref_key_system_notif_settings"
+        android:summary="@string/pref_summary_notification_service"
+        android:title="@string/pref_title_system_notification_service_settings" >
 
     </Preference>
 
     <CheckBoxPreference
         android:defaultValue="true"
         android:enabled="@bool/notification_service_enabled"
-        android:key="tie_to_sms_app"
-        android:summaryOff="If SMS app dismissed, our notification may need manual dismissal"
-        android:summaryOn="Dismissing notification when SMS app notification dismissed"
-        android:title="Tie to SMS app" />
+        android:key="@string/pref_key_tie_to_sms_app"
+        android:summaryOff="@string/pref_summary_off_tie_to_sms_app"
+        android:summaryOn="@string/pref_summary_on_tie_to_sms_app"
+        android:title="@string/pref_title_tie_to_sms_app" />
     <CheckBoxPreference
         android:defaultValue="false"
-        android:dependency="tie_to_sms_app"
+        android:dependency="@string/pref_key_tie_to_sms_app"
         android:enabled="@bool/notification_service_enabled"
-        android:key="delay_dismissal"
-        android:summaryOff="Dismissing our notification as soon as SMS app notification is dismissed"
-        android:summaryOn="Dismissing our notification 5 seconds after SMS app notification dismissal. Does nothing if SMS app also modifies SMS seen or read status"
-        android:title="Delay dismissal" />
+        android:key="@string/pref_key_delay_dismissal"
+        android:summaryOff="@string/pref_summary_off_delay_dismissal"
+        android:summaryOn="@string/pref_summary_on_delay_dismissal"
+        android:title="@string/pref_title_delay_dismissal" />
 
 </PreferenceScreen>

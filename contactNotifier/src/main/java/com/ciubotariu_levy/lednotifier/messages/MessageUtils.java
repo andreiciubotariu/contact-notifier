@@ -14,10 +14,10 @@ import android.telephony.SmsMessage;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.ciubotariu_levy.lednotifier.ColorVibrateDialog;
+import com.ciubotariu_levy.lednotifier.ui.fragment.ColorVibrateDialog;
 import com.ciubotariu_levy.lednotifier.providers.LedContacts;
-import com.google.android.mms.pdu.GenericPdu;
-import com.google.android.mms.pdu.PduParser;
+import com.googlesource.android.mms.pdu.GenericPdu;
+import com.googlesource.android.mms.pdu.PduParser;
 
 import java.util.LinkedHashMap;
 
@@ -41,7 +41,7 @@ public class MessageUtils {
     }
 
     private static void setNameAndUri(MessageInfo info, ContentResolver resolver) {
-        String number = info.address;
+        String number = info.getAddress();
         Cursor contactCursor = null;
         try {
             Uri phoneNumberUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
@@ -49,12 +49,12 @@ public class MessageUtils {
             if (contactCursor != null && contactCursor.moveToFirst()) {
                 Uri contactUri = ContactsContract.Contacts.getLookupUri(contactCursor.getLong(contactCursor.getColumnIndex(ContactsContract.PhoneLookup._ID)), contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY)));
                 String contactUriString = contactUri == null ? null : contactUri.toString();
-                info.contactUri = contactUriString;
-                info.name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
+                info.setContactUriString(contactUriString);
+                info.setName(contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)));
             } else {
-                Log.i(TAG, "setNameAndUri: " + info.address + " is not a contact in phone db");
-                info.name = null;
-                info.contactUri = null;
+                Log.i(TAG, "setNameAndUri: " + info.getAddress() + " is not a contact in phone db");
+                info.setName(null /* no name */);
+                info.setContactUriString(null /* no contact uri */);
             }
         } finally {
             if (contactCursor != null) {
@@ -69,8 +69,8 @@ public class MessageUtils {
 
     private static MessageInfo getInfo(String address, String text, Context context) {
         MessageInfo info = new MessageInfo();
-        info.address = address;
-        info.contentString = text;
+        info.setAddress(address);
+        info.addContentString(text);
 
         setNameAndUri(info, context.getContentResolver());
 
@@ -78,8 +78,8 @@ public class MessageUtils {
         String selection = null;
         String[] selectionArgs = null;
         selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?";
-        if (info.contactUri != null) {
-            selectionArgs = new String[]{info.contactUri};
+        if (info.getContactUriString() != null) {
+            selectionArgs = new String[]{info.getContactUriString()};
 
             Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs, null);
 
@@ -88,19 +88,19 @@ public class MessageUtils {
                     int customColor = c.getInt(c.getColumnIndex(LedContacts.COLOR));
 
                     if (customColor != Color.GRAY) {
-                        info.color = customColor;
+                        info.setColor(customColor);
                     }
                     String customRingtone = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
                     if (!ColorVibrateDialog.GLOBAL.equals(customRingtone)) {
-                        info.ringtoneUri = customRingtone;
+                        info.setRingtoneUriString(customRingtone);
                     }
                     String customVib = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
 
                     if (!TextUtils.isEmpty(customVib)) {
-                        info.vibPattern = customVib;
+                        info.setVibPattern(customVib);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "getInfo: could not generate info", e);
                 }
             }
             if (c != null) {
@@ -120,12 +120,7 @@ public class MessageUtils {
                     MessageInfo i = getInfo(sms[x], context);
                     infoMap.put(address, i);
                 } else {
-                    String moreText = sms[x].getDisplayMessageBody();
-                    if (infoMap.get(address).contentString != null) {
-                        infoMap.get(address).contentString += moreText;
-                    } else {
-                        infoMap.get(address).contentString = moreText;
-                    }
+                    infoMap.get(address).addContentString(sms[x].getDisplayMessageBody());
                 }
             }
         }

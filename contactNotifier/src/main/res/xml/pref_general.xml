@@ -1,8 +1,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <Preference
-        android:key="sms_app_package"
-        android:summary="SMS app used"
-        android:title="SMS app" />
+        android:key="@string/pref_key_sms_app_package"
+        android:summary="@string/pref_summary_sms_app"
+        android:title="@string/pref_title_sms_app" />
 
 </PreferenceScreen>

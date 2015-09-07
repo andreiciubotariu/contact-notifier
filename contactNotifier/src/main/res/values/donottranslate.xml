@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="pref_key_sms_app_package">sms_app_package</string>
+    <string name="pref_key_status_bar_preview">status_bar_preview</string>
+    <string name="pref_key_led_timeout">led_timeout</string>
+    <string name="pref_key_show_all_notifications">show_all_notifications</string>
+    <string name="pref_key_default_notification_color">default_notification_color</string>
+    <string name="pref_key_notif_and_sound">notif_and_sound</string>
+    <string name="pref_key_notifications_new_message_ringtone">notifications_new_message_ringtone</string>
+    <string name="pref_key_notifications_new_message_vibrate">notifications_new_message_vibrate</string>
+    <string name="pref_key_system_notif_settings">system_notif_settings</string>
+    <string name="pref_key_tie_to_sms_app">tie_to_sms_app</string>
+    <string name="pref_key_delay_dismissal">delay_dismissal</string>
+
+</resources>

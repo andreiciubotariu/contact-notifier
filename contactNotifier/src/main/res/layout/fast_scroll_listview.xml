@@ -6,7 +6,7 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp" >
 
-    <com.ciubotariu_levy.lednotifier.FastScrollThemedListView
+    <com.ciubotariu_levy.lednotifier.ui.widget.FastScrollThemedListView
         android:id="@id/android:list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
