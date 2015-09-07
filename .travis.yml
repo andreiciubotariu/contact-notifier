@@ -8,3 +8,5 @@ android:
 
     # SDK version used for compilation
     - android-22
+
+    - extra-android-m2repository
