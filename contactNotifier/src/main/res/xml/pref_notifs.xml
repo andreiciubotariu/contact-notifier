@@ -50,14 +50,6 @@
         android:summaryOn="@string/pref_summary_on_new_message_vibrate"
         android:title="@string/pref_title_vibrate" />
 
-    <Preference
-        android:enabled="@bool/enable_notification_service_dependent_components"
-        android:key = "@string/pref_key_system_notif_settings"
-        android:summary="@string/pref_summary_notification_service"
-        android:title="@string/pref_title_system_notification_service_settings" >
-
-    </Preference>
-
     <CheckBoxPreference
         android:defaultValue="false"
         android:enabled="@bool/enable_notification_service_dependent_components"

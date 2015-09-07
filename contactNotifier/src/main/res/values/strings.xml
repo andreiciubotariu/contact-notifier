@@ -17,4 +17,7 @@
     <string name="title_activity_tip_container">Tips</string>
     <string name="hello_world">Hello world!</string>
     <string name="choose_sms_app">Choose your SMS app</string>
+    <string name="title_activity_enable_notification_listener_prompt">Enable Listener</string>
+    <string name="enable_notification_listener">Contact Notifier requires notification access. Please enable it.</string>
+    <string name="okay">OKAY</string>
 </resources>

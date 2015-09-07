@@ -11,7 +11,6 @@ public enum Keys {
     NOTIFICATION_AND_SOUND(R.string.pref_key_notif_and_sound),
     NOTIFICATIONS_NEW_MESSAGE_RINGTONE(R.string.pref_key_notifications_new_message_ringtone),
     NOTIFICATIONS_NEW_MESSAGE_VIBRATE(R.string.pref_key_notifications_new_message_vibrate),
-    NOTIFICATIONS_SYSTEM_NOTIFICATION_SETTINGS(R.string.pref_key_system_notif_settings),
     DELAY_DISMISSAL(R.string.pref_key_delay_dismissal);
 
     private int mKeyResId;

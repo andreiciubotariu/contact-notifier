@@ -19,12 +19,10 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
-import android.provider.Settings;
 import android.provider.Telephony.Sms;
 import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.ciubotariu_levy.lednotifier.R;
 import com.ciubotariu_levy.lednotifier.ui.fragment.SmsAppChooserDialog;
@@ -44,6 +42,8 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+    private static final String TAG = SettingsActivity.class.getName();
+
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -103,7 +103,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     };
 
-    @TargetApi(19)
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private static void setupSMSAppPreference(Preference smsPreference) {
         String summary = "Set the SMS app in use";
         PackageManager packageManager = smsPreference.getContext().getPackageManager();
@@ -130,25 +130,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             smsPreference.setEnabled(false);
         }
-    }
-
-    private static void setupSysNotifSetting(Preference preference) {
-        preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent i = new Intent(Settings.ACTION_SECURITY_SETTINGS);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    i = new Intent(Settings.ACTION_SOUND_SETTINGS);
-                }
-                try {
-                    preference.getContext().startActivity(i);
-                } catch (Exception e) {
-                    Toast.makeText(preference.getContext(), "Could not launch setting", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });
     }
 
     /**
@@ -314,7 +295,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_notifs);
             bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-            setupSysNotifSetting(findPreference("system_notif_settings"));
         }
     }
 
@@ -339,7 +319,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             getPreferenceScreen().addPreference(notifHeader);
             addPreferencesFromResource(R.xml.pref_notifs);
             bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-            setupSysNotifSetting(findPreference("system_notif_settings"));
 
             PreferenceCategory otherHeader = new PreferenceCategory(getActivity());
             otherHeader.setTitle(R.string.pref_header_other);

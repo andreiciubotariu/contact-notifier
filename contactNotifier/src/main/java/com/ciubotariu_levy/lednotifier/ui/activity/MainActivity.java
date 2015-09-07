@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     private String mSearchText = "";
     private int mBackStackCount = 0;
 
-    @TargetApi(19)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +48,15 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!EnableNotificationListenerPromptActivity.isNotificationServiceEnabled(this)) {
+            Intent enableNotificationIntent = new Intent(this, EnableNotificationListenerPromptActivity.class);
+            startActivity(enableNotificationIntent);
+            finish();
+        }
+    }
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

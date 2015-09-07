@@ -14,17 +14,24 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <android:uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <android:uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.ContactNotifierBase" >
-        <receiver android:name=".messages.MessageReceiver" android:enabled="@bool/enable_manifest_message_receiver">
+        <receiver
+            android:name=".messages.MessageReceiver"
+            android:enabled="@bool/enable_manifest_message_receiver" >
             <intent-filter android:priority="999" >
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
             <intent-filter android:priority="999" >
                 <action android:name="android.provider.Telephony.WAP_PUSH_RECEIVED" />
+
                 <data android:mimeType="application/vnd.wap.mms-message" />
             </intent-filter>
         </receiver>
@@ -94,16 +101,21 @@
             android:exported="false" >
         </provider>
 
-        <!--<activity-->
-            <!--android:name=".TipContainer"-->
-            <!--android:label="@string/title_activity_tip_container"-->
-            <!--android:theme="@style/Theme.ContactNotifierTranslucent">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+        <!-- <activity -->
+        <!-- android:name=".TipContainer" -->
+        <!-- android:label="@string/title_activity_tip_container" -->
+        <!-- android:theme="@style/Theme.ContactNotifierTranslucent"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.MAIN" /> -->
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        <!--</activity>-->
+
+        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+        <!-- </intent-filter> -->
+        <!-- </activity> -->
+        <activity
+            android:name=".ui.activity.EnableNotificationListenerPromptActivity"
+            android:label="@string/title_activity_enable_notification_listener_prompt" >
+        </activity>
     </application>
 
 </manifest>
