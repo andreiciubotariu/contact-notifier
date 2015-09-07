@@ -1,7 +1,7 @@
-led-notifier
+contact-notifier [![Build Status](https://travis-ci.org/andreiciubotariu/contact-notifier.svg)](https://travis-ci.org/andreiciubotariu/contact-notifier)
 ============
 
-This is an Android app that allows you to set a custom LED color for incoming SMS messages from a contact.
+An Android app that allows you to set an LED color for incoming SMS/MMS.
 
 <a href="https://play.google.com/store/apps/details?id=com.ciubotariu_levy.lednotifier">
   <img alt="Get it on Google Play"
