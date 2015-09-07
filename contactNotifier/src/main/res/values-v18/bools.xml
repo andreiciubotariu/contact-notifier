@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-   <bool name="notification_service_enabled">true</bool>
+   <bool name="enable_notification_service_dependent_components">true</bool>
+   <bool name="enable_manifest_message_receiver">false</bool>
 </resources>

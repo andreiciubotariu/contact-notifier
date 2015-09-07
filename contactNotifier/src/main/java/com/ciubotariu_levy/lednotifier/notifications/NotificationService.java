@@ -12,6 +12,7 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import com.ciubotariu_levy.lednotifier.BuildConfig;
 import com.ciubotariu_levy.lednotifier.notifications.controller.NotificationController;
 import com.ciubotariu_levy.lednotifier.preferences.Keys;
 import com.ciubotariu_levy.lednotifier.preferences.Prefs;
@@ -22,6 +23,9 @@ public class NotificationService extends NotificationListenerService {
     private static final String TAG = NotificationService.class.getName();
     private static final String SMS_RECEIVED_ACTION = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
             Telephony.Sms.Intents.SMS_RECEIVED_ACTION : "android.provider.Telephony.SMS_RECEIVED";
+    private static final String MMS_RECEIVED_ACTION = "android.provider.Telephony.WAP_PUSH_RECEIVED";
+    private static final String MMS_MIME_TYPE = "application/vnd.wap.mms-message";
+    private static final int MAX_PRIORITY = 999;
 
     private MessageReceiver mSmsReceiver = new MessageReceiver() {
         @Override
@@ -32,13 +36,22 @@ public class NotificationService extends NotificationListenerService {
         }
     };
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public void onCreate() {
         super.onCreate();
-        IntentFilter filter = new IntentFilter(SMS_RECEIVED_ACTION);
-        filter.setPriority(999);
-        //registerReceiver(mSmsReceiver, filter);
+        IntentFilter smsFilter = new IntentFilter(SMS_RECEIVED_ACTION);
+        smsFilter.setPriority(MAX_PRIORITY);
+        IntentFilter mmsFilter = new IntentFilter(MMS_RECEIVED_ACTION);
+        try {
+            mmsFilter.addDataType(MMS_MIME_TYPE);
+        } catch (IntentFilter.MalformedMimeTypeException e) {
+            Log.e(TAG, "onCreate: malformed mime type", e);
+            if (BuildConfig.DEBUG) {
+                throw new RuntimeException(e);
+            }
+        }
+        mmsFilter.setPriority(MAX_PRIORITY);
+        registerReceiver(mSmsReceiver, smsFilter);
     }
 
     @Override
@@ -48,7 +61,7 @@ public class NotificationService extends NotificationListenerService {
 
     @Override
     public void onDestroy() {
-       // unregisterReceiver(mSmsReceiver);
+        unregisterReceiver(mSmsReceiver);
         super.onDestroy();
     }
 

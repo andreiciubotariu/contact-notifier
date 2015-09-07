@@ -51,7 +51,7 @@
         android:title="@string/pref_title_vibrate" />
 
     <Preference
-        android:enabled="@bool/notification_service_enabled"
+        android:enabled="@bool/enable_notification_service_dependent_components"
         android:key = "@string/pref_key_system_notif_settings"
         android:summary="@string/pref_summary_notification_service"
         android:title="@string/pref_title_system_notification_service_settings" >
@@ -59,16 +59,8 @@
     </Preference>
 
     <CheckBoxPreference
-        android:defaultValue="true"
-        android:enabled="@bool/notification_service_enabled"
-        android:key="@string/pref_key_tie_to_sms_app"
-        android:summaryOff="@string/pref_summary_off_tie_to_sms_app"
-        android:summaryOn="@string/pref_summary_on_tie_to_sms_app"
-        android:title="@string/pref_title_tie_to_sms_app" />
-    <CheckBoxPreference
         android:defaultValue="false"
-        android:dependency="@string/pref_key_tie_to_sms_app"
-        android:enabled="@bool/notification_service_enabled"
+        android:enabled="@bool/enable_notification_service_dependent_components"
         android:key="@string/pref_key_delay_dismissal"
         android:summaryOff="@string/pref_summary_off_delay_dismissal"
         android:summaryOn="@string/pref_summary_on_delay_dismissal"

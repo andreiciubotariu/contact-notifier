@@ -121,10 +121,6 @@ public class NotificationController {
         // NOP
     }
 
-    boolean isTieToSmsNotificationEnabled() {
-        return Prefs.getInstance(mApplicationContext).getBoolean(Keys.TIE_TO_SMS_APP, false);
-    }
-
     boolean isDelayDismissalEnabled() {
         return Prefs.getInstance(mApplicationContext).getBoolean(Keys.DELAY_DISMISSAL, false);
     }
@@ -141,9 +137,6 @@ public class NotificationController {
      * Called by {@link com.ciubotariu_levy.lednotifier.notifications.NotificationService}
      */
     public void onSmsAppNotificationDismissed() {
-        if (!isTieToSmsNotificationEnabled()) { // TODO no more choice. NotificationListenerService will be *required* going forward
-            return;
-        }
         if (!isDelayDismissalEnabled()) {
             dismissNotification();
             return;

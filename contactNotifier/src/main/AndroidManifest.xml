@@ -19,7 +19,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.ContactNotifierBase" >
-        <receiver android:name=".messages.MessageReceiver" >
+        <receiver android:name=".messages.MessageReceiver" android:enabled="@bool/enable_manifest_message_receiver">
             <intent-filter android:priority="999" >
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>

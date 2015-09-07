@@ -12,7 +12,6 @@ public enum Keys {
     NOTIFICATIONS_NEW_MESSAGE_RINGTONE(R.string.pref_key_notifications_new_message_ringtone),
     NOTIFICATIONS_NEW_MESSAGE_VIBRATE(R.string.pref_key_notifications_new_message_vibrate),
     NOTIFICATIONS_SYSTEM_NOTIFICATION_SETTINGS(R.string.pref_key_system_notif_settings),
-    TIE_TO_SMS_APP(R.string.pref_key_tie_to_sms_app),
     DELAY_DISMISSAL(R.string.pref_key_delay_dismissal);
 
     private int mKeyResId;
