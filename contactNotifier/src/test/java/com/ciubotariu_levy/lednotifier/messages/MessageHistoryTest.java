@@ -1,6 +1,7 @@
 package com.ciubotariu_levy.lednotifier.messages;
 
 import android.graphics.Color;
+import android.os.Message;
 
 import com.ciubotariu_levy.lednotifier.BuildConfig;
 
@@ -19,23 +20,28 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class MessageHistoryTest {
-    private static final String MESSAGE_INFO_ADDRESS = "addresss";
+    private static final String MESSAGE_INFO_ADDRESS = "address";
+
+    private void addMessageToHistory(String address, MessageHistory history) {
+        MessageInfo info = new MessageInfo();
+        info.setAddress(address);
+        LinkedHashMap<String, MessageInfo> messageInfoLinkedHashMap = new LinkedHashMap<>();
+        messageInfoLinkedHashMap.put(info.getAddress(), info);
+        history.addNewMessages(messageInfoLinkedHashMap);
+    }
+
     @Test
     public void addNewMessages_addsMessages() {
-        final String MESSAGE_INFO_ADDRESS_1 = "addresss_1";
-        final String MESSAGE_INFO_ADDRESS_2 = "addresss_2";
+        final String MESSAGE_INFO_ADDRESS_1 = "address_1";
+        final String MESSAGE_INFO_ADDRESS_2 = "address_2";
         MessageHistory messageHistory = new MessageHistory();
-        LinkedHashMap<String, MessageInfo> messageInfoLinkedHashMap = new LinkedHashMap<>();
-        MessageInfo info = new MessageInfo();
-        info.setAddress(MESSAGE_INFO_ADDRESS_1);
-        messageInfoLinkedHashMap.put(info.getAddress(), info);
-        MessageInfo anotherInfo = new MessageInfo();
-        anotherInfo.setAddress(MESSAGE_INFO_ADDRESS_1);
-        messageHistory.addNewMessages(messageInfoLinkedHashMap);
+        addMessageToHistory(MESSAGE_INFO_ADDRESS_1, messageHistory);
+        addMessageToHistory(MESSAGE_INFO_ADDRESS_2, messageHistory);
 
         Assert.assertEquals(2, messageHistory.getMessages().size());
         Assert.assertFalse(messageHistory.containsCustomMessages());
-        Assert.assertEquals(info.getAddress(), messageHistory.getMessages().get(info.getAddress()).getAddress());
+        Assert.assertNotNull(messageHistory.getMessages().get(MESSAGE_INFO_ADDRESS_1));
+        Assert.assertNotNull(messageHistory.getMessages().get(MESSAGE_INFO_ADDRESS_2));
     }
 
     @Test

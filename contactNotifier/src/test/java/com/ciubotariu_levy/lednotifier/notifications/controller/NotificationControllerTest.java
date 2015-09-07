@@ -98,11 +98,6 @@ public class NotificationControllerTest {
         }
 
         @Override
-        boolean isTieToSmsNotificationEnabled() {
-            return true;
-        }
-
-        @Override
         boolean isDelayDismissalEnabled() {
             return true;
         }
