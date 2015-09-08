@@ -41,6 +41,10 @@ public class Prefs {
         return mSharedPrefs.getBoolean(getStringFromResource(key), defaultValue);
     }
 
+    public void putBoolean(Keys key, boolean value) {
+        mSharedPrefs.edit().putBoolean(getStringFromResource(key), value).apply();
+    }
+
     public void putInt(Keys key, int value) {
         mSharedPrefs.edit().putInt(getStringFromResource(key), value).apply();
     }
