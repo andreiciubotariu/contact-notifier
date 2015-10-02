@@ -99,6 +99,10 @@ public class MessageReceiver extends BroadcastReceiver {
             smsAppIntent = betterSmsAppCandidateIntent;
         }
 
+        if (smsAppIntent == null) { // fallback: launch our app
+            smsAppIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+        }
+
         PendingIntent pendingIntent = PendingIntent.getActivity(context, RequestCodes.SMS_APP.ordinal(), smsAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Bitmap contactPhoto = null;
 
