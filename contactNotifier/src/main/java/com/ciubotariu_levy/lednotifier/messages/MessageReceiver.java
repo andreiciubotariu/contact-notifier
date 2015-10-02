@@ -120,7 +120,7 @@ public class MessageReceiver extends BroadcastReceiver {
                     notifBuilder.addPerson(message.getContactUriString());
                 }
                 notifBody.append(message.getNameOrAddress()).append(": ").append(message.getContentString()).append(", ");
-                inboxStyle.addLine(message.getNameOrAddress() + ": " + message.getContactUriString());
+                inboxStyle.addLine(message.getNameOrAddress() + ": " + message.getContentString());
 
                 if (contactPhoto == null) {
                     Bitmap b = loadContactPhotoThumbnail(context, message.getContactUriString());
