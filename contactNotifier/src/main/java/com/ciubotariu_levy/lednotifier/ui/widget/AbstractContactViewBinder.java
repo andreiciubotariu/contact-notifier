@@ -257,6 +257,10 @@ public abstract class AbstractContactViewBinder {
     }
 
     private void onRingtoneSelected(String uriString) {
+        if (mExpHolder == null || mExpHolder.chooseRingtoneButton == null) {
+            Log.e(TAG, "onRingtoneSelected: mExpHolder or chooseRingoneButton is null");
+            return;
+        }
         Button chooseRingtoneButton = mExpHolder.chooseRingtoneButton;
         mExpRingtoneUri = uriString;
         String buttonText = "No custom ringtone";
