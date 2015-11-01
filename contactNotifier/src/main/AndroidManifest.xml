@@ -96,7 +96,7 @@
             android:label="@string/observer_service_name" />
 
         <provider
-            android:name=".providers.LedContactProvider"
+            android:name="com.ciubotariu_levy.lednotifier.providers.LedContactProvider"
             android:authorities="com.ciubotariu_levy.lednotifier.providers.LedContactProvider"
             android:exported="false" >
         </provider>

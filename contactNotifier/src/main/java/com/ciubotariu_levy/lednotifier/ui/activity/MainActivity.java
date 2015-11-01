@@ -1,6 +1,5 @@
 package com.ciubotariu_levy.lednotifier.ui.activity;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;

@@ -63,6 +63,47 @@ public class MessageUtils {
         }
     }
 
+    public static MessageInfo getMessageInfoFromNotification(Context context, String contactLookUriString) {
+        Log.d(TAG, "getMessageInfoFromNotification");
+        MessageInfo info = new MessageInfo();
+        info.setContactUriString(contactLookUriString);
+        String[] projection = new String[]{LedContacts.COLOR, LedContacts.SYSTEM_CONTACT_LOOKUP_URI, LedContacts.VIBRATE_PATTERN, LedContacts.RINGTONE_URI};
+        String selection = null;
+        String[] selectionArgs = null;
+        selection = LedContacts.SYSTEM_CONTACT_LOOKUP_URI + " = ?";
+        if (info.getContactUriString() != null) {
+            selectionArgs = new String[]{info.getContactUriString()};
+
+            Cursor c = context.getContentResolver().query(LedContacts.CONTENT_URI, projection, selection, selectionArgs, null);
+
+            if (c != null && c.moveToFirst()) {
+                try {
+                    int customColor = c.getInt(c.getColumnIndex(LedContacts.COLOR));
+
+                    if (customColor != Color.GRAY) {
+                        info.setColor(customColor);
+                    }
+                    String customRingtone = c.getString(c.getColumnIndex(LedContacts.RINGTONE_URI));
+                    if (!ColorVibrateDialog.GLOBAL.equals(customRingtone)) {
+                        info.setRingtoneUriString(customRingtone);
+                    }
+                    String customVib = c.getString(c.getColumnIndex(LedContacts.VIBRATE_PATTERN));
+
+                    if (!TextUtils.isEmpty(customVib)) {
+                        info.setVibPattern(customVib);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "getInfo: could not generate info", e);
+                }
+            }
+            if (c != null) {
+                c.close();
+            }
+        }
+        Log.d(TAG, "getMessageInfoFromNotification: return");
+        return info;
+    }
+
     private static MessageInfo getInfo(SmsMessage message, Context context) {
         return getInfo(message.getOriginatingAddress(), message.getDisplayMessageBody(), context);
     }
